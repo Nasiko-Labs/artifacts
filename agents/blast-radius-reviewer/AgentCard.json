@@ -1,0 +1,64 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "blast-radius-reviewer",
+  "description": "Reviews a code diff you paste (git diff, PR .patch/.diff or diff -u) for what could break OUTSIDE the diff: callers of removed or changed functions, other clients reading a removed field, existing rows hit by a migration, renamed env vars and config keys, a rule that lives in a second place, changed defaults, dependency bumps, workers that restart separately, tests, dashboards, generated code and deleted files. Twelve risk probes fire in code; the model only judges each one. For every risk it gives the reason, the evidence rung, a grep command built from a token in your diff and the one fact the change's safety hangs on, then a verdict (block, review, or nothing found in what you pasted; never 'safe to merge'). Paste grep output or callers' code after 'context:' to clear or confirm items. It reads only what you paste, never invents a caller or file, runs nothing and sends nothing. Not for style review, bugs inside the diff, writing code or security audits.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain",
+    "text/markdown",
+    "application/json",
+    "text/x-diff",
+    "text/x-patch"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "blast-radius-review",
+      "name": "What could this diff break?",
+      "description": "Places outside a pasted diff that could break (callers, clients, stored data, config, rules living twice, defaults, dependencies, rollout, tests, observability, generated code, deletions), each with why, a grep check and its evidence rung, plus the one safety fact and a block/review/nothing-found verdict.",
+      "tags": [
+        "code review",
+        "diff",
+        "blast radius",
+        "breaking change",
+        "migration",
+        "pull request",
+        "regression"
+      ],
+      "examples": [
+        "What could break? <paste a git diff>",
+        "Blast radius of this change + here's the grep output for `format_date`: <diff> context: <grep output>",
+        "Review this migration for what it could break: <paste the migration diff>"
+      ],
+      "inputModes": [
+        "text/plain",
+        "text/markdown",
+        "application/json",
+        "text/x-diff",
+        "text/x-patch"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

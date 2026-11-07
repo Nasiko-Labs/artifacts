@@ -1,0 +1,58 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "feedback-to-roadmap",
+  "description": "Pulls recent customer feedback from your support desk and a feedback channel in chat (plus anything you paste), clusters it into roadmap themes with item counts, distinct customers, an ARR-weighted score from the CRM, a trend and verbatim customer quotes, flags churn signals, and links each theme to the existing tracker issues that already cover it. Read-only: it never creates or edits an issue and never posts anywhere; a drafted issue is copyable text. Ask for \"feedback themes from the last 30 days\". Not a call transcript miner and not a general support assistant.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": false
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain",
+    "application/json"
+  ],
+  "skills": [
+    {
+      "id": "feedback-to-roadmap-themes",
+      "name": "Turn customer feedback into roadmap themes",
+      "description": "Reads support tickets and chat feedback from a window (default 30 days), clusters them into themes with counts, customers, ARR-weighted share, trend and quotes, and links each theme to existing tracker issues.",
+      "tags": [
+        "customer feedback",
+        "themes",
+        "roadmap",
+        "support desk",
+        "chat",
+        "CRM",
+        "tracker",
+        "product"
+      ],
+      "examples": [
+        "Feedback themes from the last 30 days",
+        "What are customers asking for in #product-feedback this month?",
+        "Which themes already have an issue?"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

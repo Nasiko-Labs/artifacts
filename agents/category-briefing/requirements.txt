@@ -1,0 +1,13 @@
+# Tested together with `uv run --python 3.12` (see PLAN.md). crewai 1.x uses its native OpenAI
+# client, so the lite-llm extra is deliberately not installed.
+crewai==1.15.28
+a2a-sdk[http-server]==1.1.1
+click>=8.1.8
+uvicorn>=0.34.2
+httpx>=0.28.1
+opentelemetry-sdk>=1.45.1
+opentelemetry-exporter-otlp-proto-grpc>=1.45.1
+opentelemetry-instrumentation-httpx>=0.46b0
+opentelemetry-instrumentation-openai-v2>=2.0b0
+# openai-v2 2.4b0 needs the pre-1.0 util-genai line, or telemetry.py skips it and no token spans are emitted.
+opentelemetry-util-genai>=0.4b0,<1

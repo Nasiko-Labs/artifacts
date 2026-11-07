@@ -1,0 +1,60 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "prioritizer",
+  "description": "Ranks a task list you paste into the chat (free text, bullets, or another agent's action items), with optional goals, into an ordered table with a score and a reason for each task, quick wins, and a short list of tasks to drop or delegate. The model only rates impact and effort on 1-5 rubrics; urgency (from due phrases like 'by Friday' or 'Nov 12'), scores, ranks and the drop/delegate rule are computed in code, and an estimate you write ('2h', '~3 days') beats the model's effort. Follow-ups re-rank with no new model call: urgency first, impact first, quick wins first, move 3 up, top 5, show the numbers, as of a date, as json. It never invents deadlines, owners or estimates, and changes nothing anywhere. Not for scheduling, creating tasks or advice on how to do them.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain",
+    "text/markdown",
+    "application/json"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "prioritize-tasks",
+      "name": "Prioritize tasks",
+      "description": "A ranked list of the tasks you paste, scored in code from impact, urgency and effort, with a reason per task, quick wins and what to drop or delegate; re-weight or re-date without new calls.",
+      "tags": [
+        "prioritization",
+        "tasks",
+        "to-do",
+        "ranking",
+        "triage",
+        "focus",
+        "delegate"
+      ],
+      "examples": [
+        "Prioritise these: fix the checkout bug (1h); write the Friday report; renew the vendor by Nov 12, goals: ship v2, today is 2026-11-05",
+        "Rank my tasks, urgency first",
+        "What should I drop?"
+      ],
+      "inputModes": [
+        "text/plain",
+        "text/markdown",
+        "application/json"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

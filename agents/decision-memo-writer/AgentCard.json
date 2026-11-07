@@ -1,0 +1,55 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "decision-memo-writer",
+  "description": "Writes a one-page decision memo from the decision, options, constraints, criteria and data you PASTE: context, an options table with pros and cons, a recommendation labelled as a draft with its basis, risks with mitigations, and what would change the decision. Weighted scores are computed in code from the criteria you give (e.g. cost 40%, speed 35%, risk 25%); numbers appear only if you gave them, unknowns are left as [figure?]. Revise with \"recommend B instead\", \"add option C: ...\", \"change the weights: cost 60%\", \"shorter\", \"just the recommendation\" or \"as json\". It does not research options, fetch data, send anything, or answer general questions.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "decision-memo",
+      "name": "One-page decision memo",
+      "description": "A one-page decision memo (context, options with pros/cons and code-computed scores, a draft recommendation with its basis, risks, what would change the decision) from what you paste.",
+      "tags": [
+        "decision memo",
+        "options",
+        "recommendation",
+        "trade-offs",
+        "leadership",
+        "one-pager"
+      ],
+      "examples": [
+        "Decision memo: build or buy our billing engine. Options: ... Constraints: ... Criteria: cost 40%, speed 35%, risk 25%",
+        "Write a memo for my VP on whether to delay the launch",
+        "Recommend option B instead"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

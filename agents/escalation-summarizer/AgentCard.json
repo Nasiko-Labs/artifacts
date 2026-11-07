@@ -1,0 +1,66 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "escalation-summarizer",
+  "description": "Turns a messy escalation thread you paste (ticket comments, a chat or email chain, internal notes) into what the person it is escalated to needs: a one-paragraph summary, the explicit ask (what is needed from them, by when) and the customer impact, only as the thread states it. Every statement is backed by a verbatim quote from the thread, checked in code; a missing ask or impact is shown as missing, never guessed. Follow-ups: show sources, only the ask, shorter, for a given audience (the VP, the CEO), who said the deadline, as json, or a question about the thread. It does not reply to the customer, assign blame or recommend a fix, and reads only what you paste.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain",
+    "text/markdown",
+    "text/csv",
+    "application/json",
+    "text/vtt"
+  ],
+  "defaultOutputModes": [
+    "text/plain",
+    "application/json"
+  ],
+  "skills": [
+    {
+      "id": "summarize-escalation",
+      "name": "Summarize an escalation",
+      "description": "A summary paragraph, the explicit ask and the stated customer impact of the escalation thread you paste, each backed by quotes from that thread, plus follow-ups on the same thread.",
+      "tags": [
+        "escalation",
+        "support",
+        "summary",
+        "ask",
+        "customer impact",
+        "ticket",
+        "handoff"
+      ],
+      "examples": [
+        "Summarize this escalation for the VP: <paste the thread>",
+        "What's the ask?",
+        "Shorter, for the CEO"
+      ],
+      "inputModes": [
+        "text/plain",
+        "text/markdown",
+        "text/csv",
+        "application/json",
+        "text/vtt"
+      ],
+      "outputModes": [
+        "text/plain",
+        "application/json"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

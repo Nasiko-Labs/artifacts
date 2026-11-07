@@ -1,0 +1,56 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "bug-to-customer-notifier",
+  "description": "When a bug in your tracker is Done or Released, confirms the fix actually shipped (a published, non-draft release named like the fix version on the code host, not just a merge), finds every open support-desk ticket linked to that bug or clearly matching it, groups them by customer and tier with each customer's original complaint, and drafts a plain-language reply for each ticket you pick. Every reply is shown to you and posted only after you approve that exact text, one ticket at a time; it can also set the ticket to solved if you say so. It drafts nothing when it can't confirm the release. Ask by issue key (\"PROJ-482 is released, tell the customers\") or ask which bugs shipped this week. Not a release-notes writer and not a general support-ticket assistant.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "shipped-fix-customer-replies",
+      "name": "Tell customers a bug fix shipped",
+      "description": "Checks that a done or released bug's fix is in a published release, finds the open support tickets linked to it or matching it, grouped by customer and tier, and drafts one reply per ticket, posted only after you approve the exact text.",
+      "tags": [
+        "bug fix",
+        "release",
+        "support tickets",
+        "customers",
+        "notify",
+        "tracker",
+        "support desk"
+      ],
+      "examples": [
+        "PROJ-482 is released, tell the customers.",
+        "Which bugs shipped this week that customers are waiting on?",
+        "Draft replies for the enterprise tickets and mention the workaround is no longer needed."
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

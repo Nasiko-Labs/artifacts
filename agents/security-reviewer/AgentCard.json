@@ -1,0 +1,65 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "security-reviewer",
+  "description": "Reviews code or a diff you paste into the chat for security problems: injection, authentication and authorization, hardcoded secrets, unsafe crypto, insecure defaults and risky dependencies in pasted manifests. Rules in code find candidates (about 50 patterns plus a secret scan that masks every secret before the model sees the code); the model triages each one (reachable from input, impact, fix) and looks for logic flaws such as missing authorization, IDOR or SSRF. Every finding has a severity from the rule table, a file:line location, a verbatim quote and a fix; unverified ones are listed as needs validation. In a diff it reviews the added lines and flags removed checks. Dependency checks are structural only (no vulnerability database). Read-only: it never runs code, writes exploits or probes systems, and never calls code secure. Not for general code review, writing code or general security questions.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain",
+    "text/markdown",
+    "application/json",
+    "text/x-diff",
+    "text/x-patch"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "security-review",
+      "name": "Security review of pasted code",
+      "description": "Security findings for pasted code, a diff or a dependency manifest: severity, file:line, the issue, its impact and a fix, with secrets masked and a stated coverage.",
+      "tags": [
+        "security",
+        "code review",
+        "diff",
+        "secrets",
+        "injection",
+        "authorization",
+        "dependencies",
+        "appsec"
+      ],
+      "examples": [
+        "Security review this diff: <paste the diff>",
+        "Check this Flask view for injection and auth problems: <paste the code>",
+        "Any risky dependencies in this requirements.txt diff? <paste the diff>"
+      ],
+      "inputModes": [
+        "text/plain",
+        "text/markdown",
+        "application/json",
+        "text/x-diff",
+        "text/x-patch"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

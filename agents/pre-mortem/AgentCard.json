@@ -1,0 +1,60 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "pre-mortem",
+  "description": "Runs a pre-mortem on a plan, PRD or brief you paste into the chat: it assumes the plan already failed and writes the 5-7 most likely failure stories, each tied to a specific line of your plan (the assumption it breaks), with likelihood, impact, an early-warning sign and a mitigation, ranked by likelihood x impact in code. Four independent lenses (premise, delivery, downside, design) look at the plan separately; a story that can't quote a line of your plan is dropped as generic. Also lists the unstated assumptions and questions for the team. Follow-ups: only the top 3, go deeper on one, show the plan lines, as json. It reads only what you paste, never invents team facts and sends nothing. Not for general risk lists or writing the plan.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain",
+    "text/markdown",
+    "application/json"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "pre-mortem",
+      "name": "Pre-mortem a plan",
+      "description": "The 5-7 most likely ways the pasted plan fails, each anchored on a plan line, ranked by likelihood x impact, with early warnings, mitigations, unstated assumptions and questions for the team.",
+      "tags": [
+        "pre-mortem",
+        "risk",
+        "plan review",
+        "PRD",
+        "failure modes",
+        "assumptions",
+        "launch"
+      ],
+      "examples": [
+        "Pre-mortem this plan: <paste the plan>",
+        "Pre-mortem this PRD, team of 4, launch Dec 15: <paste the PRD>",
+        "Go deeper on failure 2"
+      ],
+      "inputModes": [
+        "text/plain",
+        "text/markdown",
+        "application/json"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

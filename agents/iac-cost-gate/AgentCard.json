@@ -1,0 +1,60 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "iac-cost-gate",
+  "description": "Estimates the monthly AWS cost of Terraform HCL, a terraform show -json plan or a CloudFormation template you paste, flags waste (gp2 volumes, unattached IPs and volumes, Multi-AZ or oversized instances outside prod, log groups that never expire, missing cost tags and more) and returns a pass, warn or fail verdict against an optional monthly limit. Every number is computed in code from a static on-demand price table (as of 2026-11, estimate +/-30%) and every assumption is listed. A plan JSON gets a before/after delta. Follow-ups: only the violations, cost table, set limit $300, assume 500 GB through NAT, region eu-west-1, as json. It never needs credentials, never scans an account and never blocks anything itself; it answers nothing outside the pasted infrastructure code.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain",
+    "application/json",
+    "application/x-yaml"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "iac-cost-check",
+      "name": "IaC cost check",
+      "description": "Monthly cost estimate, waste-rule violations and a pass/warn/fail verdict for pasted Terraform, plan JSON or CloudFormation, with every assumption listed.",
+      "tags": [
+        "finops",
+        "terraform",
+        "cloudformation",
+        "cost estimate",
+        "waste",
+        "ci gate",
+        "aws"
+      ],
+      "examples": [
+        "Cost check this Terraform, limit $500: <paste the .tf files>",
+        "Estimate the delta of this plan: <paste terraform show -json output>",
+        "Only the violations."
+      ],
+      "inputModes": [
+        "text/plain",
+        "application/json",
+        "application/x-yaml"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

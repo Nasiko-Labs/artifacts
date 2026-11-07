@@ -1,0 +1,56 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "who-knows-this-finder",
+  "description": "Given a topic (\"who understands the billing retry logic?\"), names at most two people with the strongest evidence of knowing it, read from your own connected code host, chat and docs: commits to the matching files, pull requests they opened or reviewed, chat questions on the topic they answered (and were thanked for), documents they wrote or last edited. Every person comes with linked evidence; the score is computed in code from that evidence only (kind, recency, breadth across sources), never from seniority or performance. When the evidence is thin it says \"no clear owner\" instead of guessing. Read-only: it never messages anyone. Commit authorship stands in for line-level blame. Not a people directory, an org chart or a performance tool.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain",
+    "application/json"
+  ],
+  "skills": [
+    {
+      "id": "who-knows",
+      "name": "Who knows this",
+      "description": "The two people with the best evidence of knowing a topic, from commits, pull request reviews, answered chat questions and documents, each with linked evidence; \"no clear owner\" when the evidence is thin.",
+      "tags": [
+        "expertise",
+        "who knows",
+        "owner",
+        "subject matter expert",
+        "code owner",
+        "ask someone"
+      ],
+      "examples": [
+        "Who knows our billing retry logic?",
+        "Who should I ask about the auth middleware?",
+        "Who understands the deploy pipeline?"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

@@ -1,0 +1,66 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "summarizer",
+  "description": "Summarizes long text you paste into the chat (a meeting transcript, an email thread, a chat export, a document, another agent's output) into a short TL;DR, the decisions it records and the action items with owners and due dates. Every decision and action item is backed by a verbatim quote from your text, checked in code; anything it can't find in your text is left out, and it says how many. Follow-ups work on the stored result: only the action items, only decisions, shorter, show sources, as a table, who owns what, or a question about the text. Up to about 20k words per message. It reads only what you give it: no mail, files or web, and no general questions.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain",
+    "text/markdown",
+    "text/csv",
+    "application/json",
+    "text/vtt",
+    "application/x-subrip"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "summarize-text",
+      "name": "Summarize text",
+      "description": "A TL;DR, the decisions and the action items (owner, due) of the text you paste, each backed by a quote from that text, plus follow-ups on the same summary.",
+      "tags": [
+        "summary",
+        "tl;dr",
+        "meeting notes",
+        "transcript",
+        "decisions",
+        "action items",
+        "owners"
+      ],
+      "examples": [
+        "Summarize this call: <paste the transcript>",
+        "TL;DR of this thread, focus on pricing: <paste the thread>",
+        "Only the action items, with sources."
+      ],
+      "inputModes": [
+        "text/plain",
+        "text/markdown",
+        "text/csv",
+        "application/json",
+        "text/vtt",
+        "application/x-subrip"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

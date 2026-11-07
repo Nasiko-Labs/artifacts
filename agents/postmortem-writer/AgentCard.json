@@ -1,0 +1,62 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "postmortem-writer",
+  "description": "Turns an incident timeline or chat log you paste (a chat thread, pager notes, a bullet timeline) into a blameless postmortem draft: summary, impact, timeline, detection, contributing factors, resolution, what went well and poorly, where you got lucky, action items with owners, and the questions the log can't answer. Every timeline entry and factor is backed by a verbatim quote checked in code; time to detect, time to mitigate and duration are computed in code; impact numbers come only from your log. It never invents an owner, a cause, a time or a number, and never blames a person. Follow-ups: only the action items, timeline only, shorter, show sources, as json, set an owner, add an action item, or a question about the log. It reads only what you paste: no pager, chat or metrics access, and it writes nothing anywhere. It does not track old action items.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain",
+    "text/markdown",
+    "text/csv",
+    "application/json"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "write-postmortem",
+      "name": "Write a blameless postmortem",
+      "description": "A blameless postmortem draft from a pasted incident log: grounded timeline, metrics computed in code, contributing factors, action items with owners, and open questions.",
+      "tags": [
+        "postmortem",
+        "incident",
+        "sre",
+        "blameless",
+        "timeline",
+        "action items",
+        "retro"
+      ],
+      "examples": [
+        "Write a postmortem from this chat thread: <paste the thread>",
+        "Postmortem for the 11/2 checkout outage, sev2: <paste the timeline>",
+        "Only the action items."
+      ],
+      "inputModes": [
+        "text/plain",
+        "text/markdown",
+        "text/csv",
+        "application/json"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

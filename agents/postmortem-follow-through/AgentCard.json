@@ -1,0 +1,56 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "postmortem-follow-through",
+  "description": "Finds the postmortems from the last 6 months (up to 12 if you ask) in your tracker, and in your postmortem documents when a document source is connected, checks every action item against the tracker, and lists the ones that slipped: unassigned, untouched for 30+ days, or closed without any linked change or comment. Each row shows the owner, the age, the originating incident and whether a repeat incident already happened. It also answers \"does this new outage match an old postmortem whose fix was never done?\". On request it nudges owners by chat DM (one message per owner) and reopens tickets closed without evidence, only after you approve that exact message or reopen. It refuses rather than guessing when the tracker is not connected. Not an incident responder, and it never creates, assigns or deletes tickets.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "postmortem-action-items",
+      "name": "Postmortem action items",
+      "description": "Slipped postmortem action items from the last 6-12 months: unassigned, untouched 30+ days, or closed without evidence, with owner, age, originating incident and repeat incidents. Matches a new outage to old postmortems. Nudges owners by chat or reopens tickets, only after you approve each one.",
+      "tags": [
+        "postmortem",
+        "action items",
+        "incident follow-up",
+        "reliability",
+        "tracker",
+        "repeat incidents",
+        "accountability"
+      ],
+      "examples": [
+        "Which postmortem action items from the last 6 months have slipped?",
+        "Does INC-881 match an old postmortem whose fix was never done?",
+        "Nudge the owners of #2 and #5."
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

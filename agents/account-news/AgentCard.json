@@ -1,0 +1,54 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "account-news",
+  "description": "Reports what changed at one company in the last seven days that a renewal owner should know: product announcements, leadership changes, layoffs or hiring, and competitor mentions. At most five items, each with headline, source, date, URL and one line on the renewal risk or opening; anything without a URL is left out. It searches the web through the tools the platform grants it and refuses rather than answering from memory when no search is connected. Follow-up questions are answered from the list it gave. Not GitHub or engineering activity, and not the market or category as a whole.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.1",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "account-pulse",
+      "name": "Account pulse",
+      "description": "One company, the last seven days, renewal risk: up to five recent news items with source, date and URL, each with one line on the risk or opening for the renewal. Not GitHub, not the market.",
+      "tags": [
+        "account news",
+        "renewal",
+        "renewal risk",
+        "company news",
+        "last seven days",
+        "account pulse"
+      ],
+      "examples": [
+        "What has been published about Northwind in the last seven days that a renewal owner should know? Five items max, with headline, source, date and URL.",
+        "Any leadership changes, layoffs or product launches at Acme this week that affect our renewal?",
+        "Which single item do I raise in the first two minutes, and which do I leave alone?"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

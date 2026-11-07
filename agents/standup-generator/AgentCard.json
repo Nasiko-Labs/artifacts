@@ -1,0 +1,56 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "standup-generator",
+  "description": "Builds a team standup you can copy: for the people you name (or everyone active in the repositories you name, up to 15) and a time window (default since the last working day: 24 hours, 72 hours on a Monday; or \"last 3 days\", \"since Friday\", \"this week\"), it reads pull requests, reviews, checks and commits from the code host and issues from the tracker, and lists per person what shipped, what is in progress and what is blocked (changes requested, failing checks, merge conflict, no review for 2+ days, a blocked issue, or a comment like \"waiting on\"). Every line links to a real pull request or issue read this turn; dates, counts and blocked rules are computed in code, times in UTC. Follow-ups reuse what it read: \"only maya\", \"shorter\", \"who is blocked\", \"add reviews\", \"make it chat-ready\". Read-only: it never posts the standup, comments or changes an issue. Without connected tools it formats pasted notes.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "standup-generator",
+      "name": "Team standup",
+      "description": "Per-person Shipped / In progress / Blocked standup from pull requests, commits and tracker issues over a time window, every line linked to its source, with a team header of counts. Read-only; copyable markdown.",
+      "tags": [
+        "standup",
+        "team",
+        "pull requests",
+        "issues",
+        "blocked work",
+        "engineering manager",
+        "read-only"
+      ],
+      "examples": [
+        "Standup for maya, liam and jo in acme/shop",
+        "What did the team ship since Friday in acme/shop?",
+        "Who is blocked this week in acme/shop?"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

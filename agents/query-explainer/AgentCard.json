@@ -1,0 +1,61 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "query-explainer",
+  "description": "Explains SQL you paste into the chat: what the query computes, step by step in plain English, the assumptions it silently makes (join matches, key uniqueness, NULL handling, time zones, tie-breaking) and its performance and correctness smells (a LEFT JOIN that became an inner join, NOT IN with NULLs, fan-out before SUM, functions on filtered columns, UPDATE or DELETE without WHERE). The SQL is parsed in code with sqlglot (PostgreSQL, MySQL, BigQuery, Snowflake, T-SQL, SQLite, Redshift, DuckDB, Oracle), so every finding is a rule tied to a fragment of your SQL; paste CREATE TABLE / CREATE INDEX statements and it confirms uniqueness and index questions from them. It never runs SQL, has no database access and never claims a query is slow. Follow-ups: explain only one CTE, assume a column is NOT NULL, suggest an untested rewrite, as json. Not for writing new queries, schema design or database administration.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain",
+    "text/markdown",
+    "application/json"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "explain-sql",
+      "name": "Explain a SQL query",
+      "description": "Plain-English steps of what pasted SQL computes, its hidden assumptions and its smells, each tied to a fragment of the SQL; pasted table definitions confirm keys and indexes. Read-only: SQL is parsed, never run.",
+      "tags": [
+        "sql",
+        "query",
+        "explain",
+        "code review",
+        "database",
+        "performance",
+        "postgres",
+        "bigquery"
+      ],
+      "examples": [
+        "Explain this query: <paste SQL>",
+        "What does this UPDATE do? <paste the UPDATE and the CREATE TABLE>",
+        "Any problems with this BigQuery SQL? <paste SQL>"
+      ],
+      "inputModes": [
+        "text/plain",
+        "text/markdown",
+        "application/json"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

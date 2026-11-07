@@ -1,0 +1,60 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "terraform-plan-reviewer",
+  "description": "Reviews a Terraform plan you paste into the chat (`terraform plan` text, `terraform show -json` or `terraform plan -json` lines) and returns a verdict (safe, review or block), the counts, the high- and medium-risk changes, questions to ask the author and a suggested apply order. The plan is parsed in code: destroys or replaces of databases, buckets, volumes, keys and other stateful resources, silent data-loss settings (final snapshot skipped, deletion protection off, versioning suspended), downtime, public exposure and scope creep are found by fixed rules, and a prod destroy of a stateful resource is blocked until you confirm it. It never runs terraform or applies anything, reads only what you paste, and answers no general questions.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": false
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain",
+    "text/markdown",
+    "application/json"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "review-terraform-plan",
+      "name": "Review a Terraform plan",
+      "description": "A safe / review / block verdict on a pasted Terraform plan, with the risky changes, the plan lines behind them, questions for the author and an apply order; follow-ups work on the same review.",
+      "tags": [
+        "terraform",
+        "infrastructure",
+        "plan review",
+        "change review",
+        "sre",
+        "data loss",
+        "iac"
+      ],
+      "examples": [
+        "Review this prod plan: <paste terraform plan output>",
+        "Staging, intent: add an SQS queue. <paste the plan>",
+        "Only the high-risk changes, with evidence."
+      ],
+      "inputModes": [
+        "text/plain",
+        "text/markdown",
+        "application/json"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

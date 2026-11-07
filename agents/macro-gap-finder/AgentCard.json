@@ -1,0 +1,66 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "macro-gap-finder",
+  "description": "Finds the recurring manual answers in support replies you paste (CSV, JSON or plain text, 10 to 2,000 replies) and drafts a macro for each: the pattern, how many replies give that answer (counted in code by text similarity, not by the model) and a reusable macro text. Customer names, emails, phone numbers and long numbers are replaced by placeholders before any model sees a reply. A draft may only contain facts that at least two of its replies state; anything else is removed or the draft falls back to a real reply. Paste your existing macros too and it skips answers they already cover. Follow-ups: show the replies behind a pattern, a different minimum or top N, a shorter or friendlier draft. It creates no macro anywhere and does not answer customers or general questions.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain",
+    "text/markdown",
+    "text/csv",
+    "application/json",
+    "text/tab-separated-values"
+  ],
+  "defaultOutputModes": [
+    "text/plain",
+    "application/json"
+  ],
+  "skills": [
+    {
+      "id": "find-macro-gaps",
+      "name": "Find macro gaps",
+      "description": "Recurring answers in pasted agent replies, ranked by how often they occur, each with a draft macro grounded in those replies; customer data scrubbed first.",
+      "tags": [
+        "support",
+        "macros",
+        "canned responses",
+        "saved replies",
+        "help desk",
+        "deflection",
+        "agent replies"
+      ],
+      "examples": [
+        "Which of these replies should be macros? <paste the replies>",
+        "Show the replies behind pattern 2",
+        "Ignore anything under 5 replies"
+      ],
+      "inputModes": [
+        "text/plain",
+        "text/markdown",
+        "text/csv",
+        "application/json",
+        "text/tab-separated-values"
+      ],
+      "outputModes": [
+        "text/plain",
+        "application/json"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

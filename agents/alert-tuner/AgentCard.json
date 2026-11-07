@@ -1,0 +1,56 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "alert-tuner",
+  "description": "Finds noisy alerts from your incident pager's history and proposes how to quiet them. It counts, per alert, how often it fired in the last N days and how many of those incidents nobody acknowledged, annotated, escalated or resolved by hand, then proposes a longer `for` duration computed from how fast they self-resolve (\"would have suppressed 20 of 21 firings\"), low urgency for alerts nobody ever acknowledges, or a threshold change when you paste the metric values at firing. Every count, duration and percentage is computed in code. On request it opens a pull request on your alert-config repository that changes only the located `for:` line, with one approval card per write (branch, commit, pull request). It never edits the pager, silences or deletes alerts.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "alert-noise-tuning",
+      "name": "Alert noise tuning",
+      "description": "Noisy alerts from incident history (fired N+ times, 80%+ with no human action), with per-alert counts, self-resolve durations and computed proposals (longer `for`, low urgency, threshold from pasted values, review for removal); then a pull request changing only the `for:` line, each write approved on its own card.",
+      "tags": [
+        "alerts",
+        "alert fatigue",
+        "on-call",
+        "incidents",
+        "sre",
+        "monitoring",
+        "pull request"
+      ],
+      "examples": [
+        "Which alerts are noisy in the last 30 days?",
+        "Alerts for service payments that fired 3+ times with no action",
+        "Open the PR for the first proposal in acme/infra"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

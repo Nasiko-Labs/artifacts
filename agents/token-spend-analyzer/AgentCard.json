@@ -1,0 +1,60 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "token-spend-analyzer",
+  "description": "Analyzes an AI/LLM usage or spend export you paste into the chat: an OpenAI or Anthropic usage CSV, LiteLLM-style gateway spend logs (JSON/JSONL or CSV), any table with model, token or cost columns, or Nasiko's own FinOps dashboard JSON (reported by agent). It returns cost by model, by team and by task with shares, unit economics and cache share, plus waste findings with stated assumptions: retries and failed calls, oversized prompts, cache underuse, premium models on small calls, output-heavy calls, runaway teams or spike days, a long tail of models and unpriced usage. Costs missing from the export are computed from a built-in price table and labelled. Every number is computed in code. Follow-ups: by model, by team, by task, waste only, top 5, cost of team X, what if gpt-4o-mini replaced gpt-4o for the small calls, as json. It never contacts a provider and never changes a budget or key; no general questions.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain",
+    "text/csv",
+    "application/json"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "analyze-token-spend",
+      "name": "Analyze LLM token spend",
+      "description": "Cost by model, team and task, and waste findings (retries, oversized prompts, cache misses, model overkill) from a pasted LLM usage export, plus code-computed follow-ups and what-ifs on the same analysis.",
+      "tags": [
+        "finops",
+        "llm cost",
+        "token spend",
+        "ai usage",
+        "waste",
+        "model costs",
+        "cache"
+      ],
+      "examples": [
+        "Analyze this OpenAI usage export: <paste the CSV>",
+        "Where are we wasting tokens?",
+        "By team"
+      ],
+      "inputModes": [
+        "text/plain",
+        "text/csv",
+        "application/json"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

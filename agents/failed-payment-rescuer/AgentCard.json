@@ -1,0 +1,56 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "failed-payment-rescuer",
+  "description": "Finds failed payments in your own payments account over the last 7 days (1 to 30 if you ask, or since your last run in this conversation): failed charges and invoices whose latest attempt failed. For each it reads the customer's plan and payment history, classifies the decline reason and how recoverable it is, flags high-value customers, and ranks them by recoverability, value and how soon retries run out. On request it drafts a personalised recovery email per failure and a chat digest of the high-value ones, and sends each only after you approve that exact text, one at a time. Every customer, amount and code is checked against the tool output. It never retries a charge, changes a subscription or offers a discount. On demand only: there is no automatic trigger.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "failed-payment-rescue",
+      "name": "Failed payment rescue",
+      "description": "Failed payments in the last 7 days (1-30): customer, plan, amount, decline reason, recoverability, next retry, high value, ranked. Then a recovery email per failure and a chat digest of the high-value ones, each sent only after you approve the exact text.",
+      "tags": [
+        "failed payments",
+        "dunning",
+        "recovery",
+        "decline",
+        "churn",
+        "billing",
+        "finance"
+      ],
+      "examples": [
+        "Show failed payments from the last 7 days",
+        "Draft recovery emails for the high-value ones",
+        "Post the biggest failures to #finance-alerts"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

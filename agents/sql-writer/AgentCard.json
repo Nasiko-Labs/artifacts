@@ -1,0 +1,61 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "sql-writer",
+  "description": "Writes and optimizes SQL from what you paste into the chat. Write: paste your schema (CREATE TABLE statements, table(column type) lines or psql \\d output) and ask a question; it returns one read-only query in your dialect. Optimize: paste a slow query (optionally with EXPLAIN output and your indexes); it lists the problems found by rule (non-sargable filters, NOT IN with NULLs, SELECT *, deep OFFSET, fan-out before SUM, missing partition filters...), rewrites it, and gives a comparison query plus index suggestions. Every query it returns is parsed and checked in code with sqlglot: it must parse in the dialect, be read-only and use only tables and columns from your schema, or it is flagged \"not validated\". Dialects: PostgreSQL (default), MySQL, BigQuery, Snowflake, SQLite, Redshift, T-SQL, DuckDB, ClickHouse, Trino. Follow-ups: convert it to another dialect (exact, in code), sql only, pretty, one line, change or add a condition, as json. It never connects to a database or runs SQL, never writes UPDATE/DELETE/INSERT/DDL, and can't prove a rewrite returns the same rows. Not for explaining existing SQL in depth or schema design.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain",
+    "text/markdown",
+    "application/json"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "write-optimize-sql",
+      "name": "Write or optimize SQL",
+      "description": "A validated read-only query from your schema and question, or a rewrite of a slow query with rule-based findings, a comparison query and index suggestions. SQL is parsed and checked with sqlglot, never run.",
+      "tags": [
+        "sql",
+        "query",
+        "optimize",
+        "database",
+        "postgres",
+        "bigquery",
+        "snowflake",
+        "performance"
+      ],
+      "examples": [
+        "Monthly revenue by region from these tables: <paste CREATE TABLE statements>",
+        "Optimize this query, it takes 40 s: <paste the query and EXPLAIN>",
+        "Convert it to BigQuery"
+      ],
+      "inputModes": [
+        "text/plain",
+        "text/markdown",
+        "application/json"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

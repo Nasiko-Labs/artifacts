@@ -1,0 +1,56 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "spend-spike-root-causer",
+  "description": "Takes your cloud billing export (pasted CSV: date, service, cost, plus optional usage type, region, account and tag columns), finds the cost jump in code (last 7 days vs the 28 before, +20% and 500.00 a month if sustained), and traces it from service to usage type to tag to team. It then looks for merged pull requests, releases and workflow runs in the owning team's repositories near the onset, finds the owner in chat, and drafts a message asking them to confirm. Every causal link is a hypothesis with evidence: a deploy is 'coincident with the onset', never 'the cause'. It never changes cloud resources and posts nothing until you approve the exact text, one post per approval. Not a forecast, a commitment or savings-plan advisor, or a live cost reader.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "spend-spike",
+      "name": "Spend spike root cause",
+      "description": "From a pasted billing export: the spike (per-day before/after, % change, monthly impact, onset date), the chain service -> usage dimension -> tag -> team, code changes coincident with the onset (ranked in code), the owner, and a drafted message posted only after you approve the exact text.",
+      "tags": [
+        "finops",
+        "cloud cost",
+        "spend spike",
+        "billing export",
+        "root cause",
+        "deploys",
+        "owner"
+      ],
+      "examples": [
+        "Why did our cloud bill jump? <paste your billing CSV>",
+        "Which team owns the spike?",
+        "Draft a message to the owner"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

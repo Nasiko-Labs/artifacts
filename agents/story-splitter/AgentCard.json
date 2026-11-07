@@ -1,0 +1,60 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "story-splitter",
+  "description": "Splits an epic you paste into the chat into thin vertical user stories (as a / I want / so that), each with 2-5 Given/When/Then acceptance criteria, a rough size (S, M or L) computed in code from reported facts, and a dependency order whose first story can ship alone. Large stories are split once more automatically. It never invents actors, business rules, numbers or system names: anything the epic doesn't say becomes a visible placeholder or an open question, and capabilities no story covers are listed. Honours 'Out of scope:' lines and 'max N stories'. Follow-ups: split story 3, merge 4 and 5, drop 6, which can ship first, as json. Read only: it creates no tickets and gives no day or point estimates.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain",
+    "text/markdown",
+    "application/json"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "split-epic",
+      "name": "Split an epic into user stories",
+      "description": "Ordered, thin vertical user stories from a pasted epic, with Given/When/Then acceptance criteria, S/M/L sizes computed in code, dependencies, uncovered capabilities and open questions.",
+      "tags": [
+        "user stories",
+        "epic",
+        "story splitting",
+        "acceptance criteria",
+        "backlog",
+        "agile",
+        "PM"
+      ],
+      "examples": [
+        "Split this epic into stories: <paste the epic>",
+        "Split story 3 further",
+        "Which stories can ship first?"
+      ],
+      "inputModes": [
+        "text/plain",
+        "text/markdown",
+        "application/json"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

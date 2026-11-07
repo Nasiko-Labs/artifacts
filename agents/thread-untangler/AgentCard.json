@@ -1,0 +1,61 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "thread-untangler",
+  "description": "Untangles a Slack thread or an email chain you paste into the chat: it splits it into numbered messages with speakers, then gives a short TL;DR, the decisions (marking the ones a later message reversed), the open questions nobody answered, and the action items with owner, due as written and which ones are yours. Every item is backed by a verbatim quote from one message, checked in code; anything it can't quote is left out, and it says how many. It never invents an owner or a date. Follow-ups work on the stored thread: I'm <name>, only my items, only decisions, only open questions, only reversals, show sources, who owns what, as json, or a question about the thread. It reads only what you paste: it posts and sends nothing, and answers no general questions.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.1",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain",
+    "text/markdown",
+    "application/json"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "untangle-thread",
+      "name": "Untangle a thread",
+      "description": "TL;DR, decisions (with reversals), open questions and action items (owner, due, yours) of a pasted Slack thread or email chain, each backed by a quote from one message, plus follow-ups on it.",
+      "tags": [
+        "slack thread",
+        "email chain",
+        "decisions",
+        "reversals",
+        "open questions",
+        "action items",
+        "owners",
+        "tl;dr"
+      ],
+      "examples": [
+        "Untangle this Slack thread: <paste>",
+        "Untangle this email chain, I'm Priya: <paste>",
+        "Which decisions in this thread were reversed?"
+      ],
+      "inputModes": [
+        "text/plain",
+        "text/markdown",
+        "application/json"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

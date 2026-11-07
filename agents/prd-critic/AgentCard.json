@@ -1,0 +1,60 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "prd-critic",
+  "description": "Reviews a PRD you paste into the chat and returns its gaps: missing sections (problem, users, goals, non-goals, requirements, metrics, open questions), vague or untestable requirements, success metrics that are not measurable (no number, window or baseline), placeholders and unowned open questions, plus the questions a reviewer will ask, each tied to a quoted line of the PRD. A fixed rubric in code produces a 0-100 score with a band and a line-by-line breakdown, so the same PRD always gets the same score. Follow-ups: only blockers, only metrics, list the questions, show score breakdown, as json. It reads only what you paste, never rewrites the PRD, never judges whether the idea is good, and sends nothing. Not for writing a PRD or general product advice.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain",
+    "text/markdown",
+    "application/json"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "prd-review",
+      "name": "Review a PRD",
+      "description": "Gaps, reviewer questions and a 0-100 rubric score for a pasted PRD: missing sections, vague requirements, unmeasurable metrics, placeholders and unanswered questions, each tied to a quoted PRD line.",
+      "tags": [
+        "PRD",
+        "product requirements",
+        "review",
+        "critique",
+        "gaps",
+        "success metrics",
+        "product manager"
+      ],
+      "examples": [
+        "Review this PRD: <paste the PRD>",
+        "Only the blockers",
+        "Which metrics are not measurable?"
+      ],
+      "inputModes": [
+        "text/plain",
+        "text/markdown",
+        "application/json"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

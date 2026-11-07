@@ -1,0 +1,64 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "variance-narrator",
+  "description": "Writes the budget-versus-actual variance explanation finance asks for, from a table you paste into the chat (spreadsheet cells, CSV or a markdown table with budget and actual per line, optionally a driver/comment column). Every variance, percentage, ranking, materiality call, offset and total is computed in code; the paragraph gives the headline, the biggest variances (favourable or unfavourable), what offset them and what is still unexplained. Causes come only from drivers you supplied in the table or your message; anything else reads 'driver not provided'. Follow-ups: board version, shorter, only unfavourable, threshold 5%, table only, add driver, as json. It never forecasts, never edits your table and does not answer general questions.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain",
+    "text/markdown",
+    "text/csv",
+    "text/tab-separated-values",
+    "application/json"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "variance-narrative",
+      "name": "Explain budget vs actual",
+      "description": "The variance paragraph for a pasted budget vs actual table: headline, biggest variances with direction, offsets and what is still unexplained, with every figure computed in code and only your drivers used.",
+      "tags": [
+        "variance",
+        "budget vs actual",
+        "FP&A",
+        "finance",
+        "narrative",
+        "month-end",
+        "board"
+      ],
+      "examples": [
+        "Explain this variance for the board, Q3 2026: <paste the budget vs actual table>",
+        "Two-sentence version",
+        "Only unfavourable lines"
+      ],
+      "inputModes": [
+        "text/plain",
+        "text/markdown",
+        "text/csv",
+        "text/tab-separated-values",
+        "application/json"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

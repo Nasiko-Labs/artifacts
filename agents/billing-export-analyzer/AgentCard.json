@@ -1,0 +1,60 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "billing-export-analyzer",
+  "description": "Analyzes a cloud billing / cost export you paste into the chat (CSV with a header row: date, service, cost, plus account, tags, region or usage type if present; AWS, GCP and Azure exports are recognised). It returns the period and totals (gross, credits, net), the top movers window over window with code-computed drivers worded as hypotheses, anomalous days (more than 2 sigma off the trailing mean), the untagged share, waste patterns with stated assumptions, a budget run-rate, a finance-readable narrative and a text chart. Every number is computed in code. Follow-ups: only movers, only anomalies, untagged, chart, top 10 movers, compare last 14 days, cost of a service in a region, as json. It never connects to a cloud account and changes nothing; no general questions.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain",
+    "text/csv",
+    "application/json"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "analyze-billing-export",
+      "name": "Analyze a billing export",
+      "description": "Totals, top movers with hypotheses, anomalies, untagged share, waste patterns, budget run-rate, a narrative and a text chart from a pasted cloud cost CSV, plus follow-ups on the same analysis.",
+      "tags": [
+        "finops",
+        "cloud cost",
+        "billing",
+        "anomalies",
+        "top movers",
+        "untagged spend",
+        "budget"
+      ],
+      "examples": [
+        "Analyze this billing export, budget $40k: <paste the CSV>",
+        "Top movers vs last week",
+        "How much is untagged?"
+      ],
+      "inputModes": [
+        "text/plain",
+        "text/csv",
+        "application/json"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

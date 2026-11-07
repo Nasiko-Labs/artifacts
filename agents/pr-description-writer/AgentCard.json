@@ -1,0 +1,64 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "pr-description-writer",
+  "description": "Turns a diff you paste into the chat (git diff, .patch or git diff --stat) into a pull request draft: a conventional-commit title, a description that stands alone in history (summary, why, changes, test plan, risk, notes for reviewers), a checkbox test plan grounded in the changed files and a risk level computed in code (migrations, auth or payment paths, removed public symbols, config, dependencies, size). The why comes only from text you give (commit messages, ticket text); otherwise it leaves a visible placeholder. It follows a PR template you paste, never ticks a checkbox, never invents ticket numbers or test results, and revises on request (\"shorter\", \"plain title\", \"as json\"). It only drafts: it reads none of your repositories and posts nothing. Not for code review, finding bugs, writing code or tests, or working from a PR link.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain",
+    "text/markdown",
+    "application/json",
+    "text/x-diff",
+    "text/x-patch"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "pr-description",
+      "name": "Write a PR description from a diff",
+      "description": "A pull request title, description, checkbox test plan and risk notes from a pasted diff, with the why taken only from your own text and the risk level computed in code. Draft only: nothing is posted.",
+      "tags": [
+        "pull request",
+        "PR description",
+        "diff",
+        "test plan",
+        "risk",
+        "conventional commits",
+        "code host"
+      ],
+      "examples": [
+        "Write a PR description for this diff. Commit message: add refunds per #214 <paste the diff>",
+        "PR description, use our template: <paste the template> then <paste the diff>",
+        "Same, but shorter and no conventional commits"
+      ],
+      "inputModes": [
+        "text/plain",
+        "text/markdown",
+        "application/json",
+        "text/x-diff",
+        "text/x-patch"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

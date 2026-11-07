@@ -1,0 +1,56 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "invoice-chaser",
+  "description": "Lists your open customer invoices that are past their due date from your payments account, checks your own sent email for reminders already sent about each one (matched by invoice number or link), and places each on a fixed escalation ladder: friendly reminder (1-6 days late), firm reminder (7-13), final notice (14-29), escalate to a human (30+), raised by earlier reminders and large amounts, with a 3-day cooldown after a reminder. Ranks them by days late and amount with per-currency totals. On request it drafts the next reminder at the right level, using only the checked amount, due date and payment link, and sends it only after you approve that exact text, one email at a time. Never changes an invoice, never charges, never adds fees or threats. Not for failed card payments on auto-charge invoices.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "invoice-chase",
+      "name": "Chase overdue invoices",
+      "description": "Your overdue invoices with days late, reminders already sent, ladder level and next step, ranked, with per-currency totals. Then the next reminder per invoice, sent only after you approve the exact text.",
+      "tags": [
+        "invoices",
+        "overdue",
+        "accounts receivable",
+        "dunning",
+        "payment reminder",
+        "collections",
+        "finance"
+      ],
+      "examples": [
+        "Which invoices are overdue?",
+        "Chase everything over 14 days late",
+        "Draft the next reminder for Globex"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

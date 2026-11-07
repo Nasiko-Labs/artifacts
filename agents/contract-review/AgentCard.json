@@ -1,0 +1,40 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "Contract Review",
+  "description": "Reviews an MSA against the company playbook: one pass or break per playbook rule, quoting the contract clause and the rule. Pauses for the human decision on the breaks, then records a decision log in the workspace after approval. It does not search the web and does not email.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko AI Projects",
+    "url": "https://github.com/Nasiko-Labs/nasiko"
+  },
+  "version": "1.1.0",
+  "capabilities": {
+    "streaming": true,
+    "pushNotifications": false,
+    "stateTransitionHistory": true,
+    "chat_agent": false
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": ["text/plain"],
+  "defaultOutputModes": ["text/plain"],
+  "skills": [
+    {
+      "id": "msa_review",
+      "name": "MSA review",
+      "description": "Checks a master subscription agreement against the company playbook and reports pass or break for every rule, quoting the clause and the rule. Stops to ask how to handle the breaks (accept, request a redline, or escalate), then writes the decision log to the workspace once the save is approved. Does not search the web and does not send email.",
+      "tags": ["contract review", "MSA", "playbook", "legal", "redline", "decision log"],
+      "examples": [
+        "Review the Northwind MSA against our playbook and stop to ask me how to handle the breaks.",
+        "Review the MSA and stop on each break separately.",
+        "Request a redline of the cap and the term, escalate residency, accept the breach timing for this deal only."
+      ],
+      "inputModes": ["text/plain"],
+      "outputModes": ["text/plain"]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false,
+  "signatures": []
+}

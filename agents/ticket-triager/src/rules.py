@@ -1,0 +1,113 @@
+"""Pure: priority, escalation risk, SLA and suggested owner, computed in code from the checked signals and the
+pasted fields. One policy, kept in the tables below so it can be retuned in one place. The model never
+assigns any of these."""
+
+from __future__ import annotations
+
+from collections.abc import Callable
+from dataclasses import replace
+
+from inputs import Config
+from model import Ticket
+
+PRIORITIES = ("P1", "P2", "P3", "P4")
+SLA_CRITICAL = ("enterprise", "business")
+REPEAT_BUMP_CONTACTS = 3
+OLD_OPEN_HOURS = 72
+HIGH_RISK, MEDIUM_RISK = 5, 2
+P3_CATEGORIES = ("bug", "billing", "account_access", "data_issue", "cancellation", "outage", "security")
+
+
+def _crit(t: Ticket) -> bool:
+    return t.tier in SLA_CRITICAL
+
+
+# (priority, rule text, condition); the first matching row wins.
+PRIORITY_TABLE: tuple[tuple[str, str, Callable[[Ticket], bool]], ...] = (
+    ("P1", "service_down with blocked_work", lambda t: t.has("service_down") and t.has("blocked_work")),
+    ("P1", "service_down on an enterprise/business tier", lambda t: t.has("service_down") and _crit(t)),
+    ("P1", "data_loss", lambda t: t.has("data_loss")),
+    ("P1", "security_concern", lambda t: t.has("security_concern")),
+    ("P1", "legal_threat", lambda t: t.has("legal_threat")),
+    ("P2", "service_down", lambda t: t.has("service_down")),
+    ("P2", "blocked_work on an enterprise/business tier", lambda t: t.has("blocked_work") and _crit(t)),
+    ("P2", "blocked_work with a deadline", lambda t: t.has("blocked_work") and t.has("deadline")),
+    ("P2", "churn_threat on an enterprise/business tier", lambda t: t.has("churn_threat") and _crit(t)),
+    ("P2", "exec_involved on an enterprise tier", lambda t: t.has("exec_involved") and t.tier == "enterprise"),
+    ("P2", "money_at_stake", lambda t: t.has("money_at_stake")),
+    ("P3", "category needs a fix", lambda t: t.category in P3_CATEGORIES),
+    ("P3", "repeat_contact", lambda t: t.has("repeat_contact")),
+)
+FALLBACK = ("P4", "no escalation signal")
+
+# (label, points, condition), summed for escalation risk.
+RISK_TABLE: tuple[tuple[str, int, Callable[[Ticket], bool]], ...] = (
+    ("enterprise", 2, lambda t: t.tier == "enterprise"),
+    ("business", 1, lambda t: t.tier == "business"),
+    ("churn_threat", 2, lambda t: t.has("churn_threat")),
+    ("legal_threat", 3, lambda t: t.has("legal_threat")),
+    ("exec_involved", 2, lambda t: t.has("exec_involved")),
+    ("repeat_contact", 1, lambda t: t.has("repeat_contact")),
+    (f"{REPEAT_BUMP_CONTACTS}+ contacts", 1, lambda t: t.contacts >= REPEAT_BUMP_CONTACTS),
+    ("angry_tone", 1, lambda t: t.has("angry_tone")),
+    ("blocked_work", 1, lambda t: t.has("blocked_work")),
+    ("money_at_stake", 1, lambda t: t.has("money_at_stake")),
+    (f"open > {OLD_OPEN_HOURS}h", 1, lambda t: t.is_open and t.age_hours is not None and t.age_hours > OLD_OPEN_HOURS),
+    ("past SLA", 1, lambda t: t.past_sla),
+)
+
+DEFAULT_OWNERS = {
+    "outage": "Engineering on-call", "bug": "Support tier 2", "how_to": "Support tier 1",
+    "billing": "Billing support", "account_access": "Support tier 1", "security": "Security team",
+    "data_issue": "Support tier 2", "feature_request": "Product", "cancellation": "Account management",
+    "other": "Support tier 1",
+}
+
+
+def priority(ticket: Ticket) -> tuple[str, str]:
+    level, rule = next(((p, r) for p, r, cond in PRIORITY_TABLE if cond(ticket)), FALLBACK)
+    if ticket.has("repeat_contact") and ticket.contacts >= REPEAT_BUMP_CONTACTS and level != "P1":
+        level = PRIORITIES[PRIORITIES.index(level) - 1]
+        rule += f"; raised one level for repeat_contact with {ticket.contacts} contacts"
+    return level, rule
+
+
+def past_sla(ticket: Ticket, level: str, sla_hours: dict[str, float]) -> bool:
+    limit = sla_hours.get(level)
+    return limit is not None and ticket.is_open and ticket.age_hours is not None and ticket.age_hours > limit
+
+
+def risk(ticket: Ticket) -> tuple[str, tuple[tuple[str, int], ...]]:
+    points = tuple((label, n) for label, n, cond in RISK_TABLE if cond(ticket))
+    total = sum(n for _, n in points)
+    level = "high" if total >= HIGH_RISK else "medium" if total >= MEDIUM_RISK else "low"
+    return level, points
+
+
+def owner(ticket: Ticket, routing: dict[str, str]) -> str:
+    if ticket.category in routing:
+        return routing[ticket.category]
+    if ticket.category == "account_access" and ticket.tier == "enterprise":
+        return "Support tier 2"
+    return DEFAULT_OWNERS.get(ticket.category, DEFAULT_OWNERS["other"])
+
+
+def apply(ticket: Ticket, config: Config) -> Ticket:
+    """A new ticket with priority, SLA flag, risk and owner filled in (reason is added by `reason.py`)."""
+    level, rule = priority(ticket)
+    flagged = replace(ticket, priority=level, priority_rule=rule,
+                      past_sla=past_sla(ticket, level, dict(config.sla_hours)))
+    risk_level, points = risk(flagged)
+    return replace(flagged, escalation_risk=risk_level, risk_points=points,
+                   suggested_owner=owner(flagged, dict(config.routing)))
+
+
+def sort_key(ticket: Ticket, by: str = "priority") -> tuple:
+    risk_rank = {"high": 0, "medium": 1, "low": 2}[ticket.escalation_risk]
+    age = -(ticket.age_hours if ticket.age_hours is not None else -1.0)
+    prio = PRIORITIES.index(ticket.priority)
+    if by == "risk":
+        return (risk_rank, prio, age)
+    if by == "age":
+        return (age, prio, risk_rank)
+    return (prio, risk_rank, age)

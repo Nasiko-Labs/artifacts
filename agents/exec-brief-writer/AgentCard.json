@@ -1,0 +1,55 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "exec-brief-writer",
+  "description": "Turns the outputs of other agents (or your own notes) that you PASTE into one conversation into a one-page executive brief with exactly three parts: a headline, what's at risk, and the decisions needed. Every line is tagged with the pasted section it came from, and any line it cannot trace to your pasted text is left out and counted. Paste several outputs separated by --- or headings, add more later (\"add this too\"), revise (\"shorter headline\", \"drop risk 2\", \"only top 3\"), or ask to \"show sources\". It does not fetch anything, call other agents, or answer general questions.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "exec-brief",
+      "name": "One-page exec brief",
+      "description": "A one-page brief (headline, what's at risk, decisions needed) built only from the agent outputs or notes you paste, each line tagged with its source section; untraceable lines are dropped.",
+      "tags": [
+        "executive brief",
+        "summary",
+        "risks",
+        "decisions",
+        "one-pager",
+        "leadership update"
+      ],
+      "examples": [
+        "Brief for the CRO on the Acme renewal: <paste the agent outputs, separated by --->",
+        "Add this too: <paste another output>",
+        "Show sources"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

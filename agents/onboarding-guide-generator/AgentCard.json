@@ -1,0 +1,56 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "onboarding-guide-generator",
+  "description": "Builds a repository walkthrough for a new hire and their first ticket, from what the repository actually contains, read from your own connected code host (plus a tracker and doc store when connected): README, contributing and architecture docs, the directory layout, CODEOWNERS, recent merged pull requests on the ticket's area and the ticket itself. The guide says where to start, how to run things (commands copied verbatim from the docs), who to ask (code owners and recent authors, counted in code) and what to read first. Read-only: it never writes to the repository, docs or tracker, and never invents commands, paths or people. Not a code reviewer or a ticket triager.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain",
+    "application/json"
+  ],
+  "skills": [
+    {
+      "id": "onboarding-guide",
+      "name": "Onboarding guide",
+      "description": "A new-hire walkthrough of one repository: what it is, how to run it (verbatim commands), a map of the repo, where to start on the first ticket, who to ask, recent pull requests and docs worth reading, and a first-week checklist.",
+      "tags": [
+        "onboarding",
+        "new hire",
+        "repository walkthrough",
+        "first ticket",
+        "getting started",
+        "code owners"
+      ],
+      "examples": [
+        "Onboarding guide for Priya in acme/shop, first ticket SHOP-231",
+        "Walk me through acme/api",
+        "Who should I ask about src/billing?"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

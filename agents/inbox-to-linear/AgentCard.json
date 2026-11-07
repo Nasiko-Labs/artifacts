@@ -1,0 +1,55 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "inbox-to-linear",
+  "description": "Scans your recent inbox (last 3 days by default, 1 to 14 if you ask) for emails that are really work requests: someone asking you or your team to do, fix, build, change, review or investigate something concrete. For each one it proposes an issue for your issue tracker (an imperative title, a description with the verbatim ask and a link back to the email, the team, existing labels found in the email, and a priority or due date only when the email says so) and checks the tracker for an issue that already tracks it. It creates each issue only after you approve that exact issue, one card per issue, then drafts a short 'tracked, here is the link' reply and sends it only after you approve that too. Newsletters, receipts, FYIs and invites are left alone; it never invents a priority, assignee or due date. Paste an email if your inbox is not connected. Not an inbox triage or a task manager.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "inbox-to-issues",
+      "name": "Inbox requests to issues",
+      "description": "Work requests from your recent inbox (3 days by default, 1-14): one proposed tracker issue per request with the verbatim ask and the email link, duplicates flagged as already tracked, each issue created only after you approve it, then a short reply with the issue link sent only after you approve it.",
+      "tags": [
+        "inbox",
+        "email",
+        "issue tracker",
+        "work requests",
+        "issues",
+        "triage to tracker"
+      ],
+      "examples": [
+        "Turn my requests into issues",
+        "Scan the last 5 days and put them in the Platform team",
+        "Dry run, just show me"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

@@ -1,0 +1,62 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "status-report-reality-check",
+  "description": "Checks a status report against a ticket export, both pasted into the chat, and lists where the reported status and the tickets disagree: 'on track' while the ticket is blocked or overdue, 'done' while the epic is 27% done, 'green' with nothing touched in weeks. Each disagreement shows the item, what the report says (quoted), what the tickets say (built in code from the export's own cells: status, dates, assignee, children done) and a risk level from fixed rules. Matching, dates and rules run in code; the model only reads the report. Report items with no ticket are listed separately. Follow-ups: only high risk, stale after 7 days, show matched tickets, why was X flagged, as json. It reads only what you paste (CSV/TSV/JSON export), never fetches tickets and never judges people.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain",
+    "text/markdown",
+    "text/csv",
+    "application/json"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "status-reality-check",
+      "name": "Status report reality check",
+      "description": "Lists where a pasted status report and a pasted ticket export disagree (item, reported, evidence, risk), with code-built evidence from the export, plus follow-ups on the same comparison.",
+      "tags": [
+        "status report",
+        "tickets",
+        "reality check",
+        "engineering manager",
+        "risk",
+        "epics",
+        "tracker export"
+      ],
+      "examples": [
+        "Reality-check this status report against this ticket export: Report: <paste> Tickets: <paste the CSV>",
+        "Only high risk",
+        "Why did you flag Payments migration?"
+      ],
+      "inputModes": [
+        "text/plain",
+        "text/markdown",
+        "text/csv",
+        "application/json"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

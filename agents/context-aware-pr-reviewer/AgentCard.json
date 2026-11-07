@@ -1,0 +1,55 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "context-aware-pr-reviewer",
+  "description": "Reviews one pull request against what it was supposed to do, not just the diff. It reads the linked ticket's acceptance criteria and grades the PR per criterion (met, partial, not found, with the file:line evidence), looks up similar past merged PRs and the review feedback they received, and returns review comments anchored to changed lines plus a ticket alignment verdict (aligned, partial, misaligned, no ticket) computed in code. Every comment is checked against the diff; unverifiable ones are dropped. After you approve the exact text it can post one summary comment on the PR. On demand in chat; it never approves, requests changes, merges, edits the ticket or pushes code. Use it to review a PR against its ticket; for describing or improving a PR from the diff alone, use a plain PR reviewer.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "pr-review-against-ticket",
+      "name": "PR review against its ticket",
+      "description": "Review a pull request against its linked ticket's acceptance criteria and similar past PRs: per-criterion alignment with evidence, grounded review comments on changed lines, and one summary comment on the PR, posted only after you approve the exact text.",
+      "tags": [
+        "code review",
+        "pull request",
+        "acceptance criteria",
+        "ticket alignment",
+        "precedent",
+        "developer"
+      ],
+      "examples": [
+        "Review acme/shop#412 against its ticket",
+        "Does PR 88 do what SHOP-231 asks?",
+        "Review PR 12 focusing on security"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

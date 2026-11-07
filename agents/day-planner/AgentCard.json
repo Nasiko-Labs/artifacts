@@ -1,0 +1,56 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "day-planner",
+  "description": "Turns your own calendar into a day plan: today (or a day you name, up to 5 days) as an ordered agenda with each meeting's time, length, attendees, location or join link and a one-line context taken from the event's own description, plus the free gaps between meetings inside your working hours and the best focus block. It flags double bookings, back-to-back runs, unanswered invitations and meetings with no description. All times and gaps are computed in code. Read-only: it never creates, moves, declines or edits an event, and it does not read email or chat. Without a calendar connection it works on meetings you paste, one per line.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "day-plan",
+      "name": "Day plan",
+      "description": "Your calendar for a day as an agenda with context lines, free gaps, the best focus block and flags for double bookings, back-to-back runs and unanswered invitations. Read-only.",
+      "tags": [
+        "calendar",
+        "agenda",
+        "day plan",
+        "free time",
+        "focus time",
+        "double booking",
+        "meetings"
+      ],
+      "examples": [
+        "plan my day",
+        "when am I free tomorrow afternoon?",
+        "any double bookings this week?"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

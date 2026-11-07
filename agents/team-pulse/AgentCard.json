@@ -1,0 +1,57 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "team-pulse",
+  "description": "Prepares a manager's 1:1s: for each person on the team (the people active in the repository or project you name over the last 2 weeks, up to 10, or the people you name), it reads pull requests opened and reviewed, review turnaround, commits, in-progress tickets and how long they have sat, and chat message counts and timing (never message text). It flags patterns, not judgments: review load concentrated on one person, a ticket 7+ days in its status with no comment, a much quieter week than that person's own usual, more commits outside their working hours than usual. Each person is compared only with their own previous 4 weeks, every signal links its evidence, and it shows a team view of review load and blocked work. Read-only: it never posts, comments, messages anyone or changes anything. It does not rank, rate or compare people, and refuses rather than guessing when the tools are not connected.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": false
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "team-pulse",
+      "name": "Team pulse for 1:1s",
+      "description": "Per-person signal cards for the last 2 weeks against each person's own previous 4 weeks (code host, tracker, chat counts), with evidence links, plus a team view of review load and blocked work. Read-only; no ranking or judgments.",
+      "tags": [
+        "1:1 prep",
+        "team",
+        "manager",
+        "pull requests",
+        "code review",
+        "tickets",
+        "blocked work",
+        "read-only"
+      ],
+      "examples": [
+        "Team pulse for the payments-api repo",
+        "Prep my 1:1 with Priya",
+        "What's blocked on the team?"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

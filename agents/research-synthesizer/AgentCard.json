@@ -1,0 +1,66 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "research-synthesizer",
+  "description": "Synthesizes a pile of sources you paste into the chat (interview notes, articles, reports, forum threads, call notes) against your research question into an evidence-preserving brief: findings with the verbatim quotes and source ids behind them, where sources agree or disagree, a confidence per finding computed in code, what was read, and what is still unknown. It uses only the pasted text: no browsing, no outside knowledge, and links are labels it never opens. Follow-ups work on the stored brief: only the conflicts, show quotes, high-confidence findings, list sources, what the sources say about a topic, or add another source. No general questions.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain",
+    "text/markdown",
+    "text/csv",
+    "application/json",
+    "text/vtt",
+    "application/x-subrip"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "synthesize-sources",
+      "name": "Synthesize research sources",
+      "description": "An evidence-preserving brief over the sources you paste: findings with quotes and [S#] source ids, agreements and conflicts, code-computed confidence, scope and unknowns, plus follow-ups on the same brief.",
+      "tags": [
+        "research",
+        "synthesis",
+        "sources",
+        "interviews",
+        "evidence",
+        "conflicts",
+        "unknowns"
+      ],
+      "examples": [
+        "Synthesize these 5 interviews: what do customers say about onboarding? <paste the sources>",
+        "Only the conflicts",
+        "What do the sources say about pricing?"
+      ],
+      "inputModes": [
+        "text/plain",
+        "text/markdown",
+        "text/csv",
+        "application/json",
+        "text/vtt",
+        "application/x-subrip"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

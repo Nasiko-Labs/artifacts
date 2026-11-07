@@ -1,0 +1,58 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "customer-call-miner",
+  "description": "Mines this week's recorded customer calls: reads each external call's transcript, matches the call to its CRM account (deal stage, ARR from the latest closed-won deal, renewal date), and pulls out feature requests, objections, competitor mentions and churn signals as verbatim customer quotes. It groups similar requests across calls and ranks each theme by the ARR of the distinct accounts behind it, with counts, real quotes, account names and links to the call. On your approval it adds a note to each CRM account and posts a short digest to a chat channel you name; nothing is written until you approve it. Up to 12 calls per turn (say \"continue\" for the rest). Not call coaching, not sales forecasting, and not a meeting summariser.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "customer-call-themes",
+      "name": "Customer call themes",
+      "description": "This week's customer calls mined for feature requests, objections, competitor mentions and churn signals, with verbatim quotes, grouped into themes weighted by account ARR; then approved CRM notes per account and a digest posted to a channel you name.",
+      "tags": [
+        "customer calls",
+        "call recordings",
+        "voice of customer",
+        "feature requests",
+        "objections",
+        "competitors",
+        "churn",
+        "CRM",
+        "ARR"
+      ],
+      "examples": [
+        "Mine this week's customer calls.",
+        "What did customers ask for last week? Post the digest to #product-feedback.",
+        "Continue with the remaining calls."
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

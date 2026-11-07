@@ -1,0 +1,67 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "alert-rule-reviewer",
+  "description": "Reviews alert configuration you paste into the chat (Prometheus rule files, Alertmanager config, Datadog monitors as JSON or Terraform, CloudWatch alarms as Terraform or CloudFormation, Grafana-managed rules) and returns findings with the config line they come from: rules built to flap (no `for`, short windows, irate, bare counters), duplicate or overlapping alerts, missing thresholds, missing owners and runbooks, paging on causes (CPU, memory, disk) instead of user symptoms, and routing gaps (no grouping, orphan receivers, missing inhibit rules). Every rule is checked in code; the model only labels each alert as symptom or cause. Proposed changes are YAML/HCL snippets with placeholders for owners, runbooks and thresholds, never guessed values. It sees how rules are written, not how often they fire. Follow-ups: only the high ones, only one rule id, show the config for an alert, proposed changes only, why a rule matters, as json. Read-only: it changes nothing.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain",
+    "text/markdown",
+    "application/json",
+    "application/yaml",
+    "text/yaml",
+    "text/x-yaml"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "review-alert-rules",
+      "name": "Review alert rules",
+      "description": "Findings (noise-prone rules, duplicates, missing thresholds, owners and runbooks, cause-based paging, routing gaps) and proposed config snippets for pasted Prometheus, Alertmanager, Datadog, CloudWatch or Grafana alert rules.",
+      "tags": [
+        "alerting",
+        "prometheus",
+        "alertmanager",
+        "datadog",
+        "cloudwatch",
+        "sre",
+        "on-call",
+        "noise"
+      ],
+      "examples": [
+        "Review these alert rules: <paste your rules file>",
+        "We page the platform team; check routing: <paste alertmanager.yml and the rules>",
+        "Only the high findings."
+      ],
+      "inputModes": [
+        "text/plain",
+        "text/markdown",
+        "application/json",
+        "application/yaml",
+        "text/yaml",
+        "text/x-yaml"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

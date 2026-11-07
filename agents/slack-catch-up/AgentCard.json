@@ -1,0 +1,56 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "slack-catch-up",
+  "description": "Catches you up on your team chat workspace: for the channels and direct messages you are in, since your last catch-up in this conversation (first time: the last 24 hours, or a window you name, 1 to 7 days), it shows per channel the messages that mention you and the decisions made first, each with the exact quote, who said it and a link, then up to 3 short highlights. Channels with mentions or decisions come first; @channel broadcasts are counted, not treated as personal mentions. Up to 12 channels and 5 direct message conversations per run, and it says which ones it could not read. Read-only: it never posts, replies, reacts, marks anything read or joins channels. Without a chat connection it summarizes pasted channel text.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": false
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "chat-catch-up",
+      "name": "Chat catch-up",
+      "description": "Per-channel catch-up of your chat workspace since your last run: mentions of you and decisions first (verbatim quotes, who, links), then up to 3 highlights per channel, with totals and coverage notes. Read-only.",
+      "tags": [
+        "chat",
+        "catch-up",
+        "mentions",
+        "decisions",
+        "channels",
+        "digest",
+        "read-only"
+      ],
+      "examples": [
+        "Catch me up",
+        "What did I miss in #payments?",
+        "Only decisions since Monday"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

@@ -1,0 +1,58 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "pr-agent",
+  "description": "Reviews GitHub pull requests, like PR-Agent: give it a PR link or owner/repo#123 and a command. /review (default) returns a reviewer guide with estimated review effort, relevant tests, security concerns and key issues tied to file and line; /describe writes a title, PR type, summary and a walkthrough of the changed files; /improve suggests concrete code changes with existing and improved code; /ask answers a question about the PR. It reads the PR and its diff through the GitHub tools the platform grants it, compresses large diffs to fit the model and says which files it left out. It posts to GitHub only when asked and only after you confirm. Not company news, not general web research.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.1",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "pull-request-review",
+      "name": "Pull request review",
+      "description": "One GitHub pull request: review it (effort, tests, security, key issues), describe it (title, type, summary, file walkthrough), suggest code improvements, or answer a question about its code changes. Optionally posts the result as a PR comment after confirmation.",
+      "tags": [
+        "pull request",
+        "code review",
+        "github",
+        "pr review",
+        "pr description",
+        "code suggestions",
+        "diff",
+        "pr-agent"
+      ],
+      "examples": [
+        "Review this PR: https://github.com/octocat/Hello-World/pull/42",
+        "/describe octocat/Hello-World#42",
+        "/improve https://github.com/acme/api/pull/118",
+        "/ask Does this PR handle the empty-list case? acme/api#118",
+        "Review acme/api#118 and post the review as a comment on the PR"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

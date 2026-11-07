@@ -1,0 +1,56 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "spec-to-issues-breaker",
+  "description": "Reads a product spec or PRD (a document found by title or link, or text you paste after \"Spec:\") and proposes a tracker project with issues: an imperative title, a short description, acceptance criteria quoted word for word from the spec, an estimate computed from the work involved, and dependencies. You edit the list (drop, merge, retitle, re-estimate), pick which issues to create, and approve each one on its own card; nothing is created before that. It skips issues that already exist in the team and never adds a requirement the spec does not state. Not a spec writer and not a general project-management assistant.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "spec-to-tracker-issues",
+      "name": "Break a spec into tracker issues",
+      "description": "Splits a spec into issues with verbatim acceptance criteria, estimates and dependencies, checks the team for duplicates, and creates the issues you pick, one approval card per issue.",
+      "tags": [
+        "spec",
+        "PRD",
+        "issues",
+        "backlog",
+        "estimates",
+        "tracker",
+        "project planning"
+      ],
+      "examples": [
+        "Break down the SSO rollout PRD into tracker issues for team Platform.",
+        "Turn this spec into a project for team Platform. Spec: <paste the spec here>",
+        "Which parts of the spec are unclear?"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

@@ -1,0 +1,55 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "Comms Follow-up Assistant",
+  "description": "Writes the next message on an existing thread (email or Slack), such as a renewal follow-up. It reads the thread in Gmail and Slack through the Nasiko MCP gateway, works out how many times you have already followed up without a reply, and drafts a short next message that changes approach and asks for one clear yes. It does not review or redline a contract, and it never mentions discounts or pricing. It saves a Gmail draft only after you approve the exact text, and it cannot send or post.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "a2a-sdk",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "0.3.0",
+  "capabilities": {
+    "chat_agent": true,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "streaming": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "renewal-follow-up",
+      "name": "Renewal follow-up",
+      "description": "Writes the next message on an existing thread with a customer contact, for example the unanswered renewal thread with Jordan Lee at Northwind. Reads Gmail and Slack, counts the unanswered follow-ups, and drafts one that asks for a yes on the proposed time or names the date you will assume. It does not review or redline a contract, and it does not send.",
+      "tags": [
+        "follow-up",
+        "renewal",
+        "gmail",
+        "slack",
+        "drafting"
+      ],
+      "examples": [
+        "Draft a follow-up to Jordan Lee at Northwind about the renewal and the MSA decisions. Check Gmail and Slack. Do not send it.",
+        "Jordan hasn't answered my two notes about Thursday's renewal call. Write the next email.",
+        "Save that follow-up as a Gmail draft in the Northwind renewal thread."
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false,
+  "signatures": []
+}

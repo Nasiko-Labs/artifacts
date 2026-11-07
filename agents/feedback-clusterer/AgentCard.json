@@ -1,0 +1,66 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "feedback-clusterer",
+  "description": "Groups customer feedback you paste into the chat (support tickets, survey answers, app reviews, call notes; a CSV export works best) into themes a PM can put on a roadmap: each with its type, item count, distinct customers, an ARR-weighted share, a trend and verbatim quotes, plus churn signals and caveats. Every count, customer, weight, trend and quote is computed or checked in code; a theme needs 3 items or 2 customers to be shown. Follow-ups work on the stored result: only churn signals, top 3, enterprise only, sort by customers, show quotes, show the items of a theme, or add another batch. It reads only what you paste: no ticket system, no web, and no general questions.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain",
+    "text/markdown",
+    "text/csv",
+    "application/json",
+    "text/tab-separated-values"
+  ],
+  "defaultOutputModes": [
+    "text/plain",
+    "application/json"
+  ],
+  "skills": [
+    {
+      "id": "cluster-feedback",
+      "name": "Cluster feedback into themes",
+      "description": "Themes from the feedback you paste, with counts, distinct customers, ARR-weighted share, trend, verbatim quotes, churn signals and caveats, plus follow-ups on the same result.",
+      "tags": [
+        "feedback",
+        "themes",
+        "clustering",
+        "voice of customer",
+        "support tickets",
+        "churn",
+        "roadmap"
+      ],
+      "examples": [
+        "Cluster this support export and weight by ARR: <paste the CSV>",
+        "Which feedback themes are rising?",
+        "Only enterprise customers: what are they asking for?"
+      ],
+      "inputModes": [
+        "text/plain",
+        "text/markdown",
+        "text/csv",
+        "application/json",
+        "text/tab-separated-values"
+      ],
+      "outputModes": [
+        "text/plain",
+        "application/json"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

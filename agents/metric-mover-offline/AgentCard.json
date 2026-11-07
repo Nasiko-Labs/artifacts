@@ -1,0 +1,66 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "metric-mover-offline",
+  "description": "Explains why a metric moved from a before/after table you paste into the chat, broken down by segment (channel, country, platform, plan...). Code computes everything: each segment's contribution, mix shift versus rate change for conversion-style rates (with counts), how concentrated the change is, new or vanished segments, a Simpson's-paradox check and two-proportion significance tests. It returns up to six ranked hypotheses, each backed by computed evidence and a generic way to confirm it, and a measurement-artifact hypothesis whenever data quality could explain the move. It never states a cause as fact and never forecasts. Follow-ups work on the same table: by <dimension> only, top 3, show the numbers, as json, add event: <date> <what happened>, ignore <segment>. Up to 5,000 rows and 4 segment columns. It reads only what you give it: no warehouse, files or web, and no general questions.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain",
+    "text/csv",
+    "text/tab-separated-values",
+    "text/markdown",
+    "application/json"
+  ],
+  "defaultOutputModes": [
+    "text/plain",
+    "application/json"
+  ],
+  "skills": [
+    {
+      "id": "explain-metric-move",
+      "name": "Explain a metric move",
+      "description": "Ranked, evidence-backed hypotheses for why a metric changed, from a pasted before/after table by segment, with the decomposition computed in code, plus follow-ups on the same table.",
+      "tags": [
+        "metrics",
+        "data analysis",
+        "root cause",
+        "conversion rate",
+        "mix shift",
+        "segments",
+        "hypotheses"
+      ],
+      "examples": [
+        "Signups dropped; here is before/after by channel and country: <paste the table>",
+        "Revenue by plan, last week vs this week: <paste the table>",
+        "Add event: Oct 14 deploy of the new checkout"
+      ],
+      "inputModes": [
+        "text/plain",
+        "text/csv",
+        "text/tab-separated-values",
+        "text/markdown",
+        "application/json"
+      ],
+      "outputModes": [
+        "text/plain",
+        "application/json"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

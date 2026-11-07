@@ -1,0 +1,56 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "board-metrics-updater",
+  "description": "Computes your company's subscription revenue metrics for a period (default: last full calendar month; also a quarter, a named month, the last N days or explicit dates) from the subscriptions in your own payments account: MRR, ARR, the MRR bridge (new, expansion, contraction, churned), logo churn, revenue churn, net and gross revenue retention, per currency, with definitions and caveats (test mode, metered items excluded, plan history older than 30 days approximated). Every number is computed in code, never by the model. It drafts a board paragraph checked number by number against the figures, and on request appends one row to your metrics spreadsheet or the paragraph to your board document, each only after you approve that exact write. It never edits an existing row or overwrites a document, and numbers cannot be changed by chat.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "board-metrics",
+      "name": "Board metrics",
+      "description": "MRR, ARR, new/expansion/contraction/churned MRR, logo and revenue churn, NRR and GRR for a period, per currency, computed in code from your subscriptions, plus a checked board paragraph. Appends one row to your metrics sheet or the paragraph to your board doc, each only after you approve it.",
+      "tags": [
+        "mrr",
+        "arr",
+        "nrr",
+        "churn",
+        "board metrics",
+        "saas metrics",
+        "finance"
+      ],
+      "examples": [
+        "Compute board metrics for last month",
+        "Write the narrative paragraph",
+        "Add this month to my Board Metrics sheet"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

@@ -1,0 +1,59 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "performance-review-drafter",
+  "description": "Drafts a performance review for one person from the examples and feedback a manager pastes into the chat. Every strength, growth area and summary line cites the evidence items it rests on ([e3, e8]); a claim with no cited evidence is dropped in code, generic praise or criticism is rejected, and loaded trait words, personal characteristics, recency skew and one-sided evidence are flagged. It lists evidence gaps (the competencies with too little evidence to write anything fair) with a question to fill each. It never assigns a rating and never advises on promotion or pay; the result is a draft for the manager to edit. Follow-ups: show the evidence, only the gaps, shorter, remove e5, add an example, as json. It reads only what you paste: no HR system, no mail or chat.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain",
+    "text/markdown",
+    "application/json"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "draft-performance-review",
+      "name": "Draft a performance review",
+      "description": "An evidence-cited review draft (summary, strengths, growth areas) from pasted examples, with evidence gaps and bias flags; no rating.",
+      "tags": [
+        "performance review",
+        "feedback",
+        "evidence",
+        "engineering manager",
+        "bias check",
+        "evidence gaps"
+      ],
+      "examples": [
+        "Draft a review for Sam from these examples: <paste 5 or more examples>",
+        "What evidence am I missing?",
+        "Show the evidence behind the strengths"
+      ],
+      "inputModes": [
+        "text/plain",
+        "text/markdown",
+        "application/json"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}
