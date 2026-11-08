@@ -83,7 +83,7 @@ nasiko import nasiko/<name>:<version>                     # deploy to a control 
 | invoice-chaser | 1.0.0 | Lists your open customer invoices that are past their due date from your payments account, checks your own sen |
 | issue-hygiene-bot | 1.0.0 | Checks your tracker for issue hygiene problems: open issues with no project, no estimate (only for teams that  |
 | issue-localizer | 1.0.0 | Finds where one software issue most likely lives in a repository: a ranked list of files, then the functions o |
-| issue-to-pr | 1.0.0 | Turns one small, well-described software issue into a draft pull request |
+| issue-to-pr | 1.0.1 | Turns one small, well-described software issue into a draft pull request |
 | kudos-collector | 1.0.0 | Collects concrete, linked evidence of good work for the people you name (up to 8), or for the people who merge |
 | kudos-collector-offline | 1.0.0 | Collects concrete, evidenced recognition examples per person from a PR list, Slack praise and shipped features |
 | launch-readiness-checker | 1.0.0 | Checks whether one named launch is ready, across four areas: engineering (open, urgent, blocked and unowned is |

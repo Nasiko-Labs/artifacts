@@ -22,7 +22,7 @@ COPY src/opencode.json /root/.config/opencode/opencode.json
 
 # Warm OpenCode's first-run bootstrap once (copied approach from the opencode-agent Dockerfile): start the
 # server, wait for the catalog and ripgrep, send one prompt so the provider's dependencies install (it fails
-# with the placeholder key, as expected), wait for the log to go quiet, stop the server, snapshot.
+# with no API key, as expected), wait for the log to go quiet, stop the server, snapshot.
 RUN set -eux; \
     export OPENCODE_DISABLE_DEFAULT_PLUGINS=1; \
     opencode serve --hostname 127.0.0.1 --port 4096 & srv=$!; \
@@ -30,7 +30,7 @@ RUN set -eux; \
       [ -s /root/.cache/opencode/models.json ] && [ -x /root/.cache/opencode/bin/rg ] && break; \
       sleep 1; \
     done; \
-    OPENAI_API_KEY=sk-build-time-placeholder OPENAI_BASE_URL=http://127.0.0.1:9/v1 node -e " \
+    node -e " \
       const http = require('http'); \
       function req(method, path, body) { \
         return new Promise((resolve, reject) => { \
@@ -48,7 +48,7 @@ RUN set -eux; \
         const sid = JSON.parse(s.body).id; \
         const p = await req('POST', '/session/'+sid+'/message', {parts: [{type:'text', text:'hi'}], model: {providerID:'openai-chat', modelID:'gpt-4o-mini'}}); \
         console.log('warm-up prompt:', p.status); \
-      })().catch(e => { console.log('warm-up prompt failed (expected, placeholder key):', e.message); }); \
+      })().catch(e => { console.log('warm-up prompt failed (expected, no API key):', e.message); }); \
     " || true; \
     log=/root/.local/share/opencode/log/opencode.log; prev=-1; stable=0; \
     for i in $(seq 1 90); do \

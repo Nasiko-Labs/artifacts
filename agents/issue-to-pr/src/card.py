@@ -4,7 +4,7 @@ The description carries the distinction from other agents: workflow generation s
 and description."""
 
 AGENT_NAME = "issue-to-pr"
-AGENT_VERSION = "1.0.0"
+AGENT_VERSION = "1.0.1"
 AGENT_DESCRIPTION = (
     "Turns one small, well-described software issue into a draft pull request. It reads the issue and the "
     "relevant files through your code host connection (or an issue and files you paste), finds where the "
