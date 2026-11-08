@@ -1,0 +1,55 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "dashboard-trust-checker",
+  "description": "Audits a dashboard inventory you provide (a spreadsheet or a pasted export with name, owner, last refresh, viewers and query status) and classifies each dashboard as healthy, stale, broken, unused or unknown with a proposed action (keep, fix, review, retire) and the reasons, all computed in code from the inventory's own columns. Optionally adds trust evidence from chat complaints that name a dashboard. Read-only: it never opens a BI tool, never runs a query and never deletes anything; its findings are only as good as the inventory.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "dashboard-trust-audit",
+      "name": "Dashboard trust audit",
+      "description": "Flags broken, stale and unused dashboards from an inventory table (stale after 7 days or twice the stated cadence; unused at 0 viewers), proposes fix / review / retire / keep with reasons, adds verbatim chat complaints as evidence, and lists retire candidates. Read-only.",
+      "tags": [
+        "dashboards",
+        "bi",
+        "data quality",
+        "stale",
+        "data analyst",
+        "audit"
+      ],
+      "examples": [
+        "Audit sheet BI inventory",
+        "Which dashboards should we kill?",
+        "Stale after 14 days"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

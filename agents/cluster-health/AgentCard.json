@@ -1,0 +1,58 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "cluster-health",
+  "description": "Read-only Kubernetes triage from kubectl output you paste (get pods -A, get nodes, get events -A, top nodes/pods, get deploy/rs/sts/ds, describe pod/node, rollout history). It flags CrashLoopBackOff and OOMKilled pods, image pull failures, Pending pods with their FailedScheduling reason, restart storms, not-ready pods, evictions, NotReady or pressured nodes, CPU/memory pressure and unhealthy or recent rollouts, each with the verbatim evidence line, a ranked severity and a suggested read-only next command. Thresholds are fixed in code (restart storm 5 restarts within 60m, Pending 10m, pressure 85%, recent rollout 24h) and every count is computed in code. It can also read a read-only cluster connector if you enabled one. It never restarts, deletes, scales or changes anything and answers nothing outside cluster health.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": false
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain",
+    "application/json"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "cluster-health-triage",
+      "name": "Cluster health triage",
+      "description": "Ranked issues from pasted kubectl output: crash loops, OOM kills, image pulls, unschedulable pods, restart storms, node and resource pressure, unhealthy rollouts, each with evidence and a read-only next command.",
+      "tags": [
+        "kubernetes",
+        "kubectl",
+        "sre",
+        "cluster health",
+        "triage",
+        "read-only",
+        "platform"
+      ],
+      "examples": [
+        "Here is kubectl get pods -A: what is unhealthy? <paste>",
+        "Explain the CrashLoop in payments (paste kubectl describe pod)",
+        "What should I paste next?"
+      ],
+      "inputModes": [
+        "text/plain",
+        "application/json"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

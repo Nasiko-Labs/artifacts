@@ -1,0 +1,56 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "escalation-predictor",
+  "description": "Scores your open support-desk tickets for the risk that they escalate (priority, age, customer tier, unanswered customer messages, frustration, escalation language like \"cancel\" or \"manager\", reopens), ranks them with a transparent points breakdown, and matches each at-risk ticket to known open bugs in your tracker so the support agent can send a status update. The score is computed in code, never by the model. On request it drafts a copyable status reply that never promises a fix date. Read-only: it never sends a reply or changes a ticket. Works on pasted tickets when no support desk is connected. Not a ticket triager, not a reply sender and not a bug-fix announcer.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": false
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "ticket-escalation-risk",
+      "name": "Predict which support tickets will escalate",
+      "description": "Ranks open support tickets by escalation risk with the reason for every point, links the risky ones to known open bugs, and drafts a copyable status reply on request.",
+      "tags": [
+        "support tickets",
+        "escalation",
+        "risk",
+        "customers",
+        "bugs",
+        "support desk",
+        "tracker"
+      ],
+      "examples": [
+        "Which tickets are about to escalate?",
+        "At-risk enterprise tickets this month",
+        "Draft a status reply for #4812"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

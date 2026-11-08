@@ -1,0 +1,56 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "opportunity-brief",
+  "description": "Turns public signals into a short, cited opportunity brief on a topic you name (a market, a technology, a competitor space): 3 to 5 themes that look like opportunities, each with evidence links, a signal strength computed in code from points, comments, stars and recency, risks and a cheap next step. It reads Hacker News itself, public repositories through your connected code host when one is granted, and anything you paste (RSS items, Reddit threads, notes). Every quote is checked word for word against what it read, and nothing is stated without a link. Read-only: it never posts or writes anywhere, never fetches arbitrary URLs, and gives no investment advice or market sizes.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "opportunity-brief",
+      "name": "Opportunity brief",
+      "description": "A cited brief on a topic over the last 30 days (7-90): 3-5 opportunity themes with Hacker News, code-host and pasted evidence, a computed signal strength, risks and a next step. Follow-ups drill into a theme, shorten it or re-render it as JSON without fetching again.",
+      "tags": [
+        "opportunity",
+        "trends",
+        "signals",
+        "market research",
+        "hacker news",
+        "product",
+        "brief"
+      ],
+      "examples": [
+        "Opportunity brief on AI agent observability, last 30 days",
+        "What's trending in developer tools? Focus on what to build",
+        "Here are 6 links and notes from my feed: <paste>. What's the opportunity?"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

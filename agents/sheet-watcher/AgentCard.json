@@ -1,0 +1,56 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "sheet-watcher",
+  "description": "Watches a tracking spreadsheet on demand: reads the sheet you name (or a table you paste), compares it in code with the snapshot it saved the last time you asked in this conversation, and lists the events: rows whose status changed, dates that are approaching or overdue, required cells that are blank, and new or removed rows. Rules come from your own words (\"Status changes, Due within 3 days, Owner blank\") with sensible defaults. After you approve the exact text, it posts a short alert to one chat channel. It never edits the sheet, never invents a change, and never posts without approval. It has no schedule: it only knows what changed between two checks you ask for in the same conversation.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "sheet-watch",
+      "name": "Sheet watch",
+      "description": "On-demand diff of a tracking sheet against the last check in this conversation, computed in code: status changes, approaching and overdue dates, blank required cells, new and removed rows, prioritised, with repeats marked. Posts a templated alert to a chat channel after you approve it.",
+      "tags": [
+        "spreadsheet",
+        "tracker",
+        "changes",
+        "deadlines",
+        "alerts",
+        "data analyst"
+      ],
+      "examples": [
+        "Watch the Project Tracker: Status changes, Due within 3 days, Owner blank",
+        "What changed since last time?",
+        "Post it to #pmo"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain",
+        "application/json"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

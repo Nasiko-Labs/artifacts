@@ -1,0 +1,56 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "scope-creep-detector",
+  "description": "Shows how a team's sprint (or cycle) scope changed after it started: it compares what was committed at the start with what is in the sprint now, from the issue tracker's own history. It lists every issue added after the start with who added it, when and its estimate, what was removed, a by-person and by-day breakdown of additions, and the net scope change in points (counts when nothing is estimated). Additions within 24 hours of the start count as planning, not creep (you can change or remove that grace period). Dates and numbers are computed in code; every issue links to the tracker. Read-only: it never writes, comments or messages anyone, and it never says whether a change was right. Without a tracker connection it works on a pasted issue list with dates.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": false
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "scope-creep-detector",
+      "name": "Sprint scope change",
+      "description": "Committed-at-start vs now for the current (or a named) sprint: issues added after the start with who and when, removed issues, net points change with a 10/25 % bucket, late additions and likely swaps. Read-only; no judgments.",
+      "tags": [
+        "sprint",
+        "scope creep",
+        "engineering manager",
+        "cycle",
+        "planning",
+        "issues",
+        "read-only"
+      ],
+      "examples": [
+        "What got added to the current sprint after we started?",
+        "Scope creep in the backend sprint, no grace period",
+        "Compare with last sprint"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

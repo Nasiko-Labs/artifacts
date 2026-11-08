@@ -1,0 +1,93 @@
+# First-party rules for the security-gate agent (Go and Java). Written for this agent from the OWASP
+# Cheat Sheet Series and the CWE entries named in each rule; no third-party rule text is copied.
+rules:
+  - id: go-sql-string-concat
+    languages: [go]
+    severity: ERROR
+    message: SQL text is built from a variable (concatenation or Sprintf), so input can change the query.
+    metadata: {cwe: "CWE-89", confidence: HIGH, family: sql-injection}
+    patterns:
+      - pattern-either:
+          - pattern: $DB.$M("..." + $X, ...)
+          - pattern: $DB.$M(fmt.Sprintf(...), ...)
+      - metavariable-regex:
+          metavariable: $M
+          regex: ^(Query|QueryRow|Exec|QueryContext|ExecContext|QueryRowContext)$
+  - id: go-command-injection
+    languages: [go]
+    severity: ERROR
+    message: A shell runs a command built from a variable, so input can run other commands.
+    metadata: {cwe: "CWE-78", confidence: MEDIUM, family: command-injection}
+    patterns:
+      - pattern-either:
+          - pattern: exec.Command("sh", "-c", $X)
+          - pattern: exec.Command("bash", "-c", $X)
+      - pattern-not: exec.Command($SH, "-c", "...")
+  - id: go-tls-insecure-skip-verify
+    languages: [go]
+    severity: ERROR
+    message: TLS certificate checks are turned off, so a man in the middle can read or change the traffic.
+    metadata: {cwe: "CWE-295", confidence: MEDIUM, family: tls}
+    pattern: "tls.Config{..., InsecureSkipVerify: true, ...}"
+  - id: go-weak-hash-md5-sha1
+    languages: [go]
+    severity: WARNING
+    message: MD5/SHA-1 are broken for security use (signatures, passwords, integrity against an attacker).
+    metadata: {cwe: "CWE-328", confidence: MEDIUM, family: weak-crypto}
+    pattern-either:
+      - pattern: md5.New()
+      - pattern: md5.Sum(...)
+      - pattern: sha1.New()
+      - pattern: sha1.Sum(...)
+  - id: java-sql-string-concat
+    languages: [java]
+    severity: ERROR
+    message: SQL text is built by string concatenation, so input can change the query.
+    metadata: {cwe: "CWE-89", confidence: HIGH, family: sql-injection}
+    patterns:
+      - pattern-either:
+          - pattern: $S.$M("..." + $X, ...)
+          - pattern: $S.$M($X + "...", ...)
+      - metavariable-regex:
+          metavariable: $M
+          regex: ^(executeQuery|executeUpdate|execute|prepareStatement|addBatch)$
+  - id: java-command-injection
+    languages: [java]
+    severity: ERROR
+    message: A command is run from a non-constant string, so input can run other commands.
+    metadata: {cwe: "CWE-78", confidence: MEDIUM, family: command-injection}
+    patterns:
+      - pattern: Runtime.getRuntime().exec($X)
+      - pattern-not: Runtime.getRuntime().exec("...")
+  - id: java-unsafe-deserialization
+    languages: [java]
+    severity: ERROR
+    message: Java deserialisation of untrusted data can run code.
+    metadata: {cwe: "CWE-502", confidence: MEDIUM, family: deserialization}
+    pattern: new ObjectInputStream(...)
+  - id: java-weak-hash-md5-sha1
+    languages: [java]
+    severity: WARNING
+    message: MD5/SHA-1 are broken for security use (signatures, passwords, integrity against an attacker).
+    metadata: {cwe: "CWE-328", confidence: MEDIUM, family: weak-crypto}
+    patterns:
+      - pattern: MessageDigest.getInstance($ALG)
+      - metavariable-regex:
+          metavariable: $ALG
+          regex: (?i)^"(md5|sha-?1)"$
+  - id: java-weak-cipher
+    languages: [java]
+    severity: ERROR
+    message: A weak cipher or ECB mode is used; ECB leaks patterns and DES/RC4 are breakable.
+    metadata: {cwe: "CWE-327", confidence: MEDIUM, family: weak-crypto}
+    patterns:
+      - pattern: Cipher.getInstance($ALG)
+      - metavariable-regex:
+          metavariable: $ALG
+          regex: (?i)^"(des|desede|rc4|arcfour|aes|aes/ecb/.*|des/.*)"$
+  - id: secret-in-file
+    languages: [python, javascript, typescript, go, java]
+    severity: ERROR
+    message: A private key or cloud access key id is in the file.
+    metadata: {cwe: "CWE-798", confidence: HIGH, family: secrets}
+    pattern-regex: (-----BEGIN (RSA |EC |DSA |OPENSSH )?PRIVATE KEY-----|\b(AKIA|ASIA)[0-9A-Z]{16}\b)

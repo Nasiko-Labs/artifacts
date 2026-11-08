@@ -1,0 +1,60 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "terraform-blast-radius",
+  "description": "Shows the blast radius of a Terraform plan you paste (the text of terraform plan or terraform show -json) plus the repository it belongs to: it lists what the plan changes, scores the risk of each change from a visible table (destroy 5 + stateful 3 ...), then searches your code host for what depends on the changed resources: module consumers, stacks reading their state, and services or manifests that reference their names or hosts, each with path:line, environment and owner (CODEOWNERS or recent committers). Returns affected[] ranked by risk, prod first. Follow-ups: only destroys and replacements, who owns a module, why a change is high, search another repository, as json. Read-only: it never runs Terraform, never comments and never writes anywhere. Not for policy checks or cost estimates.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain",
+    "text/markdown",
+    "application/json"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "terraform-blast-radius",
+      "name": "Terraform blast radius",
+      "description": "What a pasted Terraform plan changes, the risk of each change (scored in code), and what depends on the changed resources in your code host (module consumers, state readers, services referencing them), ranked by risk and environment, with owners.",
+      "tags": [
+        "terraform",
+        "infrastructure as code",
+        "blast radius",
+        "change risk",
+        "dependencies",
+        "sre",
+        "platform"
+      ],
+      "examples": [
+        "Here is my terraform plan for acme/infra: what could it break? <paste the plan>",
+        "Who owns what this plan changes?",
+        "Only show destroys and replacements"
+      ],
+      "inputModes": [
+        "text/plain",
+        "text/markdown",
+        "application/json"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

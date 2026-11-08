@@ -1,0 +1,55 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "revenue-anomaly-explainer",
+  "description": "Checks a day of subscription revenue movement in your own payments account (default: yesterday, UTC; also a named date or the last N days, up to 7) against a trailing baseline (28 days by default, 14 to 60): new, churned, expansion, contraction and net new MRR plus failed payments, per currency. Every number, z-score and threshold is computed in code (robust median/MAD score, a money floor so tiny moves never trigger), the accounts behind each flagged move are named with only the facts the data shows (a cancellation reason, a plan change, a decline code), and a short chat post is drafted. It never claims a cause the data cannot show, never changes anything in the payments account, and posts nothing until you approve that exact text.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "revenue-anomaly",
+      "name": "Revenue anomaly check",
+      "description": "Compares a day's new, churned, expansion, contraction and net new MRR and failed payments against a trailing baseline, computed in code from your subscriptions, flags what is unusual, names the accounts behind each move, and drafts a chat post that is sent only after you approve it.",
+      "tags": [
+        "revenue",
+        "mrr",
+        "anomaly",
+        "churn",
+        "failed payments",
+        "finance"
+      ],
+      "examples": [
+        "Any revenue anomalies yesterday?",
+        "Check the last 3 days",
+        "Post it to #revenue"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

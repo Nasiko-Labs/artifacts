@@ -1,0 +1,55 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "launch-readiness-checker",
+  "description": "Checks whether one named launch is ready, across four areas: engineering (open, urgent, blocked and unowned issues in your tracker), docs (a launch doc that exists, is fresh and has no TODO/TBD markers), support (a macro or help-center article that mentions the launch) and marketing (launch tasks, overdue or unowned ones). Every rule runs in code on what the tools returned, with evidence for each line; the verdict (go, conditional, no-go) is computed in code, never by the model. An area it could not read is marked unknown and caps the verdict at conditional. Returns checklist[], verdict, blockers[] and unknown_sources[]. Read-only: never edits a task, doc or macro.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "launch-readiness",
+      "name": "Check launch readiness",
+      "description": "Go / conditional / no-go for one named launch: 12 fixed checks across engineering, docs, support and marketing, each with its evidence and links, plus what blocks the launch and what could not be read.",
+      "tags": [
+        "launch",
+        "release",
+        "readiness",
+        "go/no-go",
+        "checklist",
+        "product management"
+      ],
+      "examples": [
+        "Is Dashboards 2.0 ready to launch on Nov 20?",
+        "Go/no-go for the billing revamp",
+        "What is blocking the SSO launch?"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

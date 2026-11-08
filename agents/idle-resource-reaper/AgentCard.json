@@ -1,0 +1,57 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "idle-resource-reaper",
+  "description": "Reviews a cloud resource inventory you paste (CSV, or the JSON of the standard describe commands for volumes, instances, snapshots, addresses, load balancers and NAT gateways) and finds idle resources by fixed rules: unattached volumes, idle or long-stopped instances, orphaned snapshots, unassociated IPs, idle load balancers and NAT gateways. Each gets its idle days and a monthly cost computed in code (your pasted cost, else a dated list-price estimate, labelled), and an owner from its tags or, with evidence, from the code host; unknown owners are shown, never guessed. Resources tagged keep are left out and counted. On request it drafts one \"delete or justify\" message per owner with a reply-by date and sends it by chat or email only after you approve that exact text, one draft at a time. It never deletes, stops or changes any resource.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain",
+    "application/json"
+  ],
+  "skills": [
+    {
+      "id": "idle-reaper",
+      "name": "Idle resource reaper",
+      "description": "Idle cloud resources in a pasted inventory, by fixed rules, with idle days, monthly cost (reported or a labelled estimate), totals and the owner from tags or code-host evidence. Then one delete-or-justify message per owner, sent only after you approve the exact text. Never deletes anything.",
+      "tags": [
+        "finops",
+        "cloud cost",
+        "idle resources",
+        "unattached volumes",
+        "orphaned snapshots",
+        "cleanup",
+        "owners"
+      ],
+      "examples": [
+        "Find idle resources in this inventory: <paste CSV or describe-volumes JSON>",
+        "Who owns the biggest ones?",
+        "Draft messages to the owners"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

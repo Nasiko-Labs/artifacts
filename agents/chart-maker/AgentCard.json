@@ -1,0 +1,56 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "chart-maker",
+  "description": "Turns data you paste into a chart, or a process or structure you describe into a diagram, in a form the chat can show. Charts come back as a text bar chart you can see inline, a table, and a self-contained SVG picture you download as an html file and open in a browser. Diagrams come back as Mermaid source plus a plain-text outline. Every number is parsed from your data in code: it never invents, fetches or edits data, and it writes nowhere. Change it with \"line chart\", \"top 5\", \"sort by name\" or \"add a rollback step\". Not for explaining or forecasting data, statistics, general questions or drawing logos and illustrations.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.1",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "make-chart-or-diagram",
+      "name": "Make a chart or diagram",
+      "description": "A chart from pasted data (CSV, TSV, a markdown table, label: value lines or JSON) or a diagram of a process, sequence, hierarchy, timeline or relationships you describe. Charts: inline text chart, table and a downloadable SVG; diagrams: Mermaid source and an outline. Numbers come only from your data.",
+      "tags": [
+        "chart",
+        "diagram",
+        "visualization",
+        "mermaid",
+        "svg",
+        "bar chart",
+        "flowchart"
+      ],
+      "examples": [
+        "Chart this: Q1,120 / Q2,150 / Q3,90 / Q4,210",
+        "Bar chart of signups by channel: <paste CSV>",
+        "Diagram our onboarding: signup, verify email, choose plan, pay, welcome"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

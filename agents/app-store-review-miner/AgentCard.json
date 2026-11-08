@@ -1,0 +1,59 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "app-store-review-miner",
+  "description": "Mines app store and Google Play reviews you paste (blocks, CSV/TSV or JSON; up to 400 reviews a turn): groups them by app version, finds the complaint themes with review counts, shares and verbatim quotes, flags versions where ratings dropped (low-rating share up 15 points or average down 0.5 stars against the previous version, with at least 10 rated reviews each), lists complaints new in a version, and compares complaint shares with competitor apps whose reviews you also paste. Every count, average and percentage is computed in code. If a review tool is connected it can fetch an app's recent reviews instead. It never rates an app from memory, fetches store pages, invents reviews or replies to them. Follow-ups: themes, versions, compare, as json. Not a general product or survey analyst.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": false
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain",
+    "application/json"
+  ],
+  "skills": [
+    {
+      "id": "app-review-themes",
+      "name": "App review themes",
+      "description": "Complaint themes with counts and verbatim quotes from pasted app store reviews, per-version ratings with regression flags, complaints new in a version, and complaint shares compared with competitor apps.",
+      "tags": [
+        "app store",
+        "google play",
+        "app reviews",
+        "ratings",
+        "release regression",
+        "voice of customer",
+        "competitors",
+        "product management"
+      ],
+      "examples": [
+        "Here are our last 200 reviews, what is wrong with 4.2.1?",
+        "Compare our complaints with Rival App's",
+        "Which version got worse?"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain",
+        "application/json"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

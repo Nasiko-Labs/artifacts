@@ -1,0 +1,67 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "macro-gap-finder-live",
+  "description": "Reads the agent replies on recently solved tickets in your connected support desk (default last 30 days, up to 60 tickets) and finds the answers your agents keep typing by hand: each recurring answer with how many replies, tickets and agents give it (counted in code by text similarity, not by the model) and a draft macro. It checks your existing macros and reports answers they already cover instead of proposing them again. Customer names, emails, phone numbers, ticket numbers and long numbers are replaced by placeholders before any drafting, and a draft may only contain facts that at least two of its replies state. Without a connected desk, paste 10 or more replies and it uses the same method. Follow-ups: show the replies behind a pattern, a different minimum or top N, a shorter or friendlier draft. Read-only: it never creates a macro or edits a ticket, and does not answer customers or general questions.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain",
+    "text/markdown",
+    "text/csv",
+    "application/json",
+    "text/tab-separated-values"
+  ],
+  "defaultOutputModes": [
+    "text/plain",
+    "application/json"
+  ],
+  "skills": [
+    {
+      "id": "find-macro-gaps-live",
+      "name": "Find macro gaps in the support desk",
+      "description": "Recurring hand-typed answers in recent solved-ticket replies, ranked by how often they occur, minus what existing macros cover, each with a draft macro grounded in those replies; customer data scrubbed.",
+      "tags": [
+        "support",
+        "macros",
+        "canned responses",
+        "saved replies",
+        "help desk",
+        "deflection",
+        "agent replies",
+        "tickets"
+      ],
+      "examples": [
+        "Which answers do we keep typing by hand?",
+        "Macro candidates from the last 60 days",
+        "Draft a macro for the SSO password question"
+      ],
+      "inputModes": [
+        "text/plain",
+        "text/markdown",
+        "text/csv",
+        "application/json",
+        "text/tab-separated-values"
+      ],
+      "outputModes": [
+        "text/plain",
+        "application/json"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

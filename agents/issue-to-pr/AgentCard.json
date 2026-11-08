@@ -1,0 +1,55 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "issue-to-pr",
+  "description": "Turns one small, well-described software issue into a draft pull request. It reads the issue and the relevant files through your code host connection (or an issue and files you paste), finds where the change belongs, lets a sandboxed coding engine edit only those files, computes the exact diff in code, runs the tests when it can, and shows you the diff, PR title and body. Nothing is pushed until you approve: one approval card per write (create the branch, commit each file, open the draft PR). It never touches the default branch, CI files, lockfiles or secrets, and never claims tests passed unless they ran. Not a code reviewer, merger or general programming helper.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "issue-to-pr",
+      "name": "Issue to draft PR",
+      "description": "Given an issue and a repository: localization, a sandboxed edit, the computed diff, a test run when possible, then a draft pull request opened step by step, each write only after its own approval.",
+      "tags": [
+        "issue",
+        "pull request",
+        "coding agent",
+        "diff",
+        "repository",
+        "developer"
+      ],
+      "examples": [
+        "Fix demo-org/shop-api#12",
+        "Take acme/web#340 and show me the diff only",
+        "Fix this issue in acme/api: <paste the issue>"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

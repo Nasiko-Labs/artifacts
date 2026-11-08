@@ -1,0 +1,55 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "slo-burn-forecaster",
+  "description": "Forecasts SLO error-budget burn from SLI data you paste (timestamped good/total, errors/total or error-rate rows per service) and each service's SLO target and period. Computes in code the multi-window burn rates (1 h, 6 h, 24 h, period), the error budget left, the hours until it runs out at the current rate, a status per service (fast burn, slow burn, elevated, healthy, exhausted) and which service is burning fastest. Optionally lists possibly related error-tracker issues and incidents for the top burners. Read-only: it never queries a metrics system and never claims a number it did not compute.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "slo-burn-forecast",
+      "name": "SLO burn forecast",
+      "description": "Ranks services by error-budget burn from pasted SLI rows: burn rate per window, budget remaining, hours to exhaust, worst 6-hour window and share of errors, with what-if factors and per-service SLO overrides. All maths in code; read-only.",
+      "tags": [
+        "slo",
+        "error budget",
+        "burn rate",
+        "sre",
+        "reliability",
+        "forecast"
+      ],
+      "examples": [
+        "Paste checkout and payments error counts and SLOs: which one runs out of budget first?",
+        "What if payments' error rate halves?",
+        "Why is payments burning?"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

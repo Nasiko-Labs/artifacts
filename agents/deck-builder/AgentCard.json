@@ -1,0 +1,58 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "deck-builder",
+  "description": "Turns your notes, an outline or pasted data into a real, editable PowerPoint deck (3-20 slides): action-title slides, short bullets, native editable charts and tables built from the numbers you pasted, and speaker notes. It shows the slide outline in chat, edits the deck on request (\"make slide 3 a chart of this table\"), gives a script that rebuilds the file, and uploads the .pptx to your cloud drive only after you approve the exact file. It never invents numbers, names or quotes (missing ones become visible placeholders) and never adds images or logos. Not research, long documents, Word/Excel files or critiques of someone else's deck.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain",
+    "application/json",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+  ],
+  "skills": [
+    {
+      "id": "build-deck",
+      "name": "Build a slide deck",
+      "description": "A PowerPoint deck from your notes, outline or pasted data: action titles, short bullets, native charts and tables from your numbers, speaker notes, placeholders instead of invented facts; edits on request; uploaded to your drive only after you approve the file.",
+      "tags": [
+        "slides",
+        "deck",
+        "powerpoint",
+        "pptx",
+        "presentation",
+        "charts",
+        "board update"
+      ],
+      "examples": [
+        "Make an 8-slide board update from these notes: <paste>",
+        "Turn this outline into a customer pitch deck: <paste>",
+        "Build a deck with a chart of this table: <paste CSV>, then upload it to my Drive"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

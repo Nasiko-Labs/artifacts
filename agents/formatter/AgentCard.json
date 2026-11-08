@@ -1,0 +1,61 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "formatter",
+  "description": "Formats structured output (a JSON envelope from another agent, or any JSON) as Markdown, Slack Block Kit blocks or email HTML, in code: same JSON in, same text out. It never adds, rewrites or summarises content; every value in your JSON appears in the result, escaped for the target (Slack data can never ping a channel; email HTML has no scripts, images or external styles). Knows the layouts of the catalog agents' outputs (summaries, action items, promises, rankings, pre-mortems, drafts, memos) and has a generic layout for any other JSON; also converts pasted Markdown to Slack or email. Follow-ups re-render the same input: as slack, as email, as markdown, compact, no footer, the plain-text version, as json. It sends and posts nothing, and answers no other questions.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain",
+    "text/markdown",
+    "application/json"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "format-output",
+      "name": "Format structured output",
+      "description": "Renders a JSON envelope or any JSON as Markdown, Slack blocks or email HTML without changing its content, plus Markdown to Slack or email conversion.",
+      "tags": [
+        "format",
+        "markdown",
+        "slack",
+        "block kit",
+        "email",
+        "html",
+        "json",
+        "render"
+      ],
+      "examples": [
+        "Format this as Slack: <json>",
+        "Format as email: <json>",
+        "As markdown, compact: <json>"
+      ],
+      "inputModes": [
+        "text/plain",
+        "text/markdown",
+        "application/json"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

@@ -1,0 +1,56 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "fix-this-test",
+  "description": "Fixes one failing Python (pytest) test. Paste the pytest failure output and the test and source files (each starting with a line like `# file: src/money.py`). It reproduces the failure by running your pasted code with pytest in a locked-down sandbox inside its own container (no credentials, CPU, memory and time limits; outbound network is not blocked by the agent), lets the model read, edit and re-run in a short bounded loop, and returns a unified diff computed by code plus whether the fix was verified by a real re-run. It fixes the code, not the test: edits that weaken a test (removing asserts, skipping, changing expected values) are refused. It never says a fix works unless the re-run passed, and it writes nothing outside its own temporary run directory; you apply the patch yourself. Python and pytest only, standard library plus pytest. Not for writing features or new tests, code review, other languages or general programming questions.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "fix-failing-test",
+      "name": "Fix a failing test",
+      "description": "From pasted pytest failure output and the test and source files: reproduce the failure in a sandbox, make the smallest source change that fixes the cause, re-run the tests and return a verified unified diff. Test-weakening edits are refused; nothing is written outside a temporary run directory.",
+      "tags": [
+        "python",
+        "pytest",
+        "failing test",
+        "bug fix",
+        "patch",
+        "diff",
+        "debugging"
+      ],
+      "examples": [
+        "Fix this failing test: <pytest output> + `# file: tests/test_money.py` ... + `# file: src/money.py` ...",
+        "Why does this test fail? (no edits)",
+        "Try a different fix"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

@@ -1,0 +1,61 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "seo-audit",
+  "description": "Audits one web page for on-page SEO and for readiness to be cited by AI answer engines. Paste the page's HTML (or give one URL, fetched through a strict guard that only reaches public addresses) and it returns a score computed in code, findings with severity and evidence quoted from the page, a prioritised fix list, and proposed title and meta description rewrites with their lengths measured in code. Follow-ups work on the stored audit: only critical, explain a finding, score breakdown, AI crawler rules, rewrite the title for a keyword, audit again with a new version. It never crawls a site, writes nothing, and does not report rankings, backlinks, traffic or page speed.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain",
+    "text/html",
+    "application/json"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "seo-audit-page",
+      "name": "Audit a page for SEO and AI search",
+      "description": "A code-computed SEO and AI-readiness score for one page (pasted HTML or one URL), findings with verbatim evidence, a fix list and title/meta rewrite proposals, plus follow-ups on the same audit.",
+      "tags": [
+        "seo",
+        "audit",
+        "on-page",
+        "meta description",
+        "title tag",
+        "structured data",
+        "ai search",
+        "geo"
+      ],
+      "examples": [
+        "Audit https://example.com/pricing",
+        "Here's my page's HTML, audit it for the keyword 'crm for startups': <paste>",
+        "Is this page ready for AI search engines? <URL>"
+      ],
+      "inputModes": [
+        "text/plain",
+        "text/html",
+        "application/json"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

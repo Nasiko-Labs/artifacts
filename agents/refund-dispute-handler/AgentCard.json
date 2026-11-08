@@ -1,0 +1,56 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "refund-dispute-handler",
+  "description": "Handles a refund request or a dispute (chargeback) against your own payments account: given a customer, a charge or dispute id, or a pasted customer email, it reads the charge, the customer's plan, invoices, prior refunds and disputes, and your email with them, applies the refund policy in code (14-day window, auto-approve up to 100.00, prorated annual plans by default, or your organization's refund policy) and returns an approve / partial / deny / needs-human recommendation with the reasons and evidence. For a dispute it gives the deadline, an evidence checklist and a packet to paste. It drafts the reply to the customer and sends it only after you approve that exact text. It never issues a refund, submits dispute evidence or closes a dispute: you do that in your payments dashboard.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "refund-dispute",
+      "name": "Refund and dispute handling",
+      "description": "A refund request or dispute: the charge, customer history and email checked, the refund policy applied in code, an approve / partial / deny / needs-human recommendation with evidence, a dispute evidence packet, and a reply draft sent only after you approve the exact text. Never refunds.",
+      "tags": [
+        "refunds",
+        "disputes",
+        "chargebacks",
+        "refund policy",
+        "payments",
+        "finance",
+        "support"
+      ],
+      "examples": [
+        "Jane wants a refund for last month's charge",
+        "What should I do about dispute dp_...?",
+        "List my open disputes"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

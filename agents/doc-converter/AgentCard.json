@@ -1,0 +1,58 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "doc-converter",
+  "description": "Turns a document into clean Markdown: PDF (text layer), Word, PowerPoint, Excel, CSV, HTML, JSON, XML, EPUB, plain text, or a ZIP of those. Name up to 5 files in your cloud drive or file storage, paste HTML or a CSV, or send a file through the API. The conversion is done in code, so the document's content never reaches a model; the result comes back in a Markdown block you can copy or download, with page, sheet and slide counts and honest warnings (scanned PDF with no text layer, cut sheets). Read-only. It does not summarise, translate, rewrite or answer questions about a document.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "convert-to-markdown",
+      "name": "Convert a document to Markdown",
+      "description": "A PDF, Word, PowerPoint, Excel, CSV, HTML, JSON, XML, EPUB, text or ZIP file from your cloud drive, file storage, a paste or the API, converted to Markdown in code, with counts and warnings. Say 'as json' for a workflow envelope.",
+      "tags": [
+        "markdown",
+        "convert",
+        "pdf",
+        "docx",
+        "xlsx",
+        "pptx",
+        "html",
+        "csv",
+        "documents"
+      ],
+      "examples": [
+        "Convert Q3-plan.docx from my Drive to markdown",
+        "Turn the deck 'Board update.pptx' in Dropbox into markdown",
+        "Convert this HTML to markdown: <paste>"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

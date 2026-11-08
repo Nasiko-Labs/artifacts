@@ -1,0 +1,65 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "meeting-notes-processor",
+  "description": "Turns a meeting transcript or raw meeting notes you paste into structured notes: the attendees with their share of the talking, topic notes, the decisions, and the action items and follow-ups with owners and due dates. It reads speaker and timestamp transcripts (Zoom, Teams, Otter style, VTT, SRT) and plain bullet notes. Every decision and action cites the turn and time it came from and a verbatim quote, checked in code; it never invents an owner or a date, and resolves hand-offs ('Mei, can you take that?' 'On it') to the person who accepted. Follow-ups: only decisions, only action items, only mine (after 'I'm Raj'), only follow-ups, show sources, as a table, as json, or a question about the meeting. Up to about 20k words. It sends nothing and reads only what you give it.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain",
+    "text/markdown",
+    "application/json",
+    "text/vtt",
+    "application/x-subrip"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "process-meeting-notes",
+      "name": "Process meeting notes",
+      "description": "Attendees, topic notes, decisions, action items and follow-ups (owner, due, time) from a pasted meeting transcript or notes, each backed by a quote from its turn, plus follow-ups on the same meeting.",
+      "tags": [
+        "meeting notes",
+        "transcript",
+        "minutes",
+        "decisions",
+        "action items",
+        "follow-ups",
+        "owners",
+        "attendees"
+      ],
+      "examples": [
+        "Process this transcript: <paste>",
+        "Notes from the sync, I'm Raj: <paste>",
+        "What did we decide about pricing?"
+      ],
+      "inputModes": [
+        "text/plain",
+        "text/markdown",
+        "application/json",
+        "text/vtt",
+        "application/x-subrip"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

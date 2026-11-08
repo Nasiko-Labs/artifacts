@@ -1,0 +1,146 @@
+# First-party rules for the security-gate agent (Python). Written for this agent from the OWASP Cheat
+# Sheet Series and the CWE entries named in each rule; no third-party rule text is copied.
+rules:
+  - id: python-sql-string-concat
+    languages: [python]
+    severity: ERROR
+    message: SQL text is built from a variable (concatenation, f-string, % or .format), so input can change the query.
+    metadata: {cwe: "CWE-89", confidence: HIGH, family: sql-injection}
+    pattern-either:
+      - pattern: $CUR.execute("..." + $X, ...)
+      - pattern: $CUR.execute($X + "...", ...)
+      - pattern: $CUR.execute(f"...", ...)
+      - pattern: $CUR.execute("..." % $X, ...)
+      - pattern: $CUR.execute("...".format(...), ...)
+      - pattern: $CUR.executemany("..." + $X, ...)
+      - pattern: $CUR.executemany(f"...", ...)
+      - pattern: $DB.raw("..." + $X, ...)
+      - pattern: $DB.raw(f"...", ...)
+  - id: python-command-injection
+    languages: [python]
+    severity: ERROR
+    message: A shell command is run with shell=True or from a non-constant string, so input can run other commands.
+    metadata: {cwe: "CWE-78", confidence: HIGH, family: command-injection}
+    pattern-either:
+      - pattern: subprocess.$F(..., shell=True, ...)
+      - patterns:
+          - pattern-either:
+              - pattern: os.system($X)
+              - pattern: os.popen($X, ...)
+          - pattern-not: os.system("...")
+          - pattern-not: os.popen("...", ...)
+  - id: python-eval-exec
+    languages: [python]
+    severity: ERROR
+    message: eval/exec runs a non-constant string as code.
+    metadata: {cwe: "CWE-95", confidence: MEDIUM, family: code-injection}
+    patterns:
+      - pattern-either:
+          - pattern: eval($X, ...)
+          - pattern: exec($X, ...)
+      - pattern-not: eval("...", ...)
+      - pattern-not: exec("...", ...)
+  - id: python-unsafe-deserialization
+    languages: [python]
+    severity: ERROR
+    message: pickle/marshal/shelve deserialisation can run code from the data it loads.
+    metadata: {cwe: "CWE-502", confidence: MEDIUM, family: deserialization}
+    pattern-either:
+      - pattern: pickle.loads(...)
+      - pattern: pickle.load(...)
+      - pattern: cPickle.loads(...)
+      - pattern: marshal.loads(...)
+      - pattern: shelve.open(...)
+  - id: python-yaml-unsafe-load
+    languages: [python]
+    severity: ERROR
+    message: yaml.load without a safe loader can build arbitrary objects from the document.
+    metadata: {cwe: "CWE-502", confidence: MEDIUM, family: deserialization}
+    pattern-either:
+      - patterns:
+          - pattern: yaml.load(...)
+          - pattern-not: yaml.load(..., Loader=yaml.SafeLoader, ...)
+          - pattern-not: yaml.load(..., Loader=SafeLoader, ...)
+          - pattern-not: yaml.load(..., Loader=yaml.CSafeLoader, ...)
+      - pattern: yaml.unsafe_load(...)
+  - id: python-weak-hash-md5-sha1
+    languages: [python]
+    severity: WARNING
+    message: MD5/SHA-1 are broken for security use (signatures, passwords, integrity against an attacker).
+    metadata: {cwe: "CWE-328", confidence: MEDIUM, family: weak-crypto}
+    pattern-either:
+      - pattern: hashlib.md5(...)
+      - pattern: hashlib.sha1(...)
+      - pattern: hashlib.new("md5", ...)
+      - pattern: hashlib.new("sha1", ...)
+  - id: python-weak-cipher
+    languages: [python]
+    severity: ERROR
+    message: A weak cipher or ECB mode is used; ECB leaks patterns and DES/RC4 are breakable.
+    metadata: {cwe: "CWE-327", confidence: MEDIUM, family: weak-crypto}
+    pattern-either:
+      - pattern: DES.new(...)
+      - pattern: ARC4.new(...)
+      - pattern: $C.new($K, $C.MODE_ECB, ...)
+      - pattern: modes.ECB(...)
+  - id: python-tls-verify-disabled
+    languages: [python]
+    severity: ERROR
+    message: TLS certificate checks are turned off, so a man in the middle can read or change the traffic.
+    metadata: {cwe: "CWE-295", confidence: MEDIUM, family: tls}
+    pattern-either:
+      - pattern: requests.$M(..., verify=False, ...)
+      - pattern: httpx.$M(..., verify=False, ...)
+      - pattern: $S.$M(..., verify=False, ...)
+      - pattern: ssl._create_unverified_context(...)
+  - id: python-path-traversal
+    languages: [python]
+    severity: WARNING
+    message: A file path comes from request input, so ../ can read files outside the intended folder.
+    metadata: {cwe: "CWE-22", confidence: MEDIUM, family: path-traversal}
+    pattern-either:
+      - pattern: open(<... request.$W ...>, ...)
+      - pattern: send_file(<... request.$W ...>, ...)
+      - pattern: os.path.join($BASE, <... request.$W ...>)
+  - id: python-ssrf-request-url
+    languages: [python]
+    severity: WARNING
+    message: A server-side HTTP request goes to a URL taken from request input (SSRF).
+    metadata: {cwe: "CWE-918", confidence: MEDIUM, family: ssrf}
+    pattern-either:
+      - pattern: requests.$M(<... request.$W ...>, ...)
+      - pattern: urllib.request.urlopen(<... request.$W ...>, ...)
+      - pattern: httpx.$M(<... request.$W ...>, ...)
+  - id: python-open-redirect
+    languages: [python]
+    severity: WARNING
+    message: The redirect target comes from request input, so users can be sent to another site.
+    metadata: {cwe: "CWE-601", confidence: MEDIUM, family: open-redirect}
+    pattern-either:
+      - pattern: redirect(<... request.$W ...>, ...)
+      - pattern: HttpResponseRedirect(<... request.$W ...>, ...)
+  - id: python-cors-wildcard
+    languages: [python]
+    severity: WARNING
+    message: CORS allows every origin, so any site can call this API from a browser.
+    metadata: {cwe: "CWE-942", confidence: MEDIUM, family: cors}
+    pattern-either:
+      - pattern: CORS($APP, ..., origins="*", ...)
+      - pattern: 'CORS($APP, ..., resources={..., $K: {..., "origins": "*", ...}, ...}, ...)'
+      - pattern: $R.headers["Access-Control-Allow-Origin"] = "*"
+      - pattern: CORSMiddleware(..., allow_origins=["*"], ...)
+      - pattern: $APP.add_middleware(CORSMiddleware, ..., allow_origins=["*"], ...)
+  - id: python-jwt-no-verify
+    languages: [python]
+    severity: ERROR
+    message: A token is decoded without verifying its signature, so it can be forged.
+    metadata: {cwe: "CWE-347", confidence: MEDIUM, family: auth}
+    pattern-either:
+      - pattern: 'jwt.decode(..., options={..., "verify_signature": False, ...}, ...)'
+      - pattern: jwt.decode(..., verify=False, ...)
+  - id: python-debug-enabled
+    languages: [python]
+    severity: WARNING
+    message: The web app runs with debug on, which exposes an interactive debugger and stack traces.
+    metadata: {cwe: "CWE-489", confidence: MEDIUM, family: config}
+    pattern: $APP.run(..., debug=True, ...)

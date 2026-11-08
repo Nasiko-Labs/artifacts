@@ -1,0 +1,55 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "adhoc-request-deflector",
+  "description": "Checks whether an existing dashboard already answers an ad-hoc data request (\"can you pull weekly active users by plan?\") and drafts a short reply with the dashboard link. It reads your dashboard index (a spreadsheet titled like \"Dashboard Index\", or a list you paste: name, url, description), ranks the dashboards against the request in code, and labels the match exact, partial (what is covered and what is missing) or none. Named a chat channel (\"check #data-requests since Monday\"), it scans recent requests there, up to 5 per turn, and drafts a reply for each; a reply is posted in the request's thread only after you approve that exact text, one card per post. It never answers the data question itself, never claims a match the index does not support, and links only to dashboards in the index.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "deflect-requests",
+      "name": "Deflect data requests",
+      "description": "Matches a data request to an existing dashboard from your dashboard index (exact / partial / none, with what is covered and missing) and drafts a reply with the link; scans a chat channel for recent requests and posts each reply in its thread only after you approve it.",
+      "tags": [
+        "data requests",
+        "dashboards",
+        "deflection",
+        "analytics",
+        "self-serve",
+        "chat"
+      ],
+      "examples": [
+        "can you pull weekly active users by plan?",
+        "check #data-requests since Monday",
+        "is there a dashboard for churn?"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

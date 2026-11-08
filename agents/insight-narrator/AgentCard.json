@@ -1,0 +1,66 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "insight-narrator",
+  "description": "Explains a small table in plain English for people who don't read tables. Paste a table (markdown, CSV, TSV or a JSON array, up to 200 rows) or the numbers behind a chart, optionally with who it's for and how long; it writes a headline sentence, two or three supporting points and one thing to watch out for. Code computes every fact (changes, highs and lows, leaders and shares, biggest movers, values far from the rest, data-quality issues) and checks every number the narrative uses against them; it never states a cause you didn't give, never uses analyst jargon and never forecasts. Follow-ups on the same table: one sentence, longer, for execs, simpler, show the numbers, as json, or a question about the table. It cannot read chart images and does no analysis beyond narration (use csv-to-insight for analysis); no files, databases or web, and no general questions.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain",
+    "text/csv",
+    "text/tab-separated-values",
+    "text/markdown",
+    "application/json"
+  ],
+  "defaultOutputModes": [
+    "text/plain",
+    "application/json"
+  ],
+  "skills": [
+    {
+      "id": "narrate-table",
+      "name": "Insight narrator",
+      "description": "Plain-English story of a pasted table or chart data: a headline, supporting points and one watch-out, every number computed in code and checked, no jargon and no invented causes.",
+      "tags": [
+        "data storytelling",
+        "narrative",
+        "plain english",
+        "table",
+        "chart",
+        "summary",
+        "non-analysts"
+      ],
+      "examples": [
+        "Explain this for the sales team: <paste the table>",
+        "One sentence on this table: <paste the table>",
+        "For execs, no jargon: <paste the table>"
+      ],
+      "inputModes": [
+        "text/plain",
+        "text/csv",
+        "text/tab-separated-values",
+        "text/markdown",
+        "application/json"
+      ],
+      "outputModes": [
+        "text/plain",
+        "application/json"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

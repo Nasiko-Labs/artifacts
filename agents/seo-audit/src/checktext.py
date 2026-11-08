@@ -1,0 +1,111 @@
+"""Fixed text per check id: area, severity, weight (the plan's tables), a short name, why it matters and
+the fix. No model is needed to explain a check."""
+
+from __future__ import annotations
+
+from typing import NamedTuple
+
+
+class Spec(NamedTuple):
+    area: str
+    severity: str
+    weight: int
+    name: str
+    why: str
+    fix: str
+
+
+SPECS: dict[str, Spec] = {
+    "T1": Spec("on_page", "critical", 8, "Page title present",
+               "The title is the headline search engines and AI answers show for the page.",
+               "Add a <title> in the <head> that names what the page offers."),
+    "T2": Spec("on_page", "high", 5, "Title length 30-60 characters",
+               "Titles over about 60 characters get cut off in results; very short ones waste the slot.",
+               "Rewrite the title to 30-60 characters, main topic first."),
+    "M1": Spec("on_page", "high", 5, "Meta description present",
+               "Without one, the result snippet is picked by the search engine and is often weak.",
+               "Add <meta name=\"description\" content=\"...\"> summarising the page in one or two sentences."),
+    "M2": Spec("on_page", "medium", 3, "Meta description 70-160 characters",
+               "Descriptions outside this range are cut off or too thin to earn the click.",
+               "Rewrite the meta description to 120-155 characters."),
+    "H1": Spec("on_page", "high", 5, "Exactly one H1",
+               "One H1 states the page's main topic; none or several blurs it.",
+               "Use a single <h1> naming the page's main topic; demote the others to <h2>."),
+    "H2": Spec("on_page", "low", 2, "No skipped heading levels",
+               "A heading outline without gaps helps crawlers and screen readers follow the structure.",
+               "Nest headings in order (h2, then h3) without skipping a level."),
+    "C1": Spec("on_page", "medium", 3, "Canonical link present",
+               "A canonical tells search engines which URL is the main copy of this content.",
+               "Add <link rel=\"canonical\" href=\"<this page's URL>\">."),
+    "C2": Spec("on_page", "high", 4, "Canonical points to this page",
+               "A canonical to another URL asks search engines to index that URL instead of this one.",
+               "Point the canonical at this page's own URL, unless the other URL really is the main copy."),
+    "R1": Spec("on_page", "critical", 8, "Page is indexable (no noindex)",
+               "A noindex robots meta keeps the page out of search results entirely.",
+               "Remove noindex from the robots meta tag if the page should be found."),
+    "V1": Spec("on_page", "medium", 3, "Viewport meta present",
+               "Without a viewport the page is not treated as mobile friendly.",
+               "Add <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">."),
+    "L1": Spec("on_page", "low", 2, "Language declared",
+               "The html lang attribute tells engines which language the page is in.",
+               "Add a lang attribute to <html>, for example lang=\"en\"."),
+    "I1": Spec("on_page", "medium", 3, "Images have alt text (90%+)",
+               "Alt text describes images for search and for screen readers.",
+               "Add descriptive alt text to content images; mark decorative ones role=\"presentation\"."),
+    "K1": Spec("on_page", "low", 2, "At least 3 internal links",
+               "Internal links help crawlers find related pages and pass context.",
+               "Link to at least three related pages on the same site."),
+    "K2": Spec("on_page", "low", 2, "Generic anchor text 10% or less",
+               "Anchors like \"click here\" say nothing about the target page.",
+               "Replace generic anchors with words that describe the linked page."),
+    "O1": Spec("on_page", "low", 2, "Open Graph title, description and image",
+               "These control how the page looks when shared in chat and social apps.",
+               "Add og:title, og:description and og:image meta tags."),
+    "W1": Spec("on_page", "medium", 3, "300+ words for an informational page",
+               "Informational pages that are very short rarely answer the query fully.",
+               "Expand the main content with the details a reader needs (aim for 300+ words)."),
+    "S1": Spec("on_page", "medium", 3, "Valid JSON-LD structured data",
+               "Structured data helps engines understand the page and enables rich results.",
+               "Add a JSON-LD block describing the page (see the proposal, built only from the page's facts)."),
+    "S2": Spec("on_page", "low", 2, "JSON-LD type fits the page",
+               "A schema type that does not match the page (e.g. no Product on a product page) is less useful.",
+               "Use the schema type that matches the page: Article, Product, FAQPage, Organization..."),
+    "D1": Spec("on_page", "low", 1, "Title and H1 not identical",
+               "An identical title and H1 miss a chance to cover a second phrasing of the topic.",
+               "Make the H1 a natural variant of the title rather than a copy."),
+    "P1-title": Spec("on_page", "medium", 1, "Keyword in the title", "The target keyword should appear in the title.",
+                     "Put the target keyword near the start of the title."),
+    "P1-h1": Spec("on_page", "medium", 1, "Keyword in the H1", "The target keyword should appear in the H1.",
+                  "Use the target keyword in the H1."),
+    "P1-intro": Spec("on_page", "medium", 1, "Keyword in the first 100 words",
+                     "Early use of the keyword confirms the page's topic.", "Mention the keyword in the opening paragraph."),
+    "G1": Spec("geo", "info", 0, "AI crawlers allowed by robots.txt",
+               "Blocking an AI crawler keeps the page out of that engine's answers; it may be intentional.",
+               "If you want to be cited by that engine, allow its crawler in robots.txt."),
+    "G2": Spec("geo", "low", 1, "llms.txt present",
+               "An llms.txt file gives AI tools a curated summary of the site (an emerging convention).",
+               "Publish /llms.txt with a short description of the site and links to key pages."),
+    "G3": Spec("geo", "medium", 3, "Answers first",
+               "Answer engines quote pages whose opening directly answers the title's question.",
+               "Open with a one- or two-sentence direct answer, then the detail."),
+    "G4": Spec("geo", "low", 2, "Question-style headings or an FAQ",
+               "Question headings map directly onto the questions people ask AI assistants.",
+               "Add a few H2/H3 headings phrased as the questions your readers ask, or an FAQ section."),
+    "G5": Spec("geo", "medium", 3, "Fitting structured data for answers",
+               "FAQ, HowTo and Article schema make the page's answers easy to extract.",
+               "Add JSON-LD of the type that fits the page (FAQPage for Q&A, Article for posts)."),
+    "G6": Spec("geo", "low", 2, "Freshness signal",
+               "A visible or schema date tells engines the information is current.",
+               "Show a published/updated date (<time> or datePublished/dateModified in JSON-LD)."),
+    "G7": Spec("geo", "low", 2, "Author or organisation signal",
+               "A byline or organisation identity makes the page more citable.",
+               "Add an author byline, an About link or Organization schema."),
+    "G8": Spec("geo", "low", 2, "Citable facts (3+)",
+               "Specific figures, dates and named sources are what answer engines quote.",
+               "Add concrete numbers, dates or named sources that support the page's claims."),
+    "G9": Spec("geo", "low", 2, "Scannable structure",
+               "Lists, tables and short paragraphs are easier to extract and quote.",
+               "Break long paragraphs up (90 words or less) and use lists or tables for steps and comparisons."),
+}
+ONPAGE_IDS = [k for k, v in SPECS.items() if v.area == "on_page"]
+GEO_IDS = [k for k, v in SPECS.items() if v.area == "geo"]

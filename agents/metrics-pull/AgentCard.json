@@ -1,0 +1,57 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "metrics-pull",
+  "description": "Pulls fresh numbers from a spreadsheet you name (title or link, optional tab and range) or from a table you paste, and returns them as a clean table: the columns you ask for, filters, grouping and simple aggregates (sum, average, min, max, count, latest) and period-over-period comparisons, all computed in code, with an as-of time and the source range on every answer. Say \"as json\" for a JSON envelope a workflow step can read. It re-reads the sheet on every request, reports a missing column instead of guessing, never edits the sheet and never explains why numbers moved.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain",
+    "application/json"
+  ],
+  "skills": [
+    {
+      "id": "metrics-pull",
+      "name": "Metrics pull",
+      "description": "Reads a spreadsheet (or a pasted table) and returns the requested columns, filters, groups, totals, latest values and period-over-period changes as a table with as-of time and source range; JSON on request.",
+      "tags": [
+        "metrics",
+        "spreadsheet",
+        "table",
+        "kpi",
+        "data pull",
+        "json"
+      ],
+      "examples": [
+        "Latest weekly signups by region from KPI sheet",
+        "Total revenue by plan for October",
+        "Columns date, mrr, churn from 'Finance Weekly' as json"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain",
+        "application/json"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

@@ -1,0 +1,56 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "config-drift-detector",
+  "description": "Finds configuration drift: where live infrastructure no longer matches its infrastructure-as-code. Paste the output of `terraform plan -refresh-only` (with the repository), or name an IaC file in the code host and paste the live object (`kubectl get ... -o yaml`, `terraform state show`, a JSON export). It lists every drifted attribute with expected vs actual, severity, the IaC file and line, who last changed the file in code and, when you paste audit events, who changed it by hand. Values are compared in code, never guessed; secrets are redacted. Read-only: it never applies, reverts, edits or opens pull requests.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "config-drift",
+      "name": "Config drift",
+      "description": "Compares infrastructure code with pasted live state and returns drift[]: resource, attribute, expected, actual, severity, file:line, last code author and the manual actor from pasted audit events.",
+      "tags": [
+        "drift",
+        "terraform",
+        "kubernetes",
+        "infrastructure as code",
+        "sre",
+        "audit",
+        "platform"
+      ],
+      "examples": [
+        "Here is `terraform plan -refresh-only` for acme/infra: what drifted?",
+        "Compare k8s/payments.yaml in acme/infra to this live YAML",
+        "Who changed the security group? (audit events pasted)"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

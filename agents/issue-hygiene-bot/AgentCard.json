@@ -1,0 +1,56 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "issue-hygiene-bot",
+  "description": "Checks your tracker for issue hygiene problems: open issues with no project, no estimate (only for teams that estimate), stale In Progress (no update for 14 days) or open 90+ days. Groups the flagged issues by owner with a team hygiene score, lists unassigned ones for you, and drafts one chat direct message per owner you pick, listing their issues with links and suggested actions. Every message is shown to you and sent only after you approve that exact text, one owner at a time. It never edits, closes or reassigns an issue, and owners' replies do not come back to it. Ask \"Hygiene check for team Platform\". Not a general tracker assistant and not an issue triager.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "issue-hygiene-check",
+      "name": "Issue hygiene check and owner nudges",
+      "description": "Finds open tracker issues with no project, no estimate, stale in progress or open 90+ days, groups them by owner, and drafts one direct message per picked owner, sent only after you approve the exact text.",
+      "tags": [
+        "issue hygiene",
+        "tracker",
+        "stale issues",
+        "backlog",
+        "owners",
+        "direct message",
+        "project manager"
+      ],
+      "examples": [
+        "Hygiene check for team Platform",
+        "Which issues have been open over 90 days?",
+        "Message the owners of stale In Progress issues"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

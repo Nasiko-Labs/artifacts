@@ -1,0 +1,55 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "finance-rollups",
+  "description": "Month-end close view from your own payments account (default: the last 3 full calendar months, UTC; also \"last month\", \"Q1\", \"Jan to Mar 2026\", up to 12 months): gross volume, refunds, disputes, fees, net and payouts per month and currency from balance transactions, plus invoiced revenue by paid date, month over month changes and refund and fee rates. Paste ledger totals (for example a profit-and-loss export) and it ties them out month by month with a 1.00 / 0.5% tolerance, listing each variance with only the explanations the data supports (invoices paid across a month boundary, refunds, fees or credit notes netted, currency, a missing side). Every sum, difference and percentage is computed in code. Read-only: it never writes to the payments account or any ledger.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": false
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "finance-rollup",
+      "name": "Month-end finance rollup",
+      "description": "Rolls up a month range of payments activity (gross, refunds, disputes, fees, net, payouts, invoiced paid) per month and currency, computed in code, ties it out against ledger totals you paste with code-derived candidate explanations for each variance, and writes a short month-end narrative. Read-only.",
+      "tags": [
+        "finance",
+        "month-end",
+        "close",
+        "rollup",
+        "reconciliation",
+        "payments"
+      ],
+      "examples": [
+        "Run the month-end rollup for March",
+        "Roll up Q1 and show refunds and fees",
+        "Reconcile it against this ledger: <paste month, account, amount, currency rows>"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

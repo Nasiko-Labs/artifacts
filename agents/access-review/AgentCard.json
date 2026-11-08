@@ -1,0 +1,56 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "access-review",
+  "description": "Reviews who has prod or admin access against your org roster. Paste an access export from your identity provider (CSV/TSV: user, email, system, role, last sign-in, status) and your roster (email, name, title, manager, status), and optionally name your code-host organization to check its members, owners, outside collaborators and repo admins. It flags terminated people who still have access, accounts not on the roster, dormant accounts, privileged roles without a matching job title, too many owners and outside collaborators with admin, each with its evidence and rule, and drafts removal requests as text. Defaults: dormant after 90 days, at most 3 owners, admin titles engineering/SRE/DevOps/platform/security/infrastructure/IT; change them in one line. It never removes, suspends or changes any access and never sends the requests.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "access-review",
+      "name": "Access review",
+      "description": "Compares a pasted access export and roster (plus, optionally, your code-host organization) and lists what needs a decision: terminated with access, not on roster, dormant, privileged without a role need, excess owners, outside collaborator admins. Removal requests are drafted as text, never sent.",
+      "tags": [
+        "access review",
+        "offboarding",
+        "least privilege",
+        "admin access",
+        "dormant accounts",
+        "audit",
+        "security"
+      ],
+      "examples": [
+        "Review prod access against this roster (paste `access:` and `roster:` blocks)",
+        "Who still has access to our code-host org acme but left the company?",
+        "Draft removal requests for terminated people"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

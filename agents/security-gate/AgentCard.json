@@ -1,0 +1,55 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "security-gate",
+  "description": "Security gate for one pull request: runs a bundled static-analysis ruleset (SQL and command injection, eval, unsafe deserialisation, weak hashes and ciphers, disabled TLS checks, path traversal, SSRF, open redirects, permissive CORS, committed secrets) over the PR's changed files in Python, JavaScript/TypeScript, Go and Java, and answers whether the PR passes: a verdict (pass, needs attention, fail, incomplete) computed in code from the findings on changed lines only, each finding with file, line, rule, why it matters and a suggested fix. Existing issues in touched files are listed but never gate. Secrets are masked. Also scans a pasted diff or code, or triages pasted scanner findings (JSON or SARIF). After you approve the exact text it can post one summary comment on the PR. Advice only, not a security audit: it never merges, approves, requests changes, pushes or blocks a merge, and never runs the PR's code. Use it for a pass/fail security check of a PR; for a free-form security review of code, use a security reviewer.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "pr-security-gate",
+      "name": "PR security gate",
+      "description": "Scan a pull request's changed lines with bundled security rules and get a code-computed verdict with findings, explanations and suggested fixes; or scan a pasted diff, or triage pasted scanner findings. One summary comment on the PR, posted only after you approve the exact text.",
+      "tags": [
+        "security",
+        "pull request",
+        "static analysis",
+        "secrets",
+        "gate",
+        "developer"
+      ],
+      "examples": [
+        "Gate PR 482 in acme/api",
+        "Check this diff for security issues (paste it)",
+        "Triage these Semgrep findings (paste the JSON or SARIF)"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

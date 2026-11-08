@@ -1,0 +1,56 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "issue-localizer",
+  "description": "Finds where one software issue most likely lives in a repository: a ranked list of files, then the functions or classes, then the exact lines, with a score and the signals behind each (named in the issue, code-search hits, path match). It reads the issue and the repository through your code host connection, or works on an issue and files you paste. Every path, name and line number is checked against the repository; line numbers are computed by code, never guessed. It also lists what the report is missing (steps to reproduce, expected vs actual, version, logs) and suggests the next step. Read-only: it never edits code, opens pull requests or comments. Not a fixer, code reviewer or general programming helper.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": true
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "localize-issue",
+      "name": "Localize an issue",
+      "description": "Given an issue and a repository: the issue kind, suspect files with scores, suspect functions, edit locations with line ranges, what the report is missing, and the next step. Read-only.",
+      "tags": [
+        "issue",
+        "bug",
+        "triage",
+        "localization",
+        "repository",
+        "code search",
+        "developer"
+      ],
+      "examples": [
+        "Where is the bug in owner/repo#12?",
+        "Localize this issue in acme/shop-api: <paste the issue>",
+        "Triage acme/shop-api#31: what's missing and where do I look?"
+      ],
+      "inputModes": [
+        "text/plain"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

@@ -1,0 +1,106 @@
+# First-party rules for the security-gate agent (JavaScript / TypeScript). Written for this agent from
+# the OWASP Cheat Sheet Series and the CWE entries named in each rule; no third-party rule text is copied.
+rules:
+  - id: js-sql-string-concat
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: SQL text is built from a variable (concatenation or template literal), so input can change the query.
+    metadata: {cwe: "CWE-89", confidence: HIGH, family: sql-injection}
+    pattern-either:
+      - pattern: $DB.query("..." + $X, ...)
+      - pattern: $DB.query(`...${$X}...`, ...)
+      - pattern: $DB.execute("..." + $X, ...)
+      - pattern: $DB.execute(`...${$X}...`, ...)
+      - pattern: $DB.raw("..." + $X, ...)
+      - pattern: $DB.raw(`...${$X}...`, ...)
+  - id: js-command-injection
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: A shell command is built from a variable, so input can run other commands.
+    metadata: {cwe: "CWE-78", confidence: HIGH, family: command-injection}
+    pattern-either:
+      - pattern: $CP.exec("..." + $X, ...)
+      - pattern: $CP.exec(`...${$X}...`, ...)
+      - pattern: $CP.execSync("..." + $X, ...)
+      - pattern: $CP.execSync(`...${$X}...`, ...)
+      - pattern: exec("..." + $X, ...)
+      - pattern: exec(`...${$X}...`, ...)
+      - pattern: execSync("..." + $X, ...)
+      - pattern: execSync(`...${$X}...`, ...)
+  - id: js-eval
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: eval / new Function runs a non-constant string as code.
+    metadata: {cwe: "CWE-95", confidence: MEDIUM, family: code-injection}
+    pattern-either:
+      - patterns:
+          - pattern: eval($X)
+          - pattern-not: eval("...")
+      - pattern: new Function(...)
+  - id: js-tls-reject-unauthorized
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: TLS certificate checks are turned off, so a man in the middle can read or change the traffic.
+    metadata: {cwe: "CWE-295", confidence: MEDIUM, family: tls}
+    pattern-either:
+      - pattern: "{..., rejectUnauthorized: false, ...}"
+      - pattern: process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0"
+  - id: js-weak-hash-md5-sha1
+    languages: [javascript, typescript]
+    severity: WARNING
+    message: MD5/SHA-1 are broken for security use (signatures, passwords, integrity against an attacker).
+    metadata: {cwe: "CWE-328", confidence: MEDIUM, family: weak-crypto}
+    pattern-either:
+      - pattern: $C.createHash("md5")
+      - pattern: $C.createHash("sha1")
+  - id: js-open-redirect
+    languages: [javascript, typescript]
+    severity: WARNING
+    message: The redirect target comes from request input, so users can be sent to another site.
+    metadata: {cwe: "CWE-601", confidence: MEDIUM, family: open-redirect}
+    pattern-either:
+      - pattern: $RES.redirect($REQ.query.$X)
+      - pattern: $RES.redirect($REQ.params.$X)
+      - pattern: $RES.redirect($REQ.body.$X)
+  - id: js-cors-wildcard
+    languages: [javascript, typescript]
+    severity: WARNING
+    message: CORS allows every origin, so any site can call this API from a browser.
+    metadata: {cwe: "CWE-942", confidence: MEDIUM, family: cors}
+    pattern-either:
+      - pattern: 'cors({..., origin: "*", ...})'
+      - pattern: $RES.setHeader("Access-Control-Allow-Origin", "*")
+      - pattern: $RES.header("Access-Control-Allow-Origin", "*")
+      - pattern: $RES.set("Access-Control-Allow-Origin", "*")
+  - id: js-path-traversal
+    languages: [javascript, typescript]
+    severity: WARNING
+    message: A file path comes from request input, so ../ can read files outside the intended folder.
+    metadata: {cwe: "CWE-22", confidence: MEDIUM, family: path-traversal}
+    patterns:
+      - pattern-either:
+          - pattern: $FS.$METHOD(<... $REQ.query ...>, ...)
+          - pattern: $FS.$METHOD(<... $REQ.params ...>, ...)
+          - pattern: $RES.sendFile(<... $REQ.query ...>, ...)
+          - pattern: $RES.sendFile(<... $REQ.params ...>, ...)
+      - metavariable-regex:
+          metavariable: $METHOD
+          regex: ^(readFile|readFileSync|createReadStream|sendFile)$
+  - id: js-ssrf-request-url
+    languages: [javascript, typescript]
+    severity: WARNING
+    message: A server-side HTTP request goes to a URL taken from request input (SSRF).
+    metadata: {cwe: "CWE-918", confidence: MEDIUM, family: ssrf}
+    pattern-either:
+      - pattern: fetch(<... $REQ.query ...>, ...)
+      - pattern: fetch(<... $REQ.body ...>, ...)
+      - pattern: axios.get(<... $REQ.query ...>, ...)
+      - pattern: axios.get(<... $REQ.body ...>, ...)
+  - id: js-unsafe-deserialization
+    languages: [javascript, typescript]
+    severity: ERROR
+    message: This deserialiser can run code from the data it loads.
+    metadata: {cwe: "CWE-502", confidence: MEDIUM, family: deserialization}
+    pattern-either:
+      - pattern: $S.unserialize(...)
+      - pattern: yaml.load(...)
