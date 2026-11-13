@@ -1,0 +1,62 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "ticket-triager-stateless",
+  "description": "Triages a batch of support tickets you paste into the chat (a CSV export, a JSON array, or blocks like 'Ticket #123: ...'): for each ticket a priority (P1-P4), a category, an escalation risk (low/medium/high), a suggested owner team and a one-line reason quoting the ticket. The model only reads each ticket and reports signals (service down, data loss, security, churn or legal threat, blocked work, repeat contact...) with exact quotes, checked in code; priority, risk and owner are computed by fixed rules in code from those signals and the tier, age and contact count you pasted. Optional lines: 'SLA: P1 1h, P2 4h', 'Routing: billing -> Billing Ops', 'as of 2026-11-04'. Follow-ups: only P1, high risk only, sort by risk, why is #4812 P2?, as json. It keeps nothing between messages: follow-ups work on the batch and triage still in the recent conversation, and a long batch from much earlier may need re-pasting. Up to 200 tickets per batch. It never replies to customers, never changes a ticket and never invents a customer, tier or owner.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langchain",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": false
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain",
+    "text/markdown",
+    "text/csv",
+    "application/json"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "triage-tickets",
+      "name": "Triage support tickets",
+      "description": "Priority, category, escalation risk, suggested owner and a quoted reason for each pasted support ticket, computed by rules in code from quoted signals, plus filters and explanations on the same batch.",
+      "tags": [
+        "support",
+        "tickets",
+        "triage",
+        "priority",
+        "escalation",
+        "routing",
+        "customer support"
+      ],
+      "examples": [
+        "Triage these 30 tickets: <paste the CSV export>",
+        "Only P1 and P2",
+        "Why is 4812 high risk?"
+      ],
+      "inputModes": [
+        "text/plain",
+        "text/markdown",
+        "text/csv",
+        "application/json"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

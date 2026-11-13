@@ -1,0 +1,64 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "stack-trace-explainer-rust",
+  "description": "Explains a pasted error message or stack trace (Python, JavaScript/Node, Java/Kotlin, Go, Rust, Ruby, C#): the probable cause, the exact line to look at, a fix and how to confirm it. The trace is parsed in code, so the location is the innermost frame of your own code (library frames are skipped) and chained exceptions are explained root cause first. Paste the code around that line (e.g. under '# file: app/orders.py') for a high-confidence answer; without it, it says exactly which lines to paste. Every quote, path and line number is checked against what you pasted. It keeps nothing between messages: follow-up questions and code pasted later work on the error still in the recent conversation, so a very long earlier trace may need pasting again. It never runs code, reads no repository or logs, and sends nothing. Not for general programming questions, writing new code or code review. This is the Rust build: the same explainer as a small native binary.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "rust",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": true,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": false
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain",
+    "text/markdown",
+    "application/json",
+    "text/x-diff",
+    "text/x-patch"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "explain-stack-trace",
+      "name": "Explain a stack trace",
+      "description": "The probable cause, the line to look at, a fix and how to verify it, for a pasted error or stack trace plus optional code snippets. Follow-ups: paste the missing lines, ask why, or ask for the result as json.",
+      "tags": [
+        "stack trace",
+        "error",
+        "exception",
+        "debugging",
+        "traceback",
+        "panic",
+        "crash"
+      ],
+      "examples": [
+        "Explain this: <paste a Python traceback>",
+        "Why does this crash? <Java stack trace> + the method code under '// file: OrderRepository.java'",
+        "What does `ECONNREFUSED 127.0.0.1:5432` mean?"
+      ],
+      "inputModes": [
+        "text/plain",
+        "text/markdown",
+        "application/json",
+        "text/x-diff",
+        "text/x-patch"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

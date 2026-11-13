@@ -1,0 +1,60 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "design-doc-drafter-stateless",
+  "description": "Turns requirements you paste into the chat into a software design document with a fixed structure: context and goals, a requirements table with ids (R1, R2...), components, contracts, data flow, data model, failure modes, security, observability, rollout, acceptance criteria per requirement, alternatives and open questions. A small CrewAI crew writes it (a requirements analyst, an architect, a technical writer); requirement ids, vague-word detection, coverage and section order are computed in code. It never invents numbers: an unknown scale, latency or budget becomes a visible [TBD] and an open question, and technologies you didn't name are labelled \"Proposed\" with the requirement they serve. Answer an open question (\"Q2: 500 requests/second\") and the draft is rebuilt with your answer. Stateless: it keeps nothing between messages, so follow-ups (answers, added requirements, revisions, as json) work on what is still in the recent conversation, and very long earlier requirements may need re-pasting. ADR style on request; an agent-design appendix for LLM or agent systems. It drafts only and writes nothing anywhere. Not for writing or reviewing code, project plans or general questions.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "crewai",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": false
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain",
+    "text/markdown",
+    "application/json"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "design-doc",
+      "name": "Draft a design document",
+      "description": "A design document from pasted requirements: ids, components, contracts, data flow, failure modes, acceptance criteria and open questions, with unknown numbers marked [TBD]. Draft only.",
+      "tags": [
+        "design doc",
+        "architecture",
+        "requirements",
+        "ADR",
+        "RFC",
+        "acceptance criteria",
+        "system design"
+      ],
+      "examples": [
+        "Draft a design doc for these requirements: <paste the requirements>",
+        "ADR for choosing a queue given these constraints: <paste the constraints>",
+        "Q2: 500 requests/second; Q5: no PII"
+      ],
+      "inputModes": [
+        "text/plain",
+        "text/markdown",
+        "application/json"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

@@ -1,0 +1,62 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "chunker-merger-stateless",
+  "description": "Cuts a long text into numbered, ready-to-paste parts and merges the per-part JSON results back into one result with the same schema, entirely in code with no model. Split: by speaker turns, headings, paragraphs or sentences, into N parts or parts of a given size, never mid-sentence, optionally with an instruction wrapped into every part's prompt; it checks that the parts rejoin to your text exactly. Merge: paste two or more JSON results from the same agent; lists are concatenated and exact duplicates removed, confidence is the lowest, needs_human is true if any part needs it, near-duplicates are only reported. Stateless: it keeps nothing between messages, so follow-ups (show part 3, split again, merge with this one) work on the text or results still visible in the recent conversation and a long earlier paste may need re-pasting; a text sent over several messages is split piece by piece. It never asks back. It never rewrites content, calls no other agent and answers no other questions.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langchain",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": false
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain",
+    "text/markdown",
+    "text/csv",
+    "application/json"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "chunk-and-merge",
+      "name": "Split long text and merge results",
+      "description": "Splits a long text into numbered chunk prompts on structural boundaries, losslessly, and merges same-schema JSON results from the parts into one, without rewriting any item.",
+      "tags": [
+        "split",
+        "chunk",
+        "merge",
+        "long text",
+        "transcript",
+        "json",
+        "map-reduce"
+      ],
+      "examples": [
+        "Split this transcript into 4 parts, for each part: extract action items <paste the text>",
+        "Merge these results: <json> --- <json>",
+        "Show part 3"
+      ],
+      "inputModes": [
+        "text/plain",
+        "text/markdown",
+        "text/csv",
+        "application/json"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

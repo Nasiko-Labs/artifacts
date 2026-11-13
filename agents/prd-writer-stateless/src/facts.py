@@ -1,0 +1,106 @@
+"""Pure: the fact extractor's answer into checked facts. The extractor reads the brief's first three ~12k-char
+chunks in one call; code keeps only facts whose snippet is really in the brief and dedupes them. A fact keeps
+the extractor's own id (`F<n>`, which the author and editor cite) when it is well formed and unique, else its
+position."""
+
+from __future__ import annotations
+
+import re
+from collections.abc import Sequence
+from dataclasses import dataclass
+
+import prompts
+from grounding import locate, normalise
+from prd import FACT_KINDS, Fact
+
+CHUNK_CHARS = 12_000
+MAX_CHUNKS = 3
+MAX_FACTS = 60
+MAX_TEXT_CHARS = 300
+MAX_SNIPPET_CHARS = 240
+_ID = re.compile(r"^F\d{1,2}$")
+
+
+@dataclass(frozen=True)
+class Extracted:
+    status: str                       # ok | off_topic
+    facts: tuple[Fact, ...] = ()
+    dropped: int = 0
+    parts: int = 1
+    total: int = 1
+    covered_chars: int = 0
+
+
+def chunks(brief: str, size: int = CHUNK_CHARS) -> list[str]:
+    """Cut at paragraph, line or sentence boundaries, each chunk <= size."""
+    out, rest = [], brief.strip()
+    while len(rest) > size:
+        head = rest[:size]
+        cut = max(head.rfind("\n\n"), head.rfind("\n"), head.rfind(". "))
+        cut = cut + 1 if cut >= size // 2 else size
+        out.append(rest[:cut].strip())
+        rest = rest[cut:].strip()
+    return [*out, rest] if rest else out
+
+
+def _validate(data: object) -> dict | None:
+    if not isinstance(data, dict):
+        return None
+    if data.get("status") == "off_topic":
+        return {"status": "off_topic", "facts": []}
+    facts = data.get("facts")
+    if not isinstance(facts, list):
+        return None
+    return {"status": "ok", "facts": [f for f in facts if isinstance(f, dict)]}
+
+
+def brief_parts(brief: str) -> tuple[str, int, int]:
+    """(the text the extractor reads, how many chunks that is, how many chunks the brief has)."""
+    pieces = chunks(brief)
+    used = pieces[:MAX_CHUNKS]
+    return "\n\n".join(used), len(used), len(pieces)
+
+
+def read(raw: object, brief: str, parts: int = 1, total: int = 1) -> Extracted | None:
+    """The extractor's parsed answer as checked facts; None when it does not match the contract."""
+    data = _validate(raw)
+    if data is None:
+        return None
+    if data["status"] == "off_topic":
+        return Extracted("off_topic")
+    facts, dropped = verify(data["facts"], brief)
+    covered = sum(len(p) for p in chunks(brief)[:parts])
+    return Extracted("ok", facts, dropped, parts, total, covered)
+
+
+def verify(raw: Sequence[dict], corpus: str) -> tuple[tuple[Fact, ...], int]:
+    """(kept facts, how many were dropped): unknown kind, no snippet, snippet not in the corpus, or a duplicate
+    of an earlier snippet. Ids are the model's when all are well formed and unique, else positional."""
+    norm = normalise(corpus)
+    kept: list[Fact] = []
+    seen: set[str] = set()
+    dropped = 0
+    ids = [str(item.get("id") or "").strip().upper() for item in raw]
+    usable = all(_ID.match(i) for i in ids) and len(set(ids)) == len(ids)
+    for n, item in enumerate(raw, start=1):
+        kind = str(item.get("kind") or "").strip().casefold()
+        snippet = str(item.get("snippet") or "").strip()[:MAX_SNIPPET_CHARS]
+        text = str(item.get("text") or "").strip()[:MAX_TEXT_CHARS] or snippet
+        key = normalise(snippet)
+        if kind not in FACT_KINDS or not locate(snippet, norm):
+            dropped += 1
+            continue
+        if (kind, key) in seen or len(kept) >= MAX_FACTS:
+            continue
+        seen.add((kind, key))
+        kept.append(Fact(ids[n - 1] if usable else f"F{n}", kind, prompts.strip_markers(text), snippet))
+    return tuple(kept), dropped
+
+
+def facts_block(facts: Sequence[Fact]) -> str:
+    return "\n".join(f'{f.id} [{f.kind}] {f.text} | snippet: "{f.snippet}"' for f in facts)
+
+
+def has_kind(facts: Sequence[Fact], *kinds: str) -> bool:
+    return any(f.kind in kinds for f in facts)
+

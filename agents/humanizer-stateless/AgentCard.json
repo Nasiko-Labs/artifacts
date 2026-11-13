@@ -1,0 +1,60 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "humanizer-stateless",
+  "description": "Takes a draft you paste (an email, a message, a memo, a post, or another agent's draft) and returns the same draft without AI-writing patterns: inflated phrases ('serves as a testament', 'delve'), chatbot openers and closers ('I hope this helps!'), filler, 'not only... but also', em-dash overuse and padded lists. It is a style pass, not a rewrite: every number, name, date, link, quote and the structure stay exactly as they were, checked in code; if a pass can't keep them, you get your draft back unchanged. It reports the AI-pattern density before and after (it never claims to beat AI detectors). Follow-ups: show the changes, keep my em dashes, more casual or formal, shorter, as json. Follow-ups work on what is still in the recent conversation; it keeps nothing between messages, so a long draft from earlier may need to be pasted again. Drafts over about 3k words are humanized up to that point and it says what was left out. English only; it writes nothing new, translates nothing and answers no general questions.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "langgraph",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": false,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": false
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain",
+    "text/markdown",
+    "application/json"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "humanize-draft",
+      "name": "Humanize a draft",
+      "description": "Removes AI-writing patterns from the draft you paste and keeps its facts, names, numbers, links, quotes and structure, with the AI-pattern density before and after and a list of changes.",
+      "tags": [
+        "humanize",
+        "ai tone",
+        "style",
+        "polish",
+        "editing",
+        "writing",
+        "draft"
+      ],
+      "examples": [
+        "Humanize this: <paste your draft>",
+        "Remove the AI tone from this email, keep my em dashes: <paste the email>",
+        "Show the changes"
+      ],
+      "inputModes": [
+        "text/plain",
+        "text/markdown",
+        "application/json"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}

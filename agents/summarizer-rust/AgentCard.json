@@ -1,0 +1,66 @@
+{
+  "protocolVersion": "0.2.9",
+  "name": "summarizer-rust",
+  "description": "Summarizes long text you paste into the chat (a meeting transcript, an email thread, a chat export, a document, another agent's output) into a short TL;DR, the decisions it records and the action items with owners and due dates. Every decision and action item is backed by a verbatim quote from your text, checked in code; anything it can't find in your text is left out, and it says how many. Follow-ups work on what is still in the recent conversation: only the action items, only decisions, shorter, show sources, as a table, who owns what, or a question about the text. It keeps nothing between messages, so a very long text from earlier may need to be pasted again. Up to about 20k words per message (anything longer is summarized up to the limit and it says what was left out). It reads only what you give it: no mail, files or web, and no general questions. This is the Rust build: the same summarizer as a small native binary.",
+  "url": "http://localhost:8000/",
+  "agentFramework": "rust",
+  "preferredTransport": "JSONRPC",
+  "provider": {
+    "organization": "Nasiko",
+    "url": "https://nasiko.io"
+  },
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": true,
+    "pushNotifications": false,
+    "stateTransitionHistory": false,
+    "chat_agent": true,
+    "hitl": false
+  },
+  "securitySchemes": {},
+  "security": [],
+  "defaultInputModes": [
+    "text/plain",
+    "text/markdown",
+    "text/csv",
+    "application/json",
+    "text/vtt",
+    "application/x-subrip"
+  ],
+  "defaultOutputModes": [
+    "text/plain"
+  ],
+  "skills": [
+    {
+      "id": "summarize-text",
+      "name": "Summarize text",
+      "description": "A TL;DR, the decisions and the action items (owner, due) of the text you paste, each backed by a quote from that text, plus follow-ups on the same summary while it is still in the recent conversation.",
+      "tags": [
+        "summary",
+        "tl;dr",
+        "meeting notes",
+        "transcript",
+        "decisions",
+        "action items",
+        "owners"
+      ],
+      "examples": [
+        "Summarize this call: <paste the transcript>",
+        "TL;DR of this thread, focus on pricing: <paste the thread>",
+        "Only the action items, with sources."
+      ],
+      "inputModes": [
+        "text/plain",
+        "text/markdown",
+        "text/csv",
+        "application/json",
+        "text/vtt",
+        "application/x-subrip"
+      ],
+      "outputModes": [
+        "text/plain"
+      ]
+    }
+  ],
+  "supportsAuthenticatedExtendedCard": false
+}
