@@ -33,6 +33,9 @@ def footer(result: Outcome) -> str:
     removed = sum(result.removed.values())
     parts = [f"AI-pattern density {result.before} -> {result.after} per 100 words.",
              f"{removed} {'pattern' if removed == 1 else 'patterns'} removed{_breakdown(result.removed)}."]
+    if result.cut_in_code:
+        parts.append("The model's shorter version was still over the word limit, so I cut filler clauses and "
+                     "sentences in code.")
     parts.append("Facts, numbers and links unchanged.")
     if result.confidence == "low":
         parts.append("Some AI patterns remain; review it before sending.")

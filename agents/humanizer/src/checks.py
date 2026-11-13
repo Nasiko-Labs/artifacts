@@ -16,7 +16,9 @@ from patterns_phrases import ARTEFACT_CATEGORIES, CHANGE_CATEGORIES, LABELS
 LENGTH_FLOOR = 0.85
 LENGTH_CEILING = 1.10
 SHORTER_FLOOR = 0.60
+SHORTER_CEILING = 0.85   # "shorter" must cut at least 15% of the words of what it shortens
 MAX_CHANGES = 40
+TOO_LONG = "it is too long ("
 _BULLET = re.compile(r"^[ \t]*(?:[-*•]|\d+[.)])[ \t]+", re.MULTILINE)
 _HEADING = re.compile(r"^#{1,6}[ \t]+", re.MULTILINE)
 _PARAGRAPH = re.compile(r"\n[ \t]*\n")
@@ -65,11 +67,21 @@ def length_problems(source: str, candidate: str, options: Options, before: Detec
     base = word_count(kept_text(source))
     removable = sum(word_count(h.phrase) for h in before.hits if h.category not in ("em_dash", *ARTEFACT_CATEGORIES))
     floor = (SHORTER_FLOOR if options.shorter else LENGTH_FLOOR) * max(1, base - removable)
+    if options.max_words:
+        floor = min(floor, SHORTER_FLOOR * options.max_words)
+        if words_after > options.max_words:
+            return [(f"{TOO_LONG}{words_after} words; the shorter version must have at most "
+                     f"{options.max_words}): cut wordiness and repetition, keep every fact")]
     if words_after < floor:
         return [f"it is too short ({words_after} words; keep at least {round(floor)}): cut only the AI patterns"]
     if words_after > LENGTH_CEILING * word_count(source):
-        return [f"it is too long ({words_after} words; the draft has {word_count(source)}): do not add content"]
+        return [f"{TOO_LONG}{words_after} words; the draft has {word_count(source)}): do not add content"]
     return []
+
+
+def shorter_cap(words: int) -> int:
+    """The most words a "shorter" version of a `words`-word text may have."""
+    return max(1, int(words * SHORTER_CEILING))
 
 
 def shape(text: str) -> tuple[int, int, int]:

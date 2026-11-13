@@ -4,7 +4,7 @@ The description carries the distinction from other agents: workflow generation s
 and description."""
 
 AGENT_NAME = "exec-brief-writer"
-AGENT_VERSION = "1.0.0"
+AGENT_VERSION = "1.0.1"
 AGENT_DESCRIPTION = (
     "Turns the outputs of other agents (or your own notes) that you PASTE into one conversation into a "
     "one-page executive brief with exactly three parts: a headline, what's at risk, and the decisions "

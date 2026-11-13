@@ -4,7 +4,7 @@ The description carries the distinction from other agents: workflow generation s
 and description."""
 
 AGENT_NAME = "prd-writer"
-AGENT_VERSION = "1.0.0"
+AGENT_VERSION = "1.0.1"
 AGENT_DESCRIPTION = (
     "Turns a product brief you paste into the chat (the idea, who it is for, constraints, any data) into a "
     "PRD with fixed sections: problem, users, goals, non-goals, requirements (with priority and an "

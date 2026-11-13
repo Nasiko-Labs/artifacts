@@ -4,7 +4,7 @@ The description carries the distinction from other agents: workflow generation s
 and description."""
 
 AGENT_NAME = "design-doc-drafter"
-AGENT_VERSION = "1.0.0"
+AGENT_VERSION = "1.0.1"
 AGENT_DESCRIPTION = (
     "Turns requirements you paste into the chat into a software design document with a fixed structure: context "
     "and goals, a requirements table with ids (R1, R2...), components, contracts, data flow, data model, failure "

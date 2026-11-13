@@ -2,9 +2,12 @@
 
     greeting / small talk                          -> canned intro (no call)
     a PRD is stored ─┬─ zero-call command          -> re-render / drop / start over / json
-                     ├─ short, or a revision cue   -> revise (1 call + <= 1 repair)
+                     ├─ a revision cue             -> revise (1 call + <= 1 repair)
+                     ├─ short, no cue              -> scope check first ("what's 2+2?" is declined, the PRD
+                     │                                kept), else revise
                      └─ otherwise                  -> a new brief
-    nothing stored ─┬─ >= 40 words of brief        -> new PRD (extract -> compose -> check)
+    nothing stored ─┬─ enough brief                -> new PRD (extract -> compose -> check); enough = 40+ words,
+                    │                                 or 20+ naming 4 of who/need/constraint/deadline/metric
                     ├─ short and asks for a PRD    -> pause Q1 (no call)
                     ├─ a stored-PRD command        -> "no PRD yet" (no call)
                     └─ short, anything else        -> one scope call: decline, or pause Q1
@@ -19,7 +22,7 @@ import followup
 import pauses
 import prompts
 import smalltalk
-from inputs import MIN_BRIEF_WORDS, Incoming, split_request, word_count
+from inputs import Incoming, enough_brief, split_request
 
 _PRD_CUE = re.compile(r"\b(?:prd|product requirements?|spec|brief|feature|product|customers?|users?|"
                       r"we want|launch|ship|roadmap)\b", re.IGNORECASE)
@@ -27,7 +30,7 @@ _PRD_CUE = re.compile(r"\b(?:prd|product requirements?|spec|brief|feature|produc
 
 @dataclass(frozen=True)
 class Plan:
-    route: str                      # reply | pause | new | revise | command | scope | who
+    route: str                      # reply | pause | new | revise | scope_then_revise | command | scope | who
     reply: str = ""
     pending: pauses.Pending | None = None
     brief: str = ""
@@ -45,11 +48,11 @@ def plan_turn(incoming: Incoming, has_prd: bool) -> Plan:
     if has_prd and command is not None:
         return Plan("command", command=command)
     request = split_request(text)
-    if word_count(request.brief) >= MIN_BRIEF_WORDS and not (has_prd and followup.is_revision(text)
-                                                             and not request.instruction):
+    if enough_brief(request.brief) and not (has_prd and followup.is_revision(text) and not request.instruction):
         return Plan("new", brief=request.brief, instruction=request.instruction)
-    if has_prd:
-        return Plan("revise", instruction=text.strip())
+    if has_prd:  # no revision cue ("what's 2+2?", "what about mobile?"): the scope check decides first
+        cued = followup.has_revision_cue(text)
+        return Plan("revise" if cued else "scope_then_revise", instruction=text.strip())
     if command is not None:
         return Plan("reply", prompts.NO_PRD_YET)
     pending = pauses.Pending(pauses.TOO_SHORT, brief=text.strip(), wants_json=incoming.wants_json)

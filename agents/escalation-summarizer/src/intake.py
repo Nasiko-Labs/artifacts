@@ -1,8 +1,9 @@
 """Pure: decide what one turn does, before any LLM call.
 
     greeting / small talk                           → canned intro (no call)
-    ≥ 80 words of thread ─┬─ over the size cap      → pause: most recent part or cancel
+    a thread (inputs.is_thread) ┬─ over the size cap      → pause: most recent part or cancel
                           └─ otherwise              → summarize (extract → check → compose → check)
+    an instruction line + a pasted body too short to be a thread → "too short", with the minimum
     short and plainly out of scope (blame, sums, replying to the customer) → fixed reply (no call)
     short, a result stored ─┬─ view / who said X    → render (no call)
                             ├─ a question           → one quote-checked call
@@ -23,10 +24,11 @@ import smalltalk
 import style
 from inputs import (
     MAX_THREAD_CHARS,
-    MIN_THREAD_WORDS,
     Incoming,
     assemble,
     envelope_as_thread,
+    has_pasted_body,
+    is_thread,
     keep_tail,
     split_request,
     without_json_words,
@@ -56,11 +58,13 @@ def plan_turn(incoming: Incoming, has_result: bool) -> Plan:
     text = envelope_as_thread(without_json_words(incoming.text))
     instruction, pasted = split_request(text)
     thread = prompts.strip_markers(assemble(pasted, incoming.files))
-    if word_count(thread) >= MIN_THREAD_WORDS:
+    if is_thread(thread):
         return _new_thread(thread, prompts.strip_markers(instruction), incoming.notes)
     declined = smalltalk.decline(incoming.text)
     if declined is not None:
         return Plan("reply", declined, notes=incoming.notes)
+    if has_pasted_body(text):
+        return Plan("reply", smalltalk.TOO_SHORT_REPLY, notes=incoming.notes)
     if has_result:
         return _on_stored(incoming)
     if followup.is_summarize_request(incoming.text) and word_count(incoming.text) <= SHORT_REQUEST_MAX_WORDS:

@@ -28,6 +28,7 @@ OPTIONAL = frozenset({"timeline", "milestones", "risks", "rollout", "rollout pla
                       "competition", "competitive landscape", "alternatives considered", "summary", "overview",
                       "tl dr", "tldr", "assumptions", "constraints", "go to market"})
 MIN_SECTION_WORDS = 15
+SHORT_SECTION_MIN_WORDS = {"non_goals": 5}   # one plain sentence ("SSO is out of scope") is a real Non-goals
 MAX_LINE_CHARS = 400
 
 _ALIAS_TO_KEY = {alias: key for key, names in ALIASES.items() for alias in names}
@@ -64,7 +65,7 @@ class Section:
 
     @property
     def present(self) -> bool:
-        return self.words >= MIN_SECTION_WORDS
+        return self.words >= SHORT_SECTION_MIN_WORDS.get(self.key, MIN_SECTION_WORDS)
 
 
 @dataclass(frozen=True)

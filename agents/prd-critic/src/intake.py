@@ -8,6 +8,7 @@
     a review stored, short message ─┬─ follow-up  -> followup (no call)
                                     └─ otherwise  -> scope check (decline or follow-up help)
     short PRD-like text (headings, or 60+ words)  -> fixed "too short" reply (no call)
+    no review stored, a review-only view          -> "no review yet" (no call): "only the blockers", "as json"...
     short, asks for a review                      -> pause Q1: paste the PRD (no call)
     short, anything else                          -> scope check (decline, or pause for the PRD)
 """
@@ -25,6 +26,9 @@ from inputs import Incoming, split_request, word_count
 from sections import find_headings, number_lines
 
 PRD_LIKE_MIN_WORDS = 60
+# Views that only make sense on a review. Topic words a general question can share ("metrics", "requirements",
+# "questions") are left out: those messages still go to the scope check.
+REVIEW_ONLY_VIEWS = ("blockers", "breakdown", "json", "sections", "all", "versions")
 _ASKS_FOR_REVIEW = re.compile(r"\b(?:review|critique|critic|score|grade|assess|check)\b.*\b(?:prd|spec|requirements?|"
                               r"doc(?:ument)?)\b|\bprd\b", re.IGNORECASE)
 
@@ -61,6 +65,9 @@ def plan_turn(incoming: Incoming, has_result: bool) -> Route:
         return Route("followup", command=command) if command else Route("scope")
     if find_headings(number_lines(body)) or words >= PRD_LIKE_MIN_WORDS:
         return Route("reply", prompts.TOO_SHORT)
+    command = followup.parse(incoming.text)
+    if command is not None and command.kind in REVIEW_ONLY_VIEWS:
+        return Route("reply", prompts.NO_REVIEW_YET)
     if _ASKS_FOR_REVIEW.search(incoming.text):
         return Route("pause", pending=need_prd(incoming, request.instruction))
     return Route("scope")

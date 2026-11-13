@@ -32,6 +32,7 @@ class ExplainerState(TypedDict, total=False):
     blocks: list[dict]        # pasted code blocks (CodeBlock.to_dict)
     words: str                # the user's own words from the turn that pasted the trace
     envelope: dict            # the last result
+    last_reply: str           # the last answer shown (explanation or follow-up): what a follow-up builds on
     route: str                # this turn only
     reply: str                # this turn only
     data: dict | None         # this turn only: the envelope to attach as a data part

@@ -2,7 +2,8 @@
 
 - a cue word in any entry about it (escalated, urgent, asap, p0/p1, sev1, critical, outage, down, breach, SLA
   breach/risk/expire/today, customer waiting, vip, exec, cancel, legal, chargeback, third time, still not,
-  data loss);
+  data loss, a business deadline today/tonight/tomorrow such as "finance close tomorrow", something that
+  failed/crashed/broke again);
 - a due that parses to a moment within 12 hours of the handoff, or already past (unparseable dues are shown
   as written, never used here);
 - it came up in 3 or more entries."""
@@ -23,6 +24,8 @@ RECURRING_MIN_ENTRIES = 3
 QUOTE_CHARS = 100
 QUOTE_CONTEXT = 40
 
+_EVENTS = (r"close|closing|month-end|quarter-end|year-end|payroll|launch|release|go-?live|cutover|audit|demo|"
+           r"renewal|board meeting|filing")
 CUES: tuple[tuple[str, re.Pattern], ...] = tuple((label, re.compile(pattern, re.IGNORECASE)) for label, pattern in (
     ("escalated", r"\bescalat\w*"),
     ("urgent", r"\burgent\b"),
@@ -41,6 +44,10 @@ CUES: tuple[tuple[str, re.Pattern], ...] = tuple((label, re.compile(pattern, re.
     ("chargeback", r"\bchargebacks?\b"),
     ("came back again", r"\b(?:third time|3rd time|still not)\b"),
     ("data loss", r"\bdata loss\b"),
+    ("deadline soon", (rf"\b(?:{_EVENTS})\b[^.;\n]{{0,25}}\b(?:today|tonight|tomorrow)\b"
+                       rf"|\b(?:today|tonight|tomorrow)(?:'s)?\s+(?:{_EVENTS})\b|\bdeadline\b")),
+    ("failing again", (r"\b(?:fail(?:ed|ing|s)?|broke(?:n)?|down|crash(?:ed|ing|es)?|error(?:ed|ing|s)?|timed out)"
+                       r"\s+(?:again|repeatedly)\b|\bkeeps? (?:failing|crashing|breaking)\b")),
 ))
 
 

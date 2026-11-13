@@ -14,7 +14,7 @@ from dataclasses import dataclass, field, replace
 from typing import Any
 
 import prompts
-from inputs import MIN_BRIEF_WORDS, current_message, word_count
+from inputs import MIN_BRIEF_WORDS, current_message, enough_brief, word_count
 from nasiko_hitl import question_metadata
 
 METADATA_KEY = "prd_writer"
@@ -82,7 +82,7 @@ def interpret(pending: Pending, raw_answer: str) -> Answer:
         return Answer("cancel")
     if pending.kind == TOO_SHORT:
         combined = f"{pending.brief.strip()}\n\n{answer}".strip()
-        if word_count(combined) >= MIN_BRIEF_WORDS:
+        if enough_brief(combined):
             return Answer("run", brief=combined)
         if pending.attempts == 0:
             return Answer("reask", pending=replace(pending, brief=combined, attempts=1))

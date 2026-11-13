@@ -5,6 +5,7 @@
     a draft of ≥ 15 words ─┬─ over 20,000 chars    → pause: first ~3k words or a shorter section
                            └─ otherwise            → humanize
     a draft is stored ─┬─ show the changes / patterns / as json → render (no call)
+                       ├─ "shorter"                → shorten the stored version shown, capped at 85% of its words
                        └─ an option ("keep my em dashes", "more casual") → re-run from the stored original
     a humanize request with no draft               → pause: paste the draft
     anything else                                  → one scope call (declined, or asked for the draft)

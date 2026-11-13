@@ -13,23 +13,15 @@ import re
 from collections.abc import Sequence
 from dataclasses import dataclass, replace
 
-from grounding import has_placeholder, normalise, tokens, ungrounded
-from prd import (
-    BASELINE_PH,
-    MAX_PROPOSED_NON_GOALS,
-    TARGET_PH,
-    WINDOW_PH,
-    Fact,
-    Metric,
-    Prd,
-    Requirement,
-    Statement,
-)
+from grounding import normalise, source_form, tokens, ungrounded
+from metric_checks import checked_metrics
+from prd import MAX_PROPOSED_NON_GOALS, TARGET_PH, Fact, Prd, Requirement, Statement
 
 _MUST_CUE = re.compile(r"\b(?:required|requires?|requirement|must|blockers?|blocking|mandatory)\b", re.IGNORECASE)
 _VAGUE = re.compile(r"\b(?:fast|quick(?:ly)?|easy|easily|intuitive|seamless(?:ly)?|robust|scalable|"
                     r"user-friendly|etc\.?|as needed|appropriate(?:ly)?)(?![\w-])", re.IGNORECASE)
 _DIGIT = re.compile(r"\d")
+_SENTENCE_BREAK = re.compile(r"(?<=[.!?])\s+|\n+")
 NO_HINT = "[check?]"
 
 
@@ -43,8 +35,10 @@ class Checked:
 class _Ctx:
     def __init__(self, facts: Sequence[Fact], corpus: str):
         self.norm = normalise(corpus)
+        self.sentences = tuple(t for t in _SENTENCE_BREAK.split(corpus or "") if t.strip())
         self.kinds = {f.id: f.kind for f in facts}
         self.snippets = {f.id: f.snippet for f in facts}
+        self.metric_facts = tuple(f for f in facts if f.kind in ("metric", "goal"))  # goals: only with a target
 
 
 def check(prd: Prd, facts: Sequence[Fact], corpus: str) -> Checked:
@@ -64,7 +58,7 @@ def check(prd: Prd, facts: Sequence[Fact], corpus: str) -> Checked:
     proposed = [s for s in sections["non_goals"] if s.proposed][MAX_PROPOSED_NON_GOALS:]
     sections["non_goals"] = tuple(s for s in sections["non_goals"] if s not in proposed)
     reqs, lost = _requirements(prd.requirements, ctx, problems)
-    mets, lost_m = _metrics(prd.metrics, ctx)
+    mets, lost_m = checked_metrics(prd.metrics, ctx)
     questions = tuple(q for q in prd.open_questions if not ungrounded(q.question, ctx.norm))
     dropped += lost + lost_m + len(prd.open_questions) - len(questions)
     if not reqs:
@@ -88,8 +82,8 @@ def _goal(s: Statement, ctx: _Ctx) -> Statement:
     """A goal keeps its wording; an invented number or date in it becomes [target?]."""
     text = s.text
     for token in tokens(text):
-        if normalise(token) not in ctx.norm:
-            text = text.replace(token, TARGET_PH, 1)
+        spelled = source_form(token, ctx.norm)  # "30 percent" -> the brief's "30%"
+        text = text.replace(token, spelled if spelled is not None else TARGET_PH, 1)
     for name in ungrounded(text, ctx.norm):
         text = text.replace(name, "[ ? ]", 1)
     return replace(s, text=text)
@@ -114,24 +108,3 @@ def _requirements(reqs: Sequence[Requirement], ctx: _Ctx, problems: list[str]) -
         solution = any(ctx.kinds.get(b) == "solution_idea" for b in r.basis)
         kept.append(replace(r, priority=priority, vague=vague, acceptance_hint=hint, from_solution=solution))
     return tuple(kept), len(reqs) - len(kept)
-
-
-def _metrics(mets: Sequence[Metric], ctx: _Ctx) -> tuple[tuple, int]:
-    kept = []
-    for m in mets:
-        if ungrounded(m.name, ctx.norm) or ungrounded(m.definition, ctx.norm):
-            continue
-        if m.proposed:
-            kept.append(replace(m, baseline=BASELINE_PH, target=TARGET_PH, window=WINDOW_PH))
-            continue
-        kept.append(replace(m, baseline=_value(m.baseline, BASELINE_PH, ctx), target=_value(m.target, TARGET_PH, ctx),
-                            window=_value(m.window, WINDOW_PH, ctx)))
-    return tuple(kept), len(mets) - len(kept)
-
-
-def _value(value: str, placeholder: str, ctx: _Ctx) -> str:
-    """A metric value stays only when it carries a number or date and every one is in the brief."""
-    if has_placeholder(value) or not tokens(value) or ungrounded(value, ctx.norm):
-        return placeholder
-    return value
-

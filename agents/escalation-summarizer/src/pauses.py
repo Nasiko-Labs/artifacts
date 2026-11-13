@@ -9,7 +9,7 @@ from dataclasses import dataclass, replace
 from typing import Any
 
 import prompts
-from inputs import MAX_THREAD_CHARS, MIN_THREAD_WORDS, current_message, word_count
+from inputs import MAX_THREAD_CHARS, MIN_MULTI_MESSAGE_WORDS, MIN_THREAD_WORDS, current_message, is_thread, word_count
 from nasiko_hitl import question_metadata
 
 METADATA_KEY = "escalation_summarizer"
@@ -59,8 +59,9 @@ def question(pending: Pending) -> tuple[str, dict]:
     """(chat text, status-message metadata) for one pause."""
     if pending.kind == NEED_THREAD:
         header = NEED_THREAD_HEADER
-        text = (f"Paste the escalation thread (at least about {MIN_THREAD_WORDS} words: ticket comments, a chat or "
-                "email chain, internal notes) as your answer, or cancel.")
+        text = (f"Paste the escalation thread (at least {MIN_MULTI_MESSAGE_WORDS} words over two or more messages, "
+                f"or {MIN_THREAD_WORDS} in one block: ticket comments, a chat or email chain, internal notes) as your "
+                "answer, or cancel.")
         if pending.attempts:
             text = "That's still too short to summarize. " + text
         options = [(CANCEL, "")]
@@ -84,7 +85,7 @@ def interpret(pending: Pending, raw_answer: str) -> Answer:
 
 
 def _need_thread(pending: Pending, answer: str, plain: str) -> Answer:
-    if word_count(answer) >= MIN_THREAD_WORDS:
+    if is_thread(answer):
         return Answer("run", prompts.strip_markers(answer), pending.instruction)
     if _CANCEL.match(plain) and word_count(answer) <= 3:
         return Answer("cancel")

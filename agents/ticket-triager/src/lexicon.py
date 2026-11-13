@@ -10,7 +10,18 @@ from model import Signal, Ticket
 QUOTE_MAX = 160
 _PATTERNS = (
     ("service_down", re.compile(r"(?<![-\w])down\b(?!-?load)|\boutage\b|\bunavailable\b|\b500 error\b|"
-                                r"\b50[23]\b", re.IGNORECASE)),
+                                r"\b50[23]\b|\b(?:get|gets|getting|got|returns?|throws?|a)\s+(?:an? )?50[0-4]s?\b",
+                                re.IGNORECASE)),
+    ("widespread", re.compile(r"\ball (?:of )?(?:our |the )?(?:users|customers|accounts|employees|staff|agents)\b|"
+                              r"\beveryone\b|\bevery (?:user|customer|account)\b|\bnobody can\b|\bno one can\b|"
+                              r"\b(?:whole|entire) (?:team|company|org|organi[sz]ation)\b|\bcompany-wide\b",
+                              re.IGNORECASE)),
+    ("blocked_work", re.compile(r"\b(?:can'?t|cannot|can not|unable to) (?:log ?in|sign ?in|work|access)\b|"
+                                r"\blog ?in (?:is )?(?:broken|fail|down)|\b(?:on|at) (?:log ?in|sign ?in)\b|"
+                                r"\bblocking (?:us|our|the team)\b|\bwe(?:'re| are) blocked\b", re.IGNORECASE)),
+    ("deadline", re.compile(r"\bdeadline\b|\b(?:is|are|by|before|due|until) (?:today|tonight|tomorrow|eod|end of "
+                            r"(?:day|week|month|quarter))\b|\bby (?:mon|tues|wednes|thurs|fri|satur|sun)day\b",
+                            re.IGNORECASE)),
     ("data_loss", re.compile(r"\blost (?:\w+ )?data\b|\bdata (?:was |is |got )?lost\b|\bdeleted\b|\bdisappeared\b|"
                              r"\bcorrupt", re.IGNORECASE)),
     ("security_concern", re.compile(r"\bbreach|\bvulnerab|\bleak|\bexposed\b|\bunauthori[sz]ed\b|\bphish",

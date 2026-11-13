@@ -28,7 +28,7 @@ def mandatory(prd: Prd, facts: Sequence[Fact], corpus: str, audience: str = "") 
     if not prd.problem:
         out.append(Question("What problem does this solve, and for whom? The brief doesn't state it.", "problem",
                             True))
-    if "user" not in kinds and not audience:
+    if "user" not in kinds and not audience and not any(not u.proposed for u in prd.users):
         out.append(Question("Who is this for? The brief names no user group.", "users", True))
     if "metric" not in kinds and not any(not m.proposed for m in prd.metrics):
         out.append(Question("Which success metric will show this worked, and what is its target?", "metrics", True))

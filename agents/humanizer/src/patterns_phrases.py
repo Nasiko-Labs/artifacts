@@ -47,13 +47,18 @@ PHRASES: dict[str, tuple[str, ...]] = {
     "promotional": (
         r"\brenowned\b", r"\bnestled\b", r"\bboasts?\b", r"\bbreathtaking\b", r"\bgroundbreaking\b",
         r"\bmust-see\b", r"\brich cultural heritage\b", r"\bcommitment to excellence\b", r"\bcutting-edge\b",
-        r"\bseamless(?:ly)?\b",
+        r"\bseamless(?:ly)?\b", r"\bunprecedented\b", r"\bgame[- ]chang(?:er|ing)\b", r"\bbest-in-class\b",
+        r"\bstate-of-the-art\b",
+        (r"\bunlock(?:s|ed|ing)? (?:(?:new|unprecedented|untapped|real|the full|its full|their full|your full) )*"
+         r"(?:value|potential|possibilities|opportunities|growth)\b"),
     ),
     "filler": (
         r"\bit is important to note that\b", rf"\bit{_S}s important to note that\b",
         rf"\bit{_S}s worth noting(?: that)?\b", r"\bit is worth noting(?: that)?\b", r"\bin order to\b",
         r"\bdue to the fact that\b", r"\bat this point in time\b", r"\bha(?:s|ve) the ability to\b",
-        rf"\bin today{_S}s fast-paced (?:world|environment|landscape)\b", r"\bin conclusion\b",
+        (rf"\bin today{_S}s (?:(?:fast-paced|ever-changing|rapidly evolving|digital|modern|competitive|dynamic),? )+"
+         r"(?:world|environment|landscape|age|era|economy)\b"),
+        rf"\bit(?: is|{_S}s) (?:crucial|essential|vital|important|imperative) (?:to|that)\b", r"\bin conclusion\b",
         r"(?:^|(?<=[.!?]\s))overall,", r"\b(?:may|could) potentially\b", r"\bmight possibly\b",
         r"\bit goes without saying\b", r"\bat the end of the day\b",
     ),
@@ -80,7 +85,10 @@ PHRASES: dict[str, tuple[str, ...]] = {
         r"\bpivotal\b", r"\bcrucial\b", r"\bgarner(?:s|ed|ing)?\b", r"\bfoster(?:s|ed|ing)?\b",
         r"\bshowcas(?:e|es|ed|ing)\b", r"\bunderscor(?:e|es|ed|ing)\b", r"\bvibrant\b", r"\benhanc(?:e|es|ed|ing)\b",
         r"(?:^|(?<=[.!?]\s))additionally\b", r"\baligns? with\b", r"\bvaluable insights?\b",
-        r"\bnavigat(?:e|ing) the complexities\b", r"\blandscape\b",
+        r"\bnavigat(?:e|ing) the complexities\b", r"\blandscape\b", r"\bleverag(?:e|es|ed|ing)\b",
+        r"\bsynerg(?:y|ies|istic)\b", r"(?:^|(?<=[.!?]\s))(?:moreover|furthermore)\b", r"\brobust\b",
+        r"\bempower(?:s|ed|ing|ment)?\b", r"\bstakeholders?\b", r"\bholistic\b", r"\bparadigm\b",
+        r"\bstreamlin(?:e|es|ed|ing)\b",
     ),
     "boldface_headers": (r"^[ \t]*(?:[-*•][ \t]+)?\*\*[^*\n]{1,40}?:\*\*", r"\*\*[^*\n]{1,40}\*\*:"),
 }

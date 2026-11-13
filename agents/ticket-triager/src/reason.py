@@ -9,7 +9,7 @@ from model import LEXICON_ONLY, NOT_ANALYSED, Signal, Ticket
 MAX_QUOTES = 2
 QUOTE_SHOWN = 80
 # Most decisive first: these lead the reason.
-ORDER = ("security_concern", "data_loss", "legal_threat", "service_down", "blocked_work", "churn_threat",
+ORDER = ("security_concern", "data_loss", "legal_threat", "service_down", "widespread", "blocked_work", "churn_threat",
          "exec_involved", "money_at_stake", "deadline", "repeat_contact", "angry_tone", "demands_priority",
          "workaround_exists")
 

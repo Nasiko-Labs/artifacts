@@ -8,6 +8,7 @@ import json
 import metrics as metrics_mod
 import planfile
 from models import Plan
+from taskgraph import UNITS
 
 FOOTER = '_Draft only: nothing was created anywhere. Say "split T4", "we are 2 people", or "what depends on T7?"._'
 UNITS_NOTE = "Sizes are relative units (S=1, M=2, L=3, XL=5), not days."
@@ -47,7 +48,9 @@ def _extras(plan: Plan, env: dict) -> list[str]:
     out: list[str] = []
     if plan.constraints:
         out.append("**Constraints:** " + " · ".join(cell(c) for c in plan.constraints))
-    if plan.deadline:
+    if plan.capacity_units is not None:
+        out.append(_fitted(plan))
+    elif plan.deadline:
         out.append(f"**Deadline:** {cell(plan.deadline)}, as you wrote it. I have not converted units to dates; "
                    "tell me how many units your team does per week and I will compare.")
     if plan.assumptions:
@@ -60,6 +63,19 @@ def _extras(plan: Plan, env: dict) -> list[str]:
     if plan.notes:
         out.append("**Notes:** " + " · ".join(cell(n) for n in plan.notes))
     return [line for x in out for line in (x, "")]
+
+
+def _fitted(plan: Plan) -> str:
+    kept = sum(UNITS[t.size] for t in plan.tasks)
+    head = (f"**Fitted to {cell(plan.timebox_label)}:** {kept} of {plan.capacity_units} units "
+            f"({cell(plan.fit_basis)}).")
+    if not plan.deferred:
+        return head + " Everything fits; nothing was deferred."
+    units = sum(UNITS[t.size] for t in plan.deferred)
+    rows = "\n".join(f"- {t.id} {cell(t.title)} ({t.size}{', needs ' + ', '.join(t.depends_on) if t.depends_on else ''})"
+                     for t in plan.deferred)
+    return (f"{head}\n\n**Deferred to fit {cell(plan.timebox_label)}** ({len(plan.deferred)} tasks, {units} units; "
+            f"the lowest priority: latest phase and off the critical path first):\n{rows}")
 
 
 def lanes_text(lanes: list[list[str]], makespan: int) -> str:

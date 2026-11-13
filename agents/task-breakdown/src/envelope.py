@@ -46,6 +46,9 @@ def build(plan: Plan) -> dict:
         "units": "relative effort units (S=1, M=2, L=3, XL=5), not days",
         "plan_md": planfile.render(plan, m),
     }
+    if plan.capacity_units is not None:
+        env["fit"] = {"timebox": plan.timebox_label, "capacity_units": plan.capacity_units, "basis": plan.fit_basis,
+                      "deferred": [t.model_dump(mode="json") for t in plan.deferred]}
     if plan.team_size:
         lanes, makespan = metrics_mod.team_lanes(plan, plan.team_size)
         env["lanes"] = {"people": plan.team_size, "lanes": lanes, "makespan_units": makespan}

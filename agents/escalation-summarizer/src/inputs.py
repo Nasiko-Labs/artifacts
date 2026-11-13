@@ -24,10 +24,13 @@ from messages import is_header
 
 CURRENT_MESSAGE_MARKER = "\n\nCurrent message: "
 MAX_THREAD_CHARS = 120_000
-MIN_THREAD_WORDS = 80
+MIN_THREAD_WORDS = 80             # one block of prose
+MIN_MULTI_MESSAGE_WORDS = 30      # two or more lines (messages, comments, notes) are a thread from here
+MIN_THREAD_LINES = 2
 INSTRUCTION_MAX_CHARS = 300
 SPLIT_MIN_REST_CHARS = 300
 INSTRUCTION_MAX_WORDS = 12
+LINE_SPLIT_MIN_REST_CHARS = 60    # after an instruction-like first line ("Summarize this for the VP:")
 ENVELOPE_TEXT_FIELDS = ("summary", "text", "ask", "customer_impact", "body", "description")
 FROM_STEP = "From a previous step"
 
@@ -141,7 +144,8 @@ def split_request(text: str) -> tuple[str, str]:
         if len(head) <= INSTRUCTION_MAX_CHARS and len(rest) >= SPLIT_MIN_REST_CHARS and _looks_like_instruction(head):
             return head, rest
     head, _, rest = stripped.partition("\n")
-    if len(head) <= INSTRUCTION_MAX_CHARS and len(rest) >= SPLIT_MIN_REST_CHARS and _INSTRUCTION_LINE.match(head):
+    if len(head) <= INSTRUCTION_MAX_CHARS and len(rest.strip()) >= LINE_SPLIT_MIN_REST_CHARS \
+            and _INSTRUCTION_LINE.match(head):
         return head.strip(), rest.strip()
     return "", stripped
 
@@ -156,6 +160,19 @@ def assemble(thread: str, files: tuple[tuple[str, str], ...]) -> str:
     pieces = [thread.strip()] if thread.strip() else []
     pieces += [f"[File: {name}]\n{text.strip()}" for name, text in files if text.strip()]
     return "\n\n".join(pieces)
+
+
+def is_thread(text: str) -> bool:
+    """Enough to summarize: a long block, or a shorter exchange spread over two or more lines."""
+    words = word_count(text)
+    lines = sum(1 for line in (text or "").splitlines() if line.strip())
+    return words >= MIN_THREAD_WORDS or (words >= MIN_MULTI_MESSAGE_WORDS and lines >= MIN_THREAD_LINES)
+
+
+def has_pasted_body(text: str) -> bool:
+    """An instruction-like first line ("Summarize this for the VP:") followed by pasted text."""
+    head, _, rest = (text or "").strip().partition("\n")
+    return bool(rest.strip()) and bool(_INSTRUCTION_LINE.match(head.strip()))
 
 
 def word_count(text: str) -> int:

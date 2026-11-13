@@ -10,14 +10,13 @@ from dataclasses import dataclass
 from typing import Any
 
 import prompts
-from inputs import current_message
+from inputs import current_message, split_request, word_count
 from nasiko_hitl import question_metadata
 
 METADATA_KEY = "design_doc"
 NEED_REQUIREMENTS = "need_requirements"
 HEADER = "What are you designing?"
 CANCEL = "Cancel"
-MIN_WORDS = 25
 
 _CANCEL = re.compile(r"^(?:cancel|stop|no|nope|never ?mind|abort|quit|skip)\b")
 
@@ -46,8 +45,12 @@ class Answer:
 
 
 def question(pending: Pending) -> tuple[str, dict]:
-    """(chat text, status-message metadata) for the pause."""
-    return prompts.ASK_REQUIREMENTS, question_metadata(HEADER, [(CANCEL, "")], allow_custom_input=True)
+    """(chat text, status-message metadata) for the pause. Requirements pasted after a request line but too thin
+    get "too short (N words)" and the minimum, never "what are you designing?"."""
+    request = split_request(pending.text)
+    pasted = request.instruction and request.requirements.strip()
+    text = prompts.too_short(word_count(request.requirements)) if pasted else prompts.ASK_REQUIREMENTS
+    return text, question_metadata(HEADER, [(CANCEL, "")], allow_custom_input=True)
 
 
 def interpret(pending: Pending, raw_answer: str) -> Answer:

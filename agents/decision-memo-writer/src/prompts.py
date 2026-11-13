@@ -116,3 +116,36 @@ def scope_messages(text: str, policy: Sequence[str] = ()) -> list[dict]:
             "memo (or describing a decision to write one about)? Do not answer it.")
     return [{"role": "system", "content": _system(task, [SCOPE, DATA_RULE, SCOPE_CONTRACT], policy)},
             {"role": "user", "content": fence("USER_MESSAGE", text)}]
+
+
+PREVIOUS_REPLY_CHARS = 2_000   # the previous reply as the follow-up check sees it
+
+
+def followup_scope_messages(text: str, previous_reply: str, policy: Sequence[str] = ()) -> list[dict]:
+    """A free-text message after a memo: does it plausibly continue the conversation, or is it clearly
+    unrelated? Leans related; a stored memo does not make "what's 2+2?" a revision."""
+    task = ("TASK: FOLLOWUP-SCOPE. A decision memo was written earlier in this conversation (PREVIOUS_REPLY is "
+            "the current memo). Decide whether the USER_MESSAGE plausibly continues that conversation. Treat it as "
+            "related (\"ok\") whenever it could be about the memo or its decision (options, scores, risks, "
+            "timing, wording, length, tone, audience), even when it is short or vague: \"make it punchier\", "
+            "\"what if we delay?\", \"why?\", \"is that safe?\" are related. Only a clearly unrelated message is "
+            "\"off_topic\": arithmetic, trivia and general facts, general chat, or another topic. Do not answer it.")
+    shown = previous_reply[:PREVIOUS_REPLY_CHARS] or "(no memo shown yet)"
+    user = fence("PREVIOUS_REPLY", shown) + "\n\n" + fence("USER_MESSAGE", text)
+    return [{"role": "system", "content": _system(task, [DATA_RULE, SCOPE_CONTRACT], policy)},
+            {"role": "user", "content": user}]
+
+
+ANSWER_CONTRACT = 'Return one JSON object: {"status": "ok", "answer": "1-4 sentences"}.'
+_FIXED = ("The memo's options, scores and recommendation are final: never change, re-weigh or second-guess them, "
+          "and never introduce a number, amount, date or name that is not in the MEMO.")
+
+
+def answer_messages(memo: str, question: str, policy: Sequence[str] = ()) -> list[dict]:
+    task = ("TASK: ANSWER. The user asks a question about the decision memo in the MEMO block. Answer that question "
+            "itself in 1-4 sentences, referring to what the memo says (its options, scores, risks, triggers). For a "
+            "risk or safety question name at least one concrete risk from the memo; for a what-if, say which memo "
+            "risk or trigger it touches and whether it would change the decision. If the memo does not say, say so.")
+    user = fence("MEMO", memo) + "\n\n" + fence("QUESTION", question)
+    return [{"role": "system", "content": _system(task, [_FIXED, DATA_RULE, ANSWER_CONTRACT], policy)},
+            {"role": "user", "content": user}]

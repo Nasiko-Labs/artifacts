@@ -42,7 +42,8 @@ def _fresh(state: Mapping[str, Any], query: str) -> dict:
         return _pause(pauses.ADD_OR_NEW, pending=pasted, pending_instruction=instruction)
     if stored:
         joined = _joined(state.get("instruction"), query, REVISION_JOIN)
-        return _work(stored, joined, revise=True, keep_instruction=state.get("instruction") or "")
+        return _work(stored, joined, revise=True, keep_instruction=state.get("instruction") or "",
+                     followup=query.strip())
     if words(query) and commands.asks_for_brief(query):
         return _pause(pauses.NOTHING_PASTED)
     return _work((), query, revise=False, scope_only=True)
@@ -89,9 +90,11 @@ def _prepare(final: Sequence[sec.Section], instruction: str, *, revise: bool) ->
 
 
 def _work(final: Sequence[sec.Section], instruction: str, *, revise: bool, scope_only: bool = False,
-          notes: Sequence[str] = (), keep_instruction: str | None = None) -> dict:
+          notes: Sequence[str] = (), keep_instruction: str | None = None, followup: str = "") -> dict:
+    """`followup`: a free-text message on the stored brief, scope-checked against it before revising."""
     work = {"sections": sec.to_state(final), "instruction": instruction, "revise": revise, "scope_only": scope_only,
-            "notes": list(notes), "store_instruction": instruction if keep_instruction is None else keep_instruction}
+            "notes": list(notes), "store_instruction": instruction if keep_instruction is None else keep_instruction,
+            "followup": followup}
     return {"route": "compose", "work": work, "pending": [], "pending_instruction": ""}
 
 

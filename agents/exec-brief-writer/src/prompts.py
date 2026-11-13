@@ -153,3 +153,22 @@ def repair_user(problems: Sequence[str], previous: dict | None) -> str:
             "fixing them: copy snippets word for word from the cited section, cite the section that holds "
             "each number, date and name, and keep within the limits. Leave out what you cannot cite.\n\n"
             + fence_json("PREVIOUS_ANSWER", previous or {}))
+
+
+FOLLOWUP_SCOPE_CONTRACT = 'Answer with one JSON object: {"status": "ok" | "off_topic"}.'
+PREVIOUS_REPLY_CHARS = 2_000   # the stored brief as the follow-up check sees it
+
+
+def followup_scope_messages(message: str, previous_reply: str) -> tuple[dict, ...]:
+    """A free-text message after a brief: does it plausibly continue the conversation, or is it clearly
+    unrelated? Leans related; a stored brief does not make "what's 2+2?" a revision."""
+    task = ("TASK: FOLLOWUP-SCOPE. An executive brief was written earlier in this conversation (PREVIOUS_REPLY "
+            "is the current brief). Decide whether the USER_MESSAGE plausibly continues that conversation. Treat "
+            "it as related (\"ok\") whenever it could be about the brief, its risks, decisions, sources, wording, "
+            "length, tone or audience, even when it is short or vague: \"make it punchier\", \"what if we "
+            "delay?\", \"why?\", \"is that safe?\" are related. Only a clearly unrelated message is "
+            "\"off_topic\": arithmetic, trivia and general facts, general chat, or another topic. Never answer it.")
+    shown = previous_reply[:PREVIOUS_REPLY_CHARS] or "(no brief shown yet)"
+    user = fence_json("PREVIOUS_REPLY", shown) + "\n\n" + fence_json("USER_MESSAGE", message)
+    return ({"role": "system", "content": f"{task}\n\n{DATA_RULE}\n\n{FOLLOWUP_SCOPE_CONTRACT}"},
+            {"role": "user", "content": user})

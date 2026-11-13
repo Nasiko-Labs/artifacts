@@ -4,7 +4,7 @@ The description carries the distinction from other agents: workflow generation s
 description."""
 
 AGENT_NAME = "stack-trace-explainer"
-AGENT_VERSION = "1.0.0"
+AGENT_VERSION = "1.0.1"
 AGENT_DESCRIPTION = (
     "Explains a pasted error message or stack trace (Python, JavaScript/Node, Java/Kotlin, Go, Rust, Ruby, C#): the "
     "probable cause, the exact line to look at, a fix and how to confirm it. The trace is parsed in code, so the "

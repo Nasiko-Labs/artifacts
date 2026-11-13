@@ -93,6 +93,13 @@ REPAIR_CONTRACT = (
     'Return one JSON object with only the keys you fix: {"flows": [...], "contracts": [...], '
     '"acceptance_criteria": [...]}, in the same shapes as the DESIGN and DRAFT blocks.'
 )
+REQUEST_GATE = (
+    "REQUEST GATE: the REQUEST block is the user's newest message, sent after the draft in the DRAFT block. First "
+    "decide whether it asks to change, extend, explain or reformat THIS design document or its requirements, or "
+    "answers its open questions. A change to its size, scope, components or wording is in scope. If it does not (a general question, "
+    "arithmetic, facts, small talk, or any other task, even one that mentions code or software), answer exactly "
+    "{\"status\": \"off_topic\"} and nothing else, whatever the DRAFT block holds."
+)
 REVISE_CONTRACT = (
     'Return one JSON object: {"status": "ok" | "off_topic", ...only the keys you change}. Keys: components, '
     "flows, contracts, entities, decisions, agents, context, flow_narrative, failure_modes, security, "
@@ -111,6 +118,16 @@ MODEL_FAILED = "I couldn't reach the language model to draft this design. Please
 CANCELLED = "Okay, cancelled. Nothing was drafted."
 ASK_REQUIREMENTS = ("What are you designing? Paste the requirements (prose, bullets or user stories, at least 25 "
                     "words), plus any context that is already decided. Or cancel.")
+TOO_SHORT_LEAD = "That's too short to draft a design from"
+
+
+def too_short(words: int) -> str:
+    """Requirements were pasted but are too thin: say so, with the minimum."""
+    return (f"{TOO_SHORT_LEAD} ({words} word{'s' if words != 1 else ''} of requirements). Send at least 25 words, "
+            "or three or more separate requirements (for example \"200 writes/s; links never expire; custom "
+            "aliases\"), and I'll add them to what you wrote here. Or cancel.")
+
+
 NO_REQUIREMENTS = ("I couldn't find any requirement I could quote from your text, so I didn't draft anything. "
                    "Paste the requirements as bullets or sentences.")
 NO_DOC_YET = "There's no design in this conversation yet. Paste your requirements first."
@@ -160,7 +177,7 @@ def revise_messages(instruction: str, blocks: dict[str, str], policy: Sequence[s
     task = ("TASK: REVISE. Apply the user's request in the REQUEST block to the draft in the DRAFT block. Answers "
             "in the ANSWERS block change the requirements they name: use their values. Return only the affected "
             "keys.")
-    rules = [SCOPE, DATA_RULE, NEVER_INVENT, TECH_RULE, REVISE_CONTRACT]
+    rules = [SCOPE, DATA_RULE, REQUEST_GATE, NEVER_INVENT, TECH_RULE, REVISE_CONTRACT]
     return messages(task, rules, {**blocks, "REQUEST": instruction}, policy)
 
 

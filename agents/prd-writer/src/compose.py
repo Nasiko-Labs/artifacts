@@ -14,6 +14,7 @@ from checks import check
 from facts import facts_block
 from llm import LlmError, TurnDeps, complete_json
 from prd import Fact, Prd
+from title import feature_title
 
 MAX_PROBLEMS_LISTED = 12
 
@@ -54,11 +55,13 @@ def prd_json(prd: Prd) -> str:
 
 
 async def compose(deps: TurnDeps, grounds: Grounds, instruction: str, title: str) -> Composed:
+    """`title`: the one the user named, or "" for the feature's (`title.feature_title`)."""
     messages = prompts.compose_messages(facts_block(grounds.facts), instruction, grounds.policy)
     raw = await complete_json(deps, messages, prompts.PRD_CONTRACT, parse.validate)
     if raw["status"] == "off_topic":
         return Composed("off_topic")
-    draft = renumber(parse.to_prd(raw, _known(grounds), title))
+    named = title or feature_title(raw, grounds.facts, grounds.corpus)
+    draft = renumber(parse.to_prd(raw, _known(grounds), named))
     return await finish(deps, draft, grounds, keep=lambda fixed: renumber(fixed))
 
 

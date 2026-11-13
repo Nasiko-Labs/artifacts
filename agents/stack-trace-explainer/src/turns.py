@@ -1,7 +1,8 @@
 """The graph's node bodies: what each route does with the stored state and this turn's input.
 
-Stored per conversation (checkpointer): the parsed traces, the primary index, the code blocks, the user's words
-and the last envelope, so follow-ups reuse the parse instead of redoing it."""
+Stored per conversation (checkpointer): the parsed traces, the primary index, the code blocks, the user's words,
+the last envelope and the last answer shown (explanation or follow-up answer), so follow-ups reuse the parse
+instead of redoing it and the relatedness check and restatement retry compare against what the user last saw."""
 
 from __future__ import annotations
 
@@ -15,13 +16,17 @@ import hitl
 import intake
 import llm
 import prompts
+import relevance
 import render
+import restate
 import smalltalk
 import trace_parse
 from inputs import Incoming, fence
 from paste import CodeBlock, Paste
 from snippets import tie
 from trace_model import Trace
+
+PREVIOUS_ANSWER_CHARS = 2_000   # the previous answer as the relatedness check sees it
 
 
 class Scope:
@@ -97,7 +102,7 @@ def _snippet_notes(results: list[explain_mod.Explained]) -> tuple[str, ...]:
 def _result(env: dict, scope: Scope, notes: tuple[str, ...]) -> dict:
     notes = (*scope.incoming.notes, *notes)
     reply = render.render_json(env) if scope.incoming.wants_json else render.render(env, notes)
-    return {"envelope": env, "data": env, "reply": reply}
+    return {"envelope": env, "data": env, "reply": reply, "last_reply": reply}
 
 
 async def attach(state: dict, scope: Scope) -> dict:
@@ -131,10 +136,18 @@ async def followup(state: dict, scope: Scope) -> dict:
     if not traces or not env.get("items"):
         return {"reply": prompts.NO_RESULT_YET}
     trace = traces[int(state.get("primary") or 0)]
+    stored = {k: v for k, v in env["items"][0].items() if k not in ("trace", "checks")}
+    previous = state.get("last_reply") or json.dumps(stored, ensure_ascii=False)
+    if not relevance.clearly_about(scope.incoming.text, trace.raw, previous):
+        try:
+            related = await _related(scope, trace, previous)
+        except llm.LlmError:
+            return {"reply": prompts.MODEL_FAILED_REPLY}
+        if not related:
+            return {"reply": smalltalk.OFF_TOPIC_REPLY}
     blocks = tuple(CodeBlock.from_dict(b) for b in state.get("blocks") or ())
     cand = frames_mod.candidate(trace)
     views = tuple(tie(trace, blocks, cand.frame))
-    stored = {k: v for k, v in env["items"][0].items() if k not in ("trace", "checks")}
     content = "\n\n".join([f"QUESTION:\n{fence(scope.incoming.text, 'QUESTION')}",
                            f"STORED RESULT:\n{fence(json.dumps(stored, ensure_ascii=False), 'RESULT')}",
                            f"TRACE:\n{fence(trace.raw[:explain_mod.TRACE_PROMPT_CHARS], 'TRACE')}",
@@ -146,12 +159,43 @@ async def followup(state: dict, scope: Scope) -> dict:
         return {"reply": prompts.MODEL_FAILED_REPLY}
     if not isinstance(answer, dict) or answer.get("status") == "off_topic":
         return {"reply": smalltalk.OFF_TOPIC_REPLY if isinstance(answer, dict) else prompts.MODEL_FAILED_REPLY}
-    text = answer.get("answer") if isinstance(answer.get("answer"), str) else ""
+    first = answer.get("answer") if isinstance(answer.get("answer"), str) else ""
+    text = await _unrestated(scope, messages, first, previous)
     cleaned, removed = checks.clean_prose(text, checks.CheckContext(trace, views, cand.frame))
     if not cleaned:
         return {"reply": "I couldn't answer that from the error and code in this conversation. Paste the code it "
                          "concerns and ask again."}
-    return {"reply": render.render_followup(cleaned, removed)}
+    reply = render.render_followup(cleaned, removed)
+    return {"reply": reply, "last_reply": reply}
+
+
+async def _unrestated(scope: Scope, messages: list[dict], first: str, previous: str) -> str:
+    """An answer that mostly copies the previous answer gets one retry (within the turn's call budget) asking for
+    the question itself; the retry is kept when it is a usable answer that overlaps less, else the first stands."""
+    if not restate.restates(first, previous) or scope.deps.budget.left < 1 or not scope.deps.has_time():
+        return first
+    retry = [*messages, {"role": "assistant", "content": json.dumps({"status": "ok", "answer": first})},
+             {"role": "user", "content": prompts.RESTATED_RETRY}]
+    try:
+        again = await llm.call_json(scope.deps, retry)
+    except llm.LlmError:
+        return first
+    second = again.get("answer") if isinstance(again, dict) and again.get("status") == "ok" else None
+    if not isinstance(second, str) or not second.strip():
+        return first
+    return second if restate.overlap(second, previous) < restate.overlap(first, previous) else first
+
+
+async def _related(scope: Scope, trace: Trace, previous: str) -> bool:
+    """A follow-up that names nothing from the error or the stored previous answer: one classify call that sees
+    the error, the previous answer (truncated) and the question, and leans related. Only a clearly unrelated
+    question ("what's 2+2?") is declined: a stored result does not make every message a follow-up."""
+    content = "\n\n".join([f"ERROR:\n{fence(trace.raw[:explain_mod.TRACE_PROMPT_CHARS], 'ERROR')}",
+                            f"PREVIOUS ANSWER:\n{fence(previous[:PREVIOUS_ANSWER_CHARS], 'RESULT')}",
+                            f"QUESTION:\n{fence(scope.incoming.text, 'QUESTION')}"])
+    messages = [prompts.system(prompts.RELATED_SYSTEM, scope.incoming.policy), {"role": "user", "content": content}]
+    answer = await llm.call_json(scope.deps, messages)
+    return not (isinstance(answer, dict) and answer.get("status") == "off_topic")
 
 
 async def scope_check(state: dict, scope: Scope) -> dict:

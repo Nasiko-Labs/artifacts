@@ -1,7 +1,8 @@
 """One model-calling turn: a new PRD (extract -> [ask who] -> compose -> check -> [repair] -> render), a
 revision of the stored one, or the scope check of a short message. Returns the state update.
 
-Call budgets: single brief 4 (extract, compose, + 1 repair, + 1 JSON repair), chunked brief 5, revision 2.
+Call budgets: single brief 4 (extract, compose, + 1 repair, + 1 JSON repair), chunked brief 5, revision 2
+(+ 1 when a short message with no revision cue is scope-checked first).
 On the turn deadline the extracted facts are rendered as a "what I could extract" list."""
 
 from __future__ import annotations
@@ -23,35 +24,50 @@ from prd import Fact, Prd, facts_from_state, facts_to_state
 
 log = logging.getLogger("prd-writer.pipeline")
 
-SINGLE_BUDGET, CHUNKED_BUDGET, REVISION_BUDGET = 4, 5, 2
+SINGLE_BUDGET, CHUNKED_BUDGET, REVISION_BUDGET, SCOPE_BUDGET = 4, 5, 2, 1
 
 
 def corpus(brief: str, instruction: str, answers: Sequence[str] = ()) -> str:
     return "\n\n".join(p for p in (brief, instruction, *answers) if p)
 
 
-def title_for(instruction: str, facts: Sequence[Fact]) -> str:
-    named = parse_instruction(instruction).title
-    if named:
-        return named
-    problem = next((f for f in facts if f.kind == "problem"), None)
-    return " ".join(problem.text.split()[:6]).rstrip(".,;:") if problem else "Untitled"
+def title_for(instruction: str) -> str:
+    """The title the user named ("PRD for audit export"), or "" to let `title.feature_title` name the feature."""
+    return parse_instruction(instruction).title
 
 
 def _limit(deps: TurnDeps, calls: int) -> None:
     deps.budget.limit = min(deps.budget.limit, deps.budget.used + calls)
 
 
-async def scope_check(deps: TurnDeps, incoming: Incoming, pending: pauses.Pending) -> dict:
-    """A short message with no PRD cue: decline it, or ask for a fuller brief."""
+async def scope_status(deps: TurnDeps, incoming: Incoming, current_prd: str = "") -> str:
+    """"off_topic", "prd", or "failed" (the model could not be reached)."""
     try:
-        raw = await complete_json(deps, prompts.scope_messages(incoming.text, incoming.policy),
+        raw = await complete_json(deps, prompts.scope_messages(incoming.text, incoming.policy, current_prd),
                                   prompts.SCOPE_CONTRACT, _scope_valid)
     except LlmError:
+        return "failed"
+    return raw["status"]
+
+
+async def scope_check(deps: TurnDeps, incoming: Incoming, pending: pauses.Pending) -> dict:
+    """A short message with no PRD cue: decline it, or ask for a fuller brief."""
+    status = await scope_status(deps, incoming)
+    if status == "failed":
         return {"reply": prompts.MODEL_FAILED}
-    if raw["status"] == "off_topic":
+    if status == "off_topic":
         return {"reply": smalltalk.OFF_TOPIC_REPLY}
     return {"pause": pending.to_metadata()}
+
+
+async def scope_then_revise(deps: TurnDeps, incoming: Incoming, state: dict, request: str) -> dict:
+    """With a PRD stored, a short message with no revision cue: decline it when off topic (the stored PRD is
+    untouched), else revise. The reviser's own off_topic answer is not reliable on a small model."""
+    _limit(deps, SCOPE_BUDGET + REVISION_BUDGET)
+    status = await scope_status(deps, incoming, _outline(Prd.from_dict(state.get("prd"))))
+    if status != "prd":
+        return {"reply": prompts.MODEL_FAILED if status == "failed" else smalltalk.OFF_TOPIC_REPLY}
+    return await revise_prd(deps, incoming, state, request)
 
 
 def _scope_valid(data: object) -> dict | None:
@@ -91,7 +107,7 @@ async def compose_prd(deps: TurnDeps, incoming: Incoming, brief: str, instructio
     audience = parse_instruction(instruction).audience or (answers[0] if answers else "")
     grounds = Grounds(known, corpus(brief, instruction, answers), audience, incoming.policy)
     try:
-        result = await compose(deps, grounds, instruction, title_for(instruction, known))
+        result = await compose(deps, grounds, instruction, title_for(instruction))
     except LlmError as e:
         log.info("compose did not finish: %s", e)
         return {"reply": render.render_facts(known, prompts.DEADLINE_NOTE if isinstance(e, DeadlineError)
@@ -119,6 +135,13 @@ async def revise_prd(deps: TurnDeps, incoming: Incoming, state: dict, request: s
     notes = ["I changed only the section you named and kept the others as they were."] if restored else []
     return _finished(result, state, incoming.wants_json, state.get("cap") or parse_instruction(instruction).cap,
                      notes)
+
+
+def _outline(prd: Prd) -> str:
+    """The stored PRD in a few lines (title, users, requirements), so the scope check knows what it is about."""
+    lines = [f"Title: {prd.title}", *(f"User: {u.text}" for u in prd.users),
+             *(f"{r.id}: {r.text}" for r in prd.requirements)]
+    return "\n".join(lines)
 
 
 def _finished(result: Composed, stored: dict, wants_json: bool, cap: int, notes: Sequence[str]) -> dict:

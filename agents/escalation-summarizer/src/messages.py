@@ -2,6 +2,7 @@
 
 Header styles recognised at a line start:
     Name (2026-11-03 14:20): text          [10:42] Name: text
+    Name: text  /  Eng lead: text          (a name or role of up to 3 words; not a label like "Impact:")
     From: Name ... Sent: / Date: <when>    On <date>, <name> wrote:
 Lines starting with ">" are quoted copies of earlier mail and are not part of a message's own text. A
 message whose own text is empty, or is contained in an earlier message, is marked `quoted` and skipped.
@@ -24,6 +25,12 @@ _WROTE = re.compile(r"^\s*On (?P<ts>.{4,60}?),\s*(?P<speaker>[^,\n]{1,60}?)\s*(?
 _SENT = re.compile(r"^\s*(?:Sent|Date):\s*(?P<ts>.+?)\s*$", re.IGNORECASE)
 _MAIL_HEADER = re.compile(r"^\s*(?:To|Cc|Bcc|Subject|Reply-To):", re.IGNORECASE)
 _QUOTED_LINE = re.compile(r"^\s*>")
+_PLAIN = re.compile(r"^\s*\**(?P<speaker>[A-Za-z][\w.'’-]*(?: [A-Za-z][\w.'’-]*){0,2})\**\s*:\s+(?P<body>\S.*)$")
+_NOT_SPEAKERS = frozenset({
+    "ask", "impact", "status", "summary", "update", "note", "notes", "fyi", "ps", "re", "eta", "tone", "max",
+    "deadline", "subject", "to", "cc", "bcc", "sent", "date", "from", "reply-to", "issue", "problem", "action",
+    "next steps", "todo", "context", "background", "customer impact", "root cause", "workaround", "http", "https",
+})
 
 
 @dataclass(frozen=True)
@@ -36,7 +43,12 @@ class Message:
 
 
 def is_header(line: str) -> bool:
-    return any(p.match(line) for p in (_PAREN, _BRACKET, _FROM, _WROTE))
+    return any(p.match(line) for p in (_PAREN, _BRACKET, _FROM, _WROTE)) or _plain(line) is not None
+
+
+def _plain(line: str) -> re.Match | None:
+    match = _PLAIN.match(line)
+    return match if match and match.group("speaker").casefold() not in _NOT_SPEAKERS else None
 
 
 def parse(thread: str) -> tuple[Message, ...]:
@@ -91,7 +103,10 @@ def _start(line: str) -> tuple[str, str, str] | None:
             body = match.groupdict().get("body") or ""
             return match.group("speaker").strip(" *"), match.group("ts").strip(), body.strip()
     match = _FROM.match(line)
-    return (match.group("speaker").strip(" \"'"), "", "") if match else None
+    if match:
+        return match.group("speaker").strip(" \"'"), "", ""
+    plain = _plain(line)
+    return (plain.group("speaker").strip(" *"), "", plain.group("body").strip()) if plain else None
 
 
 def own(messages: tuple[Message, ...]) -> tuple[Message, ...]:

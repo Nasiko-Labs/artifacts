@@ -9,6 +9,7 @@ impact fact -> "Not stated in the thread": the model is never asked to infer eit
 from __future__ import annotations
 
 import logging
+import re
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
@@ -26,6 +27,7 @@ log = logging.getLogger("escalation.compose")
 ASK_MAX_WORDS = 40
 IMPACT_MAX_WORDS = 60
 MIN_CITED_FACTS = 2
+_FACT_REFS = re.compile(r"\s*[(\[]\s*f\d+(?:\s*,\s*f\d+)*\s*[)\]]")  # "(f1, f2)" the model leaks into prose
 
 
 @dataclass(frozen=True)
@@ -111,7 +113,7 @@ def finalize(parsed: Mapping[str, Any], ctx: _Ctx) -> Composed:
     known = {f.id for f in ctx.facts}
     kept, dropped, words = [], 0, 0
     for sentence in parsed["summary"]:
-        text = checks.remove_hedges(sentence["text"], ctx.norm)
+        text = _FACT_REFS.sub("", checks.remove_hedges(sentence["text"], ctx.norm)).strip()
         ids = tuple(i for i in sentence["fact_ids"] if i in known)
         if not text or not ids or checks.issues(text, ctx.norm, ctx.allowed):
             dropped += 1

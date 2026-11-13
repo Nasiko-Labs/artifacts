@@ -2,7 +2,12 @@
 
 - A snippet must appear (normalised, >= 12 chars) in the LATEST entry the item cites; if it is in another
   entry instead, the item is re-pointed there; if it is in no entry, the item is dropped.
-- owner, customer, due, refs must appear in the notes as written, else they are cleared (never filled in).
+- owner, customer and due must appear as written in the item's own entries, refs in the notes, else they are
+  cleared (never filled in): a customer named in another entry is not this item's customer.
+- An "instruction" whose entry has no instruction or promise wording (if/when/do not/check/call/told/...) is the
+  model misfiling an update; it is dropped, and the backstop below keeps the update as an item.
+- Backstop: an entry no item or instruction cites (nor shares a ticket ref with an item) that has a hot cue
+  becomes an item quoted verbatim, so an urgent update can never vanish because the model skipped it.
 - Items that share a ref are merged: the latest entry wins for words, status and next step; the earlier
   snippets are kept as `history` quotes. Every entry that mentions an item's ref is attached to it.
 """
@@ -14,11 +19,15 @@ from dataclasses import dataclass, replace
 
 import grounding
 from entries import Entry, find_refs, ref_key, without_stamp
+from hot import cue_reasons
 from items import INSTRUCTION, Instruction, Item
 
 MAX_HISTORY = 3
 DIRECTIVE = re.compile(r"\b(?:do not|don't|never|must|before you|make sure)\b", re.IGNORECASE)
 _SENTENCES = re.compile(r"(?<=[.;!?])\s+")
+INSTRUCTION_WORDING = re.compile(
+    r"\b(?:if|when|unless|once|do not|don't|never|must|make sure|before|after you|remember|please|check|call|"
+    r"follow up|remind|ping|tell|told|promised|we'?d|we'?ll|will|should|need to|point them)\b", re.IGNORECASE)
 
 
 @dataclass(frozen=True)
@@ -47,7 +56,8 @@ def _item(raw: dict, by_id: dict[str, Entry], all_entries: list[Entry], notes_no
     refs += [r for r in find_refs(raw["snippet"]) if ref_key(r) not in {ref_key(x) for x in refs}]
     if not refs and len(home.refs) == 1:
         refs = list(home.refs)
-    kept = {k: (raw.get(k) if grounding.present(notes_norm, raw.get(k)) else None)
+    own = grounding.normalise("\n".join(e.text for e in entries))
+    kept = {k: (raw.get(k) if grounding.present(own, raw.get(k)) else None)
             for k in ("owner", "customer", "due", "status_words")}
     return Item(id="", what=raw["what"], snippet=grounding.clip(raw["snippet"]), snippet_entry=home.id,
                 entries=tuple(e.id for e in entries), refs=tuple(dict.fromkeys(refs)), next_step=raw.get("next_step"),
@@ -123,18 +133,33 @@ def directives(entries: list[Entry], known: list[Instruction]) -> list[Instructi
     return out
 
 
+def _uncovered(items: list[Item], instructions: list[Instruction], entries: list[Entry]) -> list[Item]:
+    used = {e for i in items for e in i.entries} | {i.entry for i in instructions}
+    covered_refs = {ref_key(r) for i in items for r in i.refs}
+    out = []
+    for entry in entries:
+        text = without_stamp(entry.text).strip()
+        if entry.id in used or covered_refs & {ref_key(r) for r in entry.refs} or not cue_reasons([text]):
+            continue
+        snippet = grounding.clip(text)
+        out.append(Item(id="", what=f'"{snippet}"', snippet=snippet, snippet_entry=entry.id, entries=(entry.id,),
+                        refs=entry.refs, fallback=True))
+    return out
+
+
 def reconcile(raw_items: list[dict], raw_instructions: list[dict], entries: list[Entry],
               existing: tuple[Item, ...] = (), existing_instructions: tuple[Instruction, ...] = ()) -> Reconciled:
     by_id = {e.id: e for e in entries}
     notes_norm = grounding.normalise("\n".join(e.text for e in entries))
     checked = [i for i in (_item(r, by_id, entries, notes_norm) for r in raw_items) if i is not None]
-    merged = merge_by_ref([*existing, *checked], entries)
+    located = [i for i in (instruction(r, by_id, entries) for r in raw_instructions) if i is not None]
+    found = [i for i in located if INSTRUCTION_WORDING.search(by_id[i.entry].text)]
+    merged = merge_by_ref([*existing, *checked, *_uncovered([*existing, *checked], found, entries)], entries)
     order = {e.id: e.order for e in entries}
     merged.sort(key=lambda i: order[i.entries[0]])
     items = tuple(replace(item, id=f"i{n}") for n, item in enumerate(merged, start=1))
-    found = [i for i in (instruction(r, by_id, entries) for r in raw_instructions) if i is not None]
     every = _unique([*existing_instructions, *found])
     every += directives(entries, every)
     numbered = tuple(replace(i, id=f"k{n}") for n, i in enumerate(every, start=1))
-    dropped = len(raw_items) - len(checked) + len(raw_instructions) - len(found)
+    dropped = len(raw_items) - len(checked) + len(raw_instructions) - len(located)
     return Reconciled(items, numbered, dropped)

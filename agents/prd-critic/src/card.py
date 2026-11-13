@@ -4,7 +4,7 @@ The description carries the distinction from other agents: workflow generation s
 and description."""
 
 AGENT_NAME = "prd-critic"
-AGENT_VERSION = "1.0.0"
+AGENT_VERSION = "1.0.1"
 AGENT_DESCRIPTION = (
     "Reviews a PRD you paste into the chat and returns its gaps: missing sections (problem, users, goals, "
     "non-goals, requirements, metrics, open questions), vague or untestable requirements, success metrics that "

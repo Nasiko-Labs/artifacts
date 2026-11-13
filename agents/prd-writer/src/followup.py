@@ -74,6 +74,11 @@ def is_revision(text: str) -> bool:
     return word_count(text) < REVISION_MAX_WORDS or bool(_REVISION_CUE.search(_plain(text)[:80]))
 
 
+def has_revision_cue(text: str) -> bool:
+    """Reads as an edit to an existing PRD ("make R2 testable", "drop non-goal 1")."""
+    return bool(_REVISION_CUE.search(_plain(text)[:80]))
+
+
 def drop(prd: Prd, command: Command) -> Prd | None:
     """The PRD without the named entry (requirements by id, others by position), or None if absent."""
     if command.section == "requirements":

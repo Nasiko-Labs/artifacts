@@ -4,7 +4,7 @@ The description carries the distinction from other agents: workflow generation s
 and description."""
 
 AGENT_NAME = "task-breakdown"
-AGENT_VERSION = "1.0.0"
+AGENT_VERSION = "1.0.1"
 AGENT_DESCRIPTION = (
     "Turns a goal, spec or messy brief you type or paste into a structured work plan: 3-6 phases named by "
     "outcome, small tasks with ids, relative sizes (S/M/L/XL), dependencies, 1-3 acceptance criteria and owner "

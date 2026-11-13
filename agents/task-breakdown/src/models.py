@@ -66,6 +66,11 @@ class Plan(_Frozen):
     granularity: str = "normal"
     source: str = ""                  # the user's own words for this plan: grounding for assumptions/owners
 
+    deferred: tuple[Task, ...] = ()   # cut by fit.py to meet a timebox, shown under "Deferred to fit ..."
+    capacity_units: int | None = None # the timebox's capacity in units (fit.py), when one was fitted
+    timebox_label: str = ""           # "2 weeks"
+    fit_basis: str = ""               # how the capacity was worked out, as shown to the user
+
     def to_state(self) -> dict:
         return self.model_dump(mode="json")
 

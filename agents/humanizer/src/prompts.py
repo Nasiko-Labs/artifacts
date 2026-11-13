@@ -90,11 +90,14 @@ def system(options: Options, found: Mapping[str, Sequence[str]], context: Sequen
         keep.append("keep the bullets and formatting exactly")
     if options.keep_headings:
         keep.append("keep the headings exactly")
-    length = "between 60% and 110%" if options.shorter else "between 85% and 110%"
+    length = "stay between 85% and 110% of the draft's length"
+    if options.max_words:
+        length = (f"make it shorter: at most {options.max_words} words and no less than 60% of the draft's length; "
+                  "cut wordiness and repetition, never a fact, name or number")
     sections = [
         "You are a style editor. You remove AI-writing patterns from the user's draft and change nothing else.",
         SCOPE, DATA_RULE, PRESERVE, RULES, found_block(found),
-        f"VOICE: {VOICE[options.voice]}.", f"LENGTH: stay {length} of the draft's length.",
+        f"VOICE: {VOICE[options.voice]}.", f"LENGTH: {length}.",
         *(["OPTIONS: " + "; ".join(keep) + "."] if keep else []), CONTRACT,
     ]
     if context:

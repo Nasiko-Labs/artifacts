@@ -1,5 +1,6 @@
-"""The grounding check: numbers, refs, times and names in an item's `what` and `next_step` (and in an
-instruction's text) must appear in the notes. Failing items get one repair call together; whatever still
+"""The grounding check: numbers, refs, times and names in an item's `what` and `next_step` must appear in that
+item's own note entries (a name from another entry, e.g. a different customer, does not count), and those in
+an instruction's text in the notes. Failing items get one repair call together; whatever still
 fails is shown as its quoted snippet instead of the paraphrase."""
 
 from __future__ import annotations
@@ -44,9 +45,14 @@ def _validate(ids: set[str]):
     return check
 
 
-async def ground_items(deps: TurnDeps, items: tuple[Item, ...], by_id: dict[str, Entry],
-                       notes_norm: str) -> tuple[Item, ...]:
-    failing = [i for i in items if _fails(i, notes_norm)][:MAX_REPAIR_ITEMS]
+def own_norm(item: Item, by_id: dict[str, Entry]) -> str:
+    """The item's own entries, normalised: what its words and as-written fields must come from."""
+    return grounding.normalise("\n".join(by_id[e].text for e in item.entries if e in by_id))
+
+
+async def ground_items(deps: TurnDeps, items: tuple[Item, ...], by_id: dict[str, Entry]) -> tuple[Item, ...]:
+    norms = {i.id: own_norm(i, by_id) for i in items}
+    failing = [i for i in items if _fails(i, norms[i.id])][:MAX_REPAIR_ITEMS]
     fixes: dict[str, tuple[str, str | None]] = {}
     if failing and deps.traceparent and deps.can_call():
         payload = [{"id": i.id, "what": i.what, "next_step": i.next_step,
@@ -62,7 +68,7 @@ async def ground_items(deps: TurnDeps, items: tuple[Item, ...], by_id: dict[str,
         if item.id in fixes:
             what, step = fixes[item.id]
             item = replace(item, what=what, next_step=step)
-        out.append(fallback(item, notes_norm) if _fails(item, notes_norm) else item)
+        out.append(fallback(item, norms[item.id]) if _fails(item, norms[item.id]) else item)
     return tuple(out)
 
 

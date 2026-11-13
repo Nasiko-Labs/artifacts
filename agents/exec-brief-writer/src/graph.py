@@ -102,6 +102,8 @@ def _build_graph(deps: TurnDeps) -> StateGraph:
 async def _compose(state: BriefState, deps: TurnDeps) -> dict:
     work = state.get("work") or {}
     chosen = sec.from_state(work.get("sections"))
+    if work.get("followup") and not await _about_the_brief(deps.llm, work["followup"], state, chosen):
+        return {"reply": smalltalk.OFF_TOPIC_REPLY}  # the stored brief, sections and instruction stay as they were
     revise = bool(work.get("revise"))
     request = compose.Request(
         sections=chosen, instruction=work.get("instruction") or "", org=deps.org,
@@ -126,6 +128,19 @@ async def _compose(state: BriefState, deps: TurnDeps) -> dict:
     return {"reply": reply, "sections": sec.to_state(chosen), "brief": b.to_dict(outcome.brief),
             "candidates": list(outcome.candidates) if outcome.candidates is not None else None,
             "instruction": work.get("store_instruction", work.get("instruction") or "")}
+
+
+async def _about_the_brief(llm: Llm, message: str, state: BriefState, chosen) -> bool:
+    """One classify call before a free-text revision, with the stored brief (as last rendered) as context: only a
+    clearly unrelated message ("what's 2+2?") is declined. Fails open (keeps the revision) when the check can't
+    run, so the compose step reports the real problem (no trace context, the budget, the model)."""
+    current = b.from_dict(state.get("brief"))
+    shown = render.render(current, chosen) if current is not None else ""
+    try:
+        data = await llm.json(prompts.followup_scope_messages(message, shown))
+    except (MissingTraceparentError, CallBudgetError):
+        return True
+    return not (isinstance(data, dict) and str(data.get("status") or "").lower() == "off_topic")
 
 
 def _prior_view(data: dict | None) -> dict | None:

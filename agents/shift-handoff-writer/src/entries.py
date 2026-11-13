@@ -2,7 +2,8 @@
 leading instruction line ("Handoff at 17:30", "for the night team", "short") split off.
 
 An entry starts at a bullet, a numbered line, a timestamped line, or after a blank line; any other line
-continues the entry above it."""
+continues the entry above it. A run-on entry of 3 or more `;`-separated clauses (notes typed on one line) is
+split into one entry per clause, so each update keeps its own status, cues and customer."""
 
 from __future__ import annotations
 
@@ -10,6 +11,8 @@ import re
 from dataclasses import dataclass
 
 INSTRUCTION_MAX_CHARS = 200
+RUN_ON_MIN_CLAUSES = 3
+RUN_ON_MIN_CLAUSE_WORDS = 3
 
 _BULLET = re.compile(r"^\s*(?:[-*\u2022\u2013]|\d{1,3}[.)])\s+")
 _STAMP = re.compile(
@@ -93,12 +96,20 @@ def parse(notes: str, start: int = 1) -> list[Entry]:
             blocks[-1].append(line.strip())
         after_blank = False
     entries = []
-    for offset, lines in enumerate(blocks):
-        text = " ".join(lines)
+    texts = [clause for lines in blocks for clause in _clauses(" ".join(lines))]
+    for offset, text in enumerate(texts):
         stamp = _STAMP.match(text)
         number = start + offset
         entries.append(Entry(f"n{number}", text, number, stamp.group(1) if stamp else None, find_refs(text)))
     return entries
+
+
+def _clauses(text: str) -> list[str]:
+    """A run-on line of `;` clauses as one text per clause; anything else unchanged."""
+    parts = [p.strip() for p in text.split(";")]
+    if len(parts) < RUN_ON_MIN_CLAUSES or any(len(p.split()) < RUN_ON_MIN_CLAUSE_WORDS for p in parts):
+        return [text]
+    return parts
 
 
 def render_for_model(entries: list[Entry]) -> str:

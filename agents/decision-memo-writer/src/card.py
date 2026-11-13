@@ -4,7 +4,7 @@ The description carries the distinction from other agents: workflow generation s
 and description."""
 
 AGENT_NAME = "decision-memo-writer"
-AGENT_VERSION = "1.0.0"
+AGENT_VERSION = "1.0.1"
 AGENT_DESCRIPTION = (
     "Writes a one-page decision memo from the decision, options, constraints, criteria and data you PASTE: "
     "context, an options table with pros and cons, a recommendation labelled as a draft with its basis, risks "

@@ -29,6 +29,7 @@ class Outcome:
     repaired: bool = False
     audited: bool = False
     reason: str = ""
+    cut_in_code: bool = False   # "shorter": the model stayed over the cap, so code cut filler (facts kept)
 
     @property
     def confidence(self) -> str:
@@ -48,7 +49,8 @@ class Outcome:
         return {"status": self.status, "text": self.text, "before": self.before, "after": self.after,
                 "changes": [dict(c) for c in self.changes], "dropped": self.dropped, "removed": dict(self.removed),
                 "found": {k: list(v) for k, v in self.found.items()}, "repaired": self.repaired,
-                "audited": self.audited, "reason": self.reason}
+                "audited": self.audited, "reason": self.reason,
+                "cut_in_code": self.cut_in_code}
 
     @staticmethod
     def from_dict(data: Mapping[str, Any] | None) -> Outcome | None:
@@ -60,7 +62,7 @@ class Outcome:
                        removed={str(k): int(v) for k, v in (data.get("removed") or {}).items()},
                        found={str(k): [str(p) for p in v] for k, v in (data.get("found") or {}).items()},
                        repaired=bool(data.get("repaired")), audited=bool(data.get("audited")),
-                       reason=str(data.get("reason") or ""))
+                       reason=str(data.get("reason") or ""), cut_in_code=bool(data.get("cut_in_code")))
 
 
 def removed_counts(before: Detection, after: Detection) -> dict[str, int]:

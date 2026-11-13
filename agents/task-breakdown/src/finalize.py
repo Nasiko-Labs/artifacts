@@ -35,7 +35,10 @@ def finalize(draft: Draft, ctx: Context) -> Plan:
     phases, tasks = _phases(draft)
     tasks, mapping = _ids(tasks, ctx)
     fixed = fixes.apply_all(tuple(tasks), ctx.source, ctx.band[1])
-    plan_tasks = tuple(Task(**t) for t in fixed.tasks)
+    # "policy" means an org rule required the task: with no org rules the model's label is wrong (and would
+    # shield the task from being deferred to fit a timebox).
+    plan_tasks = tuple(Task(**{**t, "source": t["source"] if ctx.policy or t["source"] != "policy" else "derived"})
+                       for t in fixed.tasks)
     used = sorted({t.phase for t in plan_tasks})
     phase_rows = tuple(Phase(number=n, name=name) for n, name in phases if n in used)
     assumptions, dropped = _assumptions(draft, ctx.source)

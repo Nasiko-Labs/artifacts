@@ -26,6 +26,7 @@ class Options:
     keep_headings: bool = False
     voice: str = "neutral"
     shorter: bool = False
+    max_words: int = 0   # set in code for "shorter" (never parsed from words): the result's word cap, 0 = none
 
     def to_dict(self) -> dict:
         return {"keep_em_dashes": self.keep_em_dashes, "keep_structure": self.keep_structure,

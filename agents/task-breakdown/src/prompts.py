@@ -48,6 +48,10 @@ MODEL_FAILED = "I couldn't finish the plan: the model call failed or timed out. 
 NO_PLAN = "There's no plan in this conversation yet. Tell me the goal (and paste any spec) and I'll break it down."
 TRACKER = ("I only draft: I can't create issues or cards anywhere. Copy the plan (or the task_plan.md block); an "
            "agent with a tracker connection, such as the Issue Triager, can file it after you approve each item.")
+REPLAN_RULE = ("A change that sets a team size, a timebox ('make it a 2-week plan', 'in 3 weeks') or a deadline is "
+               "in scope, never off_topic: keep the tasks and their sizes (code sequences them for the team and "
+               "defers what does not fit the timebox), apply any other change asked, and list the timebox in "
+               "constraints in the user's words.")
 CANCELLED = "Okay, cancelled. Tell me the goal whenever you're ready."
 STILL_VAGUE = ("I still can't tell what the end result should be. Tell me the goal in a sentence, for example "
                "\"Break down launching our beta signup page\".")
@@ -80,7 +84,8 @@ def revise_messages(plan_json: dict, instruction: str, band: tuple[int, int], po
     system = (f"TASK: REVISE\nYou change an existing work plan as the user asks. {SCOPE} {DATA_RULE} "
               f"{NUMBERS_RULE}\n{RULES}\nReturn the WHOLE plan after the change. Keep the id and every field of each "
               "task you do not change. Give new tasks the ids NEW1, NEW2, ... and use those ids in depends_on. "
-              f"Remove a task only when the user asks for it. Stay between {band[0]} and {band[1]} tasks.\n"
+              f"Remove a task only when the user asks for it. Stay between {band[0]} and {band[1]} tasks. "
+              f"{REPLAN_RULE}\n"
               f"{PLAN_CONTRACT}{_org(policy)}")
     user = fence("PLAN", json.dumps(plan_json, ensure_ascii=False)) + "\n\n" + fence("CHANGE", instruction)
     return [{"role": "system", "content": system}, {"role": "user", "content": user}]

@@ -4,6 +4,7 @@ assigns any of these."""
 
 from __future__ import annotations
 
+import re
 from collections.abc import Callable
 from dataclasses import replace
 
@@ -16,15 +17,24 @@ REPEAT_BUMP_CONTACTS = 3
 OLD_OPEN_HOURS = 72
 HIGH_RISK, MEDIUM_RISK = 5, 2
 P3_CATEGORIES = ("bug", "billing", "account_access", "data_issue", "cancellation", "outage", "security")
+BROKEN_CATEGORIES = ("bug", "billing", "account_access", "data_issue", "outage")  # something stopped working
+_SOON = re.compile(r"\b(?:today|tonight|tomorrow|eod|end of (?:the )?day|asap|this (?:morning|afternoon|evening)|"
+                   r"within (?:the )?(?:hour|\d+ ?h(?:ours?)?))\b", re.IGNORECASE)
 
 
 def _crit(t: Ticket) -> bool:
     return t.tier in SLA_CRITICAL
 
 
+def _deadline_soon(t: Ticket) -> bool:
+    """A stated deadline that falls within about a day (read from its quote; no date arithmetic)."""
+    return any(s.name == "deadline" and _SOON.search(s.quote) for s in t.signals)
+
+
 # (priority, rule text, condition); the first matching row wins.
 PRIORITY_TABLE: tuple[tuple[str, str, Callable[[Ticket], bool]], ...] = (
     ("P1", "service_down with blocked_work", lambda t: t.has("service_down") and t.has("blocked_work")),
+    ("P1", "service_down for all or most users", lambda t: t.has("service_down") and t.has("widespread")),
     ("P1", "service_down on an enterprise/business tier", lambda t: t.has("service_down") and _crit(t)),
     ("P1", "data_loss", lambda t: t.has("data_loss")),
     ("P1", "security_concern", lambda t: t.has("security_concern")),
@@ -32,6 +42,8 @@ PRIORITY_TABLE: tuple[tuple[str, str, Callable[[Ticket], bool]], ...] = (
     ("P2", "service_down", lambda t: t.has("service_down")),
     ("P2", "blocked_work on an enterprise/business tier", lambda t: t.has("blocked_work") and _crit(t)),
     ("P2", "blocked_work with a deadline", lambda t: t.has("blocked_work") and t.has("deadline")),
+    ("P2", "a broken function with a deadline", lambda t: t.category in BROKEN_CATEGORIES and t.has("deadline")),
+    ("P2", "blocked_work for all or most users", lambda t: t.has("blocked_work") and t.has("widespread")),
     ("P2", "churn_threat on an enterprise/business tier", lambda t: t.has("churn_threat") and _crit(t)),
     ("P2", "exec_involved on an enterprise tier", lambda t: t.has("exec_involved") and t.tier == "enterprise"),
     ("P2", "money_at_stake", lambda t: t.has("money_at_stake")),
@@ -42,6 +54,12 @@ FALLBACK = ("P4", "no escalation signal")
 
 # (label, points, condition), summed for escalation risk.
 RISK_TABLE: tuple[tuple[str, int, Callable[[Ticket], bool]], ...] = (
+    ("service_down", 2, lambda t: t.has("service_down")),
+    ("widespread", 2, lambda t: t.has("widespread")),
+    ("data_loss", 2, lambda t: t.has("data_loss")),
+    ("security_concern", 2, lambda t: t.has("security_concern")),
+    ("deadline", 2, lambda t: t.has("deadline")),
+    ("deadline within a day", 1, _deadline_soon),
     ("enterprise", 2, lambda t: t.tier == "enterprise"),
     ("business", 1, lambda t: t.tier == "business"),
     ("churn_threat", 2, lambda t: t.has("churn_threat")),

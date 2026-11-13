@@ -1,10 +1,18 @@
-"""The graph's node bodies: what each route does with the stored state and this turn's input."""
+"""The graph's node bodies: what each route does with the stored state and this turn's input.
+
+A free-text follow-up on a stored memo is first checked against that memo (FOLLOWUP-SCOPE): a clearly unrelated
+message is declined and the stored memo is left alone. A question is answered from the memo without touching it
+(`discuss.py`); any other free text re-writes the prose over the stored analysis (scores and recommendation stay,
+both decided in code). Only changed inputs (weights, options, data, "recommend X instead") re-score."""
 
 from __future__ import annotations
+
+import json
 
 import analyse
 import brief as b
 import criteria as crit
+import discuss
 import envelope as envelope_mod
 import followup as fu
 import intake as intake_mod
@@ -116,7 +124,35 @@ async def followup(state: dict, scope: Scope) -> dict:
         return await compose(scope, grown, analysis, override=override)
     if command.kind == "weights":
         return await _reweight(scope, brief, analysis, command.text)
+    if not await _about_the_memo(scope, state, command.text):
+        return {"reply": smalltalk.OFF_TOPIC_REPLY}
+    if discuss.is_question(command.text):
+        return await _answer(scope, state, command.text)
     return await compose(scope, brief, analysis, override=override, instruction=command.text)
+
+
+def _shown(state: dict) -> str:
+    return (state.get("envelope") or {}).get("memo_markdown") or ""
+
+
+async def _about_the_memo(scope: Scope, state: dict, text: str) -> bool:
+    """One classify call with the stored memo as context: only a clearly unrelated message is declined, even
+    though a memo is stored (it is not a revision). A failed call keeps the revision."""
+    messages = prompts.followup_scope_messages(text, _shown(state), scope.incoming.policy)
+    try:
+        data = await llm.complete_json(scope.deps, messages, prompts.SCOPE_CONTRACT, _status)
+    except llm.LlmError:
+        return True
+    return data["status"] != "off_topic"
+
+
+async def _answer(scope: Scope, state: dict, question: str) -> dict:
+    """A question on the stored memo: answered from it; nothing stored changes (no re-score, no rewrite)."""
+    source = json.dumps(state.get("brief") or {}, ensure_ascii=False)
+    try:
+        return {"reply": await discuss.answer(scope.deps, _shown(state), source, question, scope.incoming.policy)}
+    except llm.LlmError:
+        return {"reply": prompts.MODEL_FAILED}
 
 
 async def _add_option(scope: Scope, brief: b.Brief, text: str) -> dict:

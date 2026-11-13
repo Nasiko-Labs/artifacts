@@ -27,7 +27,8 @@ NEVER_INVENT = (
 FACT_KINDS_TEXT = (
     "FACT KINDS: problem (what is wrong or missing: 'customers keep asking for X'), user (who it is for: "
     "'customers on the Team plan'), goal (an outcome wanted), constraint (a limit: 'must run on-prem'), metric "
-    "(something measured: 'support handled 41 tickets'), number (any other figure), deadline ('before the "
+    "(something measured: 'support handled 41 tickets'; a stated success measure such as 'Success: 30% of "
+    "workspaces use it in month one' is a metric, never only a goal), number (any other figure), deadline ('before the "
     "January renewal cycle'), solution_idea (a proposed solution: 'CSV first'), exclusion (out of scope: 'not "
     "for the free plan'), question (an open question the brief raises). "
     "Every brief that asks for something has a problem: an unmet request ('keep asking us to'), a pain or a "
@@ -48,7 +49,7 @@ SECTION_RULES = (
     "2 proposed ones, only for an adjacent thing the brief names. requirements (<= 12): each ONE behavior, "
     "'The system can ...' or 'The user can ...', priority must|should|could (must only when the brief says "
     "required, must or blocker), and an acceptance_hint: one observable check. metrics (<= 5): name, "
-    "definition, baseline, target, window, values only from metric/number facts, else placeholders. "
+    "definition, baseline, target, window, values only from metric/number facts, else placeholders; every metric fact becomes a metric. "
     "open_questions (<= 12): what the brief leaves open. BASIS: every entry lists the fact ids it rests on; "
     "an empty basis means you propose it, so propose sparingly. No solution detail the brief does not mention."
 )
@@ -59,11 +60,11 @@ PRD_CONTRACT = (
     '"priority": "must|should|could", "basis": ["F2"], "acceptance_hint": "one observable check"}], '
     '"metrics": [{"name": "...", "definition": "...", "baseline": "value or [baseline?]", '
     '"target": "value or [target?]", "window": "value or [window?]", "basis": ["F3"]}], '
-    '"open_questions": ["..."]}.'
+    '"open_questions": ["..."], "title": "the feature in 2-5 words, e.g. Bulk team invites"}.'
 )
 SCOPE_CONTRACT = (
-    'Return one JSON object: {"status": "prd" | "off_topic"}. prd = the user asks for a PRD or gives product '
-    "brief material."
+    'Return one JSON object: {"status": "prd" | "off_topic"}. prd = the user asks for a PRD, gives product '
+    "brief material, or asks to change or asks about the PRD in this conversation."
 )
 REPAIR_SYSTEM = "TASK: REPAIR\nReturn only valid JSON matching this schema. No prose, no code fences.\n\n"
 
@@ -141,10 +142,16 @@ def fix_messages(prd_json: str, facts_block: str, problems: Sequence[str], polic
             _user(fence("PRD", prd_json), fence("FACTS", facts_block))]
 
 
-def scope_messages(text: str, policy: Sequence[str] = ()) -> list[dict]:
+def scope_messages(text: str, policy: Sequence[str] = (), current_prd: str = "") -> list[dict]:
+    """`current_prd`: the stored PRD's outline, when there is one; a message about it is then in scope."""
     body = "Decide whether the user's message is a request for a PRD or product brief material."
+    if current_prd:
+        body += (" The CURRENT_PRD block is the PRD already written in this conversation. A question or change "
+                 "about it (its users, platforms, scope, requirements, metrics, wording) is prd, even when short "
+                 "or phrased as a question; when unsure, answer prd. Only a message unrelated to this PRD and to "
+                 "product requirements (arithmetic, general facts, other tasks) is off_topic.")
     return [{"role": "system", "content": system("SCOPE", body, SCOPE_CONTRACT, policy)},
-            _user(fence("USER_REQUEST", text))]
+            _user(fence("CURRENT_PRD", current_prd) if current_prd else "", fence("USER_REQUEST", text))]
 
 
 def repair_messages(contract: str, invalid: str) -> list[dict]:

@@ -48,6 +48,8 @@ async def run_node(state: dict, scope: Scope) -> dict:
         return await pipeline.scope_check(deps, incoming, plan.pending)
     if plan.route == "who":
         return await pipeline.answer_who(deps, incoming, scope.pending, plan.audience)
+    if plan.route == "scope_then_revise":  # a stored PRD does not make an unrelated question a revision
+        return await pipeline.scope_then_revise(deps, incoming, state, plan.instruction)
     if plan.route == "revise":
         return await pipeline.revise_prd(deps, incoming, state, plan.instruction)
     return await pipeline.new_prd(deps, incoming, plan.brief, plan.instruction)

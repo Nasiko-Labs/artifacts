@@ -8,11 +8,12 @@ from dataclasses import dataclass
 from typing import Any
 
 import checks
+import fit
 import mapping
 import prompts
 import revision
 from finalize import Context, finalize
-from inputs import BANDS, Brief, chunk, team_size
+from inputs import BANDS, Brief, chunk, deadline, is_replan, team_size
 from llm import LlmError, TurnDeps, ask_json
 from models import Plan
 
@@ -104,6 +105,8 @@ async def revise(deps: TurnDeps, plan: Plan, instruction: str, policy: Sequence[
         return Outcome("failed")
     if data is None:
         return Outcome("failed")
+    if data["status"] == "off_topic" and is_replan(instruction):
+        return Outcome("ok", fit.fit(_replanned_in_code(plan, instruction)))
     if data["status"] != "ok":
         return Outcome(data["status"])
     draft, _, first_notes = revision.reconcile(plan, checks.normalize(data), instruction)
@@ -113,6 +116,22 @@ async def revise(deps: TurnDeps, plan: Plan, instruction: str, policy: Sequence[
     ctx = Context(goal=plan.goal, source=f"{plan.source}\n{instruction}", band=REVISION_BAND, policy=tuple(policy),
                   renumber=False, next_id=next_id,
                   known_constraints=tuple(c for c in plan.constraints if not c.startswith(_CODE_CONSTRAINT)),
-                  deadline=plan.deadline, team_size=team_size(instruction) or plan.team_size, rate=plan.rate,
+                  deadline=deadline(instruction) or plan.deadline, team_size=team_size(instruction) or plan.team_size,
+                  rate=plan.rate,
                   chunks=plan.chunks, vague_used=plan.vague_used, notes=notes)
-    return Outcome("ok", finalize(draft, ctx).model_copy(update={"granularity": plan.granularity}))
+    revised = finalize(draft, ctx).model_copy(update={"granularity": plan.granularity})
+    return Outcome("ok", fit.fit(revised) if is_replan(instruction) else revised)
+
+
+REPLANNED_IN_CODE = "Re-planned in code for your team size and timebox."
+
+
+def _replanned_in_code(plan: Plan, instruction: str) -> Plan:
+    """A team-size/timebox re-plan the model declined: apply what code can (team lanes, the timebox as typed)
+    to the stored plan, rather than refusing an in-scope request."""
+    people = team_size(instruction) or plan.team_size
+    due = deadline(instruction) or plan.deadline
+    own = tuple(c for c in plan.constraints if not c.startswith(_CODE_CONSTRAINT))
+    code = ((f"Team of {people}",) if people else ()) + ((f"Deadline: {due} (as you wrote it)",) if due else ())
+    return plan.model_copy(update={"team_size": people, "deadline": due, "constraints": (*code, *own),
+                                   "notes": (REPLANNED_IN_CODE,)})

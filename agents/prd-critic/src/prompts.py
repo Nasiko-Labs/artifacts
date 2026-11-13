@@ -56,6 +56,8 @@ REPAIR_JSON_SYSTEM = "Return only valid JSON matching this schema. No prose, no 
 
 NO_TRACEPARENT = ("This request arrived without a trace context, so I can't call the language model for it. "
                   "Send it through the Nasiko platform.")
+NO_REVIEW_YET = ("There's no review yet to work on. Paste the full PRD (at least 150 words) and I'll review it "
+                 "first.")
 TOO_SHORT = ("That's too short to review as a PRD (I need at least 150 words). Paste the full PRD, or ask the "
              "PRD Writer agent to draft one first.")
 TOO_LONG = ("That PRD is over 60,000 characters, more than I can review in one turn. Paste the sections you "

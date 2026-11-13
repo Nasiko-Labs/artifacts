@@ -9,7 +9,7 @@ from typing import Any
 
 CATEGORIES = ("outage", "bug", "how_to", "billing", "account_access", "security", "data_issue",
               "feature_request", "cancellation", "other")
-SIGNALS = ("service_down", "data_loss", "security_concern", "blocked_work", "deadline", "churn_threat",
+SIGNALS = ("service_down", "widespread", "data_loss", "security_concern", "blocked_work", "deadline", "churn_threat",
            "legal_threat", "exec_involved", "angry_tone", "repeat_contact", "workaround_exists",
            "demands_priority", "money_at_stake")
 TIERS = ("enterprise", "business", "pro", "free", "unknown")

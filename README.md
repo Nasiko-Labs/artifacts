@@ -18,7 +18,7 @@ cd agents/<name> && nasiko-ee registry publish .        # owner: nasiko
 nasiko import nasiko/<name>:<version>                     # deploy to a control plane
 ```
 
-## Agents (162)
+## Agents (163)
 
 `<name>-stateless` agents keep nothing between messages (no state API, no pauses) and use the chat
 history Nasiko attaches as their memory, so any replica can serve any message; they are built on
@@ -63,20 +63,20 @@ stateless Rust builds (single static binary, image from `scratch`).
 | dashboard-trust-checker | 1.0.0 | Audits a dashboard inventory you provide (a spreadsheet or a pasted export with name, owner, last refresh, vie |
 | day-planner | 1.0.0 | Turns your own calendar into a day plan: today (or a day you name, up to 5 days) as an ordered agenda with eac |
 | decision-log-builder | 1.0.0 | Scans your chat channels over the last 7 days (1 to 14 if you ask, or since Monday for 'this week') for decisi |
-| decision-memo-writer | 1.0.0 | Writes a one-page decision memo from the decision, options, constraints, criteria and data you PASTE: context, |
+| decision-memo-writer | 1.0.1 | Writes a one-page decision memo from the decision, options, constraints, criteria and data you PASTE: context, |
 | decision-memo-writer-stateless | 1.0.0 | Writes a one-page decision memo from the decision, options, constraints, criteria and data you PASTE: context, |
 | deck-builder | 1.0.0 | Turns your notes, an outline or pasted data into a real, editable PowerPoint deck (3-20 slides): action-title  |
 | dependency-risk-scanner | 1.0.0 | Tells you which of your repositories are exposed to a dependency advisory you paste (a CVE or GHSA id with the |
-| design-doc-drafter | 1.0.0 | Turns requirements you paste into the chat into a software design document with a fixed structure: context and |
+| design-doc-drafter | 1.0.1 | Turns requirements you paste into the chat into a software design document with a fixed structure: context and |
 | design-doc-drafter-stateless | 1.0.0 | Turns requirements you paste into the chat into a software design document with a fixed structure: context and |
 | doc-converter | 1.0.0 | Turns a document into clean Markdown: PDF (text layer), Word, PowerPoint, Excel, CSV, HTML, JSON, XML, EPUB, p |
 | drafter | 1.0.0 | Writes one message from you to a specific person or group, in your tone and in the right register for where yo |
 | drafter-stateless | 1.0.0 | Writes one message from you to a specific person or group, in your tone and in the right register for where yo |
 | enterprise-deal-reconciler | 1.0.0 | Reconciles an enterprise contract or order form with its billing setup before the first invoice goes out |
 | escalation-predictor | 1.0.0 | Scores your open support-desk tickets for the risk that they escalate (priority, age, customer tier, unanswere |
-| escalation-summarizer | 1.0.0 | Turns a messy escalation thread you paste (ticket comments, a chat or email chain, internal notes) into what t |
+| escalation-summarizer | 1.0.1 | Turns a messy escalation thread you paste (ticket comments, a chat or email chain, internal notes) into what t |
 | escalation-summarizer-stateless | 1.0.0 | Turns a messy escalation thread you paste (ticket comments, a chat or email chain, internal notes) into what t |
-| exec-brief-writer | 1.0.0 | Turns the outputs of other agents (or your own notes) that you PASTE into one conversation into a one-page exe |
+| exec-brief-writer | 1.0.1 | Turns the outputs of other agents (or your own notes) that you PASTE into one conversation into a one-page exe |
 | exec-brief-writer-stateless | 1.0.0 | Turns the outputs of other agents (or your own notes) that you PASTE into one conversation into a one-page exe |
 | failed-payment-rescuer | 1.0.0 | Finds failed payments in your own payments account over the last 7 days (1 to 30 if you ask, or since your las |
 | feedback-clusterer | 1.0.0 | Groups customer feedback you paste into the chat (support tickets, survey answers, app reviews, call notes; a  |
@@ -88,7 +88,7 @@ stateless Rust builds (single static binary, image from `scratch`).
 | formatter-rust | 1.0.0 | Formats structured output (a JSON envelope from another agent, or any JSON) as Markdown, Slack Block Kit block |
 | formatter-stateless | 1.0.0 | Formats structured output (a JSON envelope from another agent, or any JSON) as Markdown, Slack Block Kit block |
 | hiring-loop-agent | 1.0.0 | Prepares a hiring debrief for ONE candidate: it gathers the interviewers' written feedback (pasted scorecards, |
-| humanizer | 1.0.0 | Takes a draft you paste (an email, a message, a memo, a post, or another agent's draft) and returns the same d |
+| humanizer | 1.0.1 | Takes a draft you paste (an email, a message, a memo, a post, or another agent's draft) and returns the same d |
 | humanizer-stateless | 1.0.0 | Takes a draft you paste (an email, a message, a memo, a post, or another agent's draft) and returns the same d |
 | iac-cost-gate | 1.0.0 | Estimates the monthly AWS cost of Terraform HCL, a terraform show -json plan or a CloudFormation template you  |
 | idle-resource-reaper | 1.0.0 | Reviews a cloud resource inventory you paste (CSV, or the JSON of the standard describe commands for volumes,  |
@@ -112,6 +112,7 @@ stateless Rust builds (single static binary, image from `scratch`).
 | meeting-roi | 1.0.0 | Audits your recurring meetings over the last 4 weeks (7 to 56 days if you ask): for each series it reads your  |
 | metric-mover-offline | 1.0.0 | Explains why a metric moved from a before/after table you paste into the chat, broken down by segment (channel |
 | metrics-pull | 1.0.0 | Pulls fresh numbers from a spreadsheet you name (title or link, optional tab and range) or from a table you pa |
+| nasiko-support-agent | 1.0.1 | Answers questions about using Nasiko itself. How-to: where a setting lives and how to do a task, such as deplo |
 | onboarding-guide-generator | 1.0.0 | Builds a repository walkthrough for a new hire and their first ticket, from what the repository actually conta |
 | one-on-one-prep | 1.0.0 | Prepares a manager's next 1:1 with one report from the last meeting's notes and the recent updates the manager |
 | opportunity-brief | 1.0.0 | Turns public signals into a short, cited opportunity brief on a topic you name (a market, a technology, a comp |
@@ -122,9 +123,9 @@ stateless Rust builds (single static binary, image from `scratch`).
 | pr-description-writer | 1.0.0 | Turns a diff you paste into the chat (git diff,  |
 | pr-description-writer-stateless | 1.0.0 | Turns a diff you paste into the chat (git diff, .patch or git diff --stat) into a pull request draft: a conven |
 | pr-review-queue | 1.0.0 | Shows the pull request review queue for the repositories you name (owner/repo, up to 5): which open pull reque |
-| prd-critic | 1.0.0 | Reviews a PRD you paste into the chat and returns its gaps: missing sections (problem, users, goals, non-goals |
+| prd-critic | 1.0.1 | Reviews a PRD you paste into the chat and returns its gaps: missing sections (problem, users, goals, non-goals |
 | prd-critic-stateless | 1.0.0 | Reviews a PRD you paste into the chat and returns its gaps: missing sections (problem, users, goals, non-goals |
-| prd-writer | 1.0.0 | Turns a product brief you paste into the chat (the idea, who it is for, constraints, any data) into a PRD with |
+| prd-writer | 1.0.1 | Turns a product brief you paste into the chat (the idea, who it is for, constraints, any data) into a PRD with |
 | prd-writer-stateless | 1.0.0 | Turns a product brief you paste into the chat (the idea, who it is for, constraints, any data) into a PRD with |
 | pre-mortem | 1.0.0 | Runs a pre-mortem on a plan, PRD or brief you paste into the chat: it assumes the plan already failed and writ |
 | pre-mortem-stateless | 1.0.0 | Runs a pre-mortem on a plan, PRD or brief you paste into the chat: it assumes the plan already failed and writ |
@@ -150,7 +151,7 @@ stateless Rust builds (single static binary, image from `scratch`).
 | security-reviewer | 1.0.0 | Reviews code or a diff you paste into the chat for security problems: injection, authentication and authorizat |
 | seo-audit | 1.0.0 | Audits one web page for on-page SEO and for readiness to be cited by AI answer engines |
 | sheet-watcher | 1.0.0 | Watches a tracking spreadsheet on demand: reads the sheet you name (or a table you paste), compares it in code |
-| shift-handoff-writer | 1.0.0 | Turns the day's notes you paste into the chat (queue notes, ticket updates, chat jottings, a running log) into |
+| shift-handoff-writer | 1.0.1 | Turns the day's notes you paste into the chat (queue notes, ticket updates, chat jottings, a running log) into |
 | shift-handoff-writer-stateless | 1.0.0 | Turns the day's notes you paste into the chat (queue notes, ticket updates, chat jottings, a running log) into |
 | slack-catch-up | 1.0.0 | Catches you up on your team chat workspace: for the channels and direct messages you are in, since your last c |
 | slack-thread-to-issue | 1.0.0 | Scans your chat channels (the ones you name, else your 8 most active; last 3 days by default, 1 to 14 if you a |
@@ -160,7 +161,7 @@ stateless Rust builds (single static binary, image from `scratch`).
 | spec-to-issues-breaker | 1.0.0 | Reads a product spec or PRD (a document found by title or link, or text you paste after "Spec:") and proposes  |
 | spend-spike-root-causer | 1.0.0 | Takes your cloud billing export (pasted CSV: date, service, cost, plus optional usage type, region, account an |
 | sql-writer | 1.0.0 | Writes and optimizes SQL from what you paste into the chat |
-| stack-trace-explainer | 1.0.0 | Explains a pasted error message or stack trace (Python, JavaScript/Node, Java/Kotlin, Go, Rust, Ruby, C#): the |
+| stack-trace-explainer | 1.0.1 | Explains a pasted error message or stack trace (Python, JavaScript/Node, Java/Kotlin, Go, Rust, Ruby, C#): the |
 | stack-trace-explainer-rust | 1.0.0 | Explains a pasted error message or stack trace (Python, JavaScript/Node, Java/Kotlin, Go, Rust, Ruby, C#): the |
 | stack-trace-explainer-stateless | 1.0.0 | Explains a pasted error message or stack trace (Python, JavaScript/Node, Java/Kotlin, Go, Rust, Ruby, C#): the |
 | standup-generator | 1.0.0 | Builds a team standup you can copy: for the people you name (or everyone active in the repositories you name,  |
@@ -170,7 +171,7 @@ stateless Rust builds (single static binary, image from `scratch`).
 | summarizer-rust | 1.0.0 | Summarizes long text you paste into the chat (a meeting transcript, an email thread, a chat export, a document |
 | summarizer-stateless | 1.0.0 | Summarizes long text you paste into the chat (a meeting transcript, an email thread, a chat export, a document |
 | support-digest | 1.0.0 | Builds a support digest for a period (default the last 7 days) from your support desk: ticket volume with day- |
-| task-breakdown | 1.0.0 | Turns a goal, spec or messy brief you type or paste into a structured work plan: 3-6 phases named by outcome,  |
+| task-breakdown | 1.0.1 | Turns a goal, spec or messy brief you type or paste into a structured work plan: 3-6 phases named by outcome,  |
 | task-breakdown-rust | 1.0.0 | Turns a goal, spec or messy brief you type or paste into a structured work plan: 3-6 phases named by outcome,  |
 | task-breakdown-stateless | 1.0.0 | Turns a goal, spec or messy brief you type or paste into a structured work plan: 3-6 phases named by outcome,  |
 | team-pulse | 1.0.0 | Prepares a manager's 1:1s: for each person on the team (the people active in the repository or project you nam |
@@ -178,7 +179,7 @@ stateless Rust builds (single static binary, image from `scratch`).
 | terraform-plan-reviewer | 1.0.0 | Reviews a Terraform plan you paste into the chat (`terraform plan` text, `terraform show -json` or `terraform  |
 | test-writer | 1.0.0 | Writes unit tests with edge cases for Python, JavaScript/TypeScript or Go code you paste into the chat: a func |
 | thread-untangler | 1.0.1 | Untangles a Slack thread or an email chain you paste into the chat: it splits it into numbered messages with s |
-| ticket-triager | 1.0.0 | Triages a batch of support tickets you paste into the chat (a CSV export, a JSON array, or blocks like 'Ticket |
+| ticket-triager | 1.0.1 | Triages a batch of support tickets you paste into the chat (a CSV export, a JSON array, or blocks like 'Ticket |
 | ticket-triager-stateless | 1.0.0 | Triages a batch of support tickets you paste into the chat (a CSV export, a JSON array, or blocks like 'Ticket |
 | token-spend-analyzer | 1.0.0 | Analyzes an AI/LLM usage or spend export you paste into the chat: an OpenAI or Anthropic usage CSV, LiteLLM-st |
 | translator | 1.0.0 | Translates text you paste into about 40 target languages (Spanish, French, German, Portuguese, Japanese, Chine |

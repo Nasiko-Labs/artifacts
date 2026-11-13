@@ -9,7 +9,7 @@
     "organization": "Nasiko",
     "url": "https://nasiko.io"
   },
-  "version": "1.0.0",
+  "version": "1.0.1",
   "capabilities": {
     "streaming": false,
     "pushNotifications": false,

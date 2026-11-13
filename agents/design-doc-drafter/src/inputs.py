@@ -19,10 +19,14 @@ from typing import Any
 from google.protobuf.json_format import MessageToDict
 
 CURRENT_MESSAGE_MARKER = "\n\nCurrent message: "
+MIN_WORDS = 25                      # fewer words of requirements than this is too little to draft from...
+DENSE_MIN_WORDS = 12                # ...unless they are this long and list at least DENSE_MIN_CLAUSES separate
+DENSE_MIN_CLAUSES = 3               # requirements ("200 writes/s; links never expire; custom aliases")
 MAX_FILE_BYTES = 5 * 1024 * 1024
 TEXT_MEDIA = ("text/", "application/json", "application/x-diff", "application/x-patch", "text/csv")
 REQUEST_LINE_MAX_CHARS = 300
 
+_CLAUSE_BREAK = re.compile(r"[;\n]|(?<=[.!?])\s+|^\s*(?:[-*]|\d+[.)])\s+", re.MULTILINE)
 _MARKER = re.compile(r"<<<\s*/?\s*(?:END_)?[A-Z_]{2,40}\s*>>>", re.IGNORECASE)
 _JSON_WORDS = re.compile(r"\bas json\b|\bjson only\b|\bin json\b", re.IGNORECASE)
 _FENCED_JSON = re.compile(r"\A```(?:json)?\s*(.*?)\s*```\Z", re.DOTALL)
@@ -94,6 +98,16 @@ def _file_text(part: Any) -> str:
 
 def word_count(text: str) -> int:
     return len((text or "").split())
+
+
+def enough_to_draft(request: Request) -> bool:
+    """25+ words of requirements, or, after an explicit request line ("Draft a design doc for these
+    requirements: ..."), a short but concrete list: 12+ words in 3+ separate requirements of 2+ words each."""
+    words = word_count(request.requirements)
+    if words >= MIN_WORDS:
+        return True
+    clauses = [c for c in _CLAUSE_BREAK.split(request.requirements) if c and word_count(c) >= 2]
+    return bool(request.instruction) and words >= DENSE_MIN_WORDS and len(clauses) >= DENSE_MIN_CLAUSES
 
 
 def from_envelope(text: str) -> str | None:

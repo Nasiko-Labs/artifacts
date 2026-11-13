@@ -43,7 +43,7 @@ async def build(deps: TurnDeps, entries: list[Entry], instruction: str, policy: 
     at = duetime.handoff_time(instruction, now)
     by_id = {e.id: e for e in entries}
     norm = _notes_norm(entries)
-    items = await checks.ground_items(deps, rec.items, by_id, norm)
+    items = await checks.ground_items(deps, rec.items, by_id)
     items = hf.classify(items, by_id, at)
     instructions = checks.ground_instructions(rec.instructions, norm)
     composed = await compose(deps, items, instructions, norm, policy)
@@ -72,7 +72,7 @@ async def add_note(deps: TurnDeps, stored: hf.Handoff, text: str) -> Outcome:
                     stored.instructions)
     by_id = {e.id: e for e in entries}
     norm = _notes_norm(entries)
-    items = tuple(checks.fallback(i, norm) for i in rec.items)
+    items = tuple(checks.fallback(i, checks.own_norm(i, by_id)) for i in rec.items)
     notes = tuple(dict.fromkeys((*stored.notes, HEADLINE_STALE))) if stored.headline else stored.notes
     return Outcome("ok", replace(stored, entries=tuple(entries), items=hf.classify(items, by_id, stored.at),
                                  instructions=checks.ground_instructions(rec.instructions, norm),

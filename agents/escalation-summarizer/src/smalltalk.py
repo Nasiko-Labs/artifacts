@@ -36,7 +36,8 @@ INTRO = (
 )
 WELCOME = "You're welcome. " + INTRO
 OFF_TOPIC_REPLY = "That's outside what I do, so I can't help with it here. " + INTRO
-TOO_SHORT_REPLY = "That's short enough to read as is. " + INTRO
+TOO_SHORT_REPLY = ("That's too short to summarize: I need an escalation thread of at least 30 words over two or "
+                   "more messages, or 80 words in one block. " + INTRO)
 NO_THREAD_YET = "You haven't pasted an escalation thread yet. " + INTRO
 NO_BLAME_REPLY = ("I don't assign fault: the summary sticks to what the thread states, in neutral words. "
                   "Ask me what the thread says happened, or who said something, instead.")

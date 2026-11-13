@@ -11,11 +11,12 @@ the checkpointer is shared. A pause leaves the graph as a `pause` value; its sta
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any, TypedDict
 
 from langgraph.graph import END, START, StateGraph
 
+import checks
 import envelope
 import hitl
 import intake
@@ -27,6 +28,7 @@ import rewrite
 import smalltalk
 from inputs import Incoming
 from outcome import MODEL_FAILED, OFF_TOPIC, Outcome
+from patterns import word_count
 
 
 class HumanizerState(TypedDict, total=False):
@@ -113,18 +115,31 @@ async def _work(state: HumanizerState, scope: _Scope) -> dict:
         parsed = opts.parse(plan.request, opts.Options.from_dict(state.get("options")))
         if state.get("fields"):
             return await _envelope(scope, state.get("envelope_in") or {}, parsed.options, parsed.as_json)
+        if opts.parse(plan.request).options.shorter:   # this turn asks for shorter: shorten the version shown
+            return await _shorten_last(state, scope, parsed)
         return await _free(scope, state.get("original") or "", parsed.options, parsed.as_json)
     parsed = opts.parse(plan.request)
     return await _free(scope, plan.draft, parsed.options, parsed.as_json)
 
 
-async def _free(scope: _Scope, draft: str, options: opts.Options, as_json: bool) -> dict:
+async def _shorten_last(state: HumanizerState, scope: _Scope, parsed: opts.Parsed) -> dict:
+    """"Make it shorter" shortens the stored version the user saw, capped below its length, so the result is
+    measurably shorter than that version and a failed pass falls back to it, not to the AI draft. The stored
+    original stays the user's draft."""
+    original = state.get("original") or ""
+    last = Outcome.from_dict(state.get("outcome"))
+    version = last.text if last is not None and last.text.strip() else original
+    capped = replace(parsed.options, max_words=checks.shorter_cap(word_count(version)))
+    return await _free(scope, version, capped, parsed.as_json, original=original or version)
+
+
+async def _free(scope: _Scope, draft: str, options: opts.Options, as_json: bool, original: str = "") -> dict:
     result = await rewrite.humanize(scope.deps, scope.budget, draft, options, scope.incoming.context)
     if result.status in (OFF_TOPIC, MODEL_FAILED):  # nothing edited: the stored draft, if any, is kept
         return {"reply": _join(render.outcome(result), scope.plan.notes)}
     data = envelope.build(result)
     reply = envelope.fenced(data) if as_json else render.outcome(result, scope.plan.notes)
-    return {"reply": reply, "data": data, "original": draft, "options": options.to_dict(),
+    return {"reply": reply, "data": data, "original": original or draft, "options": options.to_dict(),
             "outcome": result.to_dict(), "envelope_in": {}, "fields": {}}
 
 

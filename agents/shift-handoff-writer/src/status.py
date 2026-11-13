@@ -21,7 +21,8 @@ RESOLVED_CUE = re.compile(r"\b(?:resolved|fixed|closed|done|sorted|completed|con
 REOPEN_CUE = re.compile(r"\b(?:reopened|re-opened|again|still|regressed|(?:is|it's|came|broke|went|it) back|"
                         r"not (?:fixed|resolved|working|sorted))\b"
                         r"|\bnot\s+\w+\s+(?:fixed|resolved)\b", re.IGNORECASE)
-WAITING_CUE = re.compile(r"\b(?:waiting (?:on|for)|pending|blocked|on hold|awaiting|needs? (?:input|reply|approval))\b",
+WAITING_CUE = re.compile(r"\b(?:waiting (?:on|for)|(?<!nothing )(?<!nothing else )(?<!\bno )pending|"
+                         r"blocked|on hold|awaiting|needs? (?:input|reply|approval))\b",
                          re.IGNORECASE)
 _WAITING_ON = re.compile(r"\b(?:waiting (?:on|for)|awaiting|blocked (?:on|by)|pending)\s+([^.;,\n()]+)", re.IGNORECASE)
 _SENTENCE = re.compile(r"(?<=[.;!?])\s+|\s+-\s+")

@@ -4,7 +4,7 @@ The description carries the distinction from other agents: workflow generation s
 and description."""
 
 AGENT_NAME = "shift-handoff-writer"
-AGENT_VERSION = "1.0.0"
+AGENT_VERSION = "1.0.1"
 AGENT_DESCRIPTION = (
     "Turns the day's notes you paste into the chat (queue notes, ticket updates, chat jottings, a running "
     "log) into a shift handoff for the next person: what is hot and why, what is still open, what is "

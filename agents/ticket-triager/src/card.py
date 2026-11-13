@@ -4,7 +4,7 @@ The description carries the distinction from other agents: workflow generation s
 and description."""
 
 AGENT_NAME = "ticket-triager"
-AGENT_VERSION = "1.0.0"
+AGENT_VERSION = "1.0.1"
 AGENT_DESCRIPTION = (
     "Triages a batch of support tickets you paste into the chat (a CSV export, a JSON array, or blocks like "
     "'Ticket #123: ...'): for each ticket a priority (P1-P4), a category, an escalation risk (low/medium/high), "

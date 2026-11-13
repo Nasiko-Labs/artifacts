@@ -19,6 +19,8 @@ from google.protobuf.json_format import MessageToDict
 
 CURRENT_MESSAGE_MARKER = "\n\nCurrent message: "
 MIN_BRIEF_WORDS = 40
+COMPLETE_BRIEF_MIN_WORDS = 20      # a shorter brief is enough when it names most of what a PRD needs
+COMPLETE_BRIEF_MIN_SIGNALS = 4     # of: who, need, constraint, deadline, success metric
 MAX_BRIEF_CHARS = 30_000
 INSTRUCTION_MAX_CHARS = 300
 SPLIT_MIN_REST_CHARS = 500
@@ -27,6 +29,19 @@ DEFAULT_CAP, ONE_PAGE_CAP, DETAILED_CAP = 900, 400, 1_500
 _JSON_WORDS = re.compile(r"\bas json\b|\bjson only\b|\bin json\b", re.IGNORECASE)
 _REQUEST_CUE = re.compile(r"\b(?:prd|product requirements?|spec|write|draft|one page|detailed|keep it)\b",
                           re.IGNORECASE)
+_MONTH = r"(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*"
+_BRIEF_SIGNALS = (
+    re.compile(r"\b(?:admins?|users?|customers?|teams?|teammates?|managers?|developers?|engineers?|compan(?:y|ies)|"
+               r"buyers?|merchants?|sellers?|operators?|staff|members?|people)\b", re.IGNORECASE),     # who
+    re.compile(r"\b(?:wants?|needs?|asks?|asking|struggl\w*|slow|pain\w*|problems?|cannot|can't|so that|"
+               r"by hand|manually)\b", re.IGNORECASE),                                                  # need
+    re.compile(r"\b(?:up to|at most|no more than|at least|must|should|only|expires?|limit\w*|within|"
+               r"max(?:imum)?)\b", re.IGNORECASE),                                                      # constraint
+    re.compile(rf"\b(?:launch\w*|deadline|due|release|target date|by {_MONTH}|before {_MONTH}|q[1-4])\b|"
+               rf"\b{_MONTH}\b", re.IGNORECASE),                                                        # deadline
+    re.compile(r"\d+(?:\.\d+)?\s?%|\b(?:success|metrics?|kpis?|conversion|adoption|retention|churn|nps)\b",
+               re.IGNORECASE),                                                                          # metric
+)
 _PARAGRAPH_BREAK = re.compile(r"\n\s*\n")
 _FENCED_JSON = re.compile(r"\A```(?:json)?\s*(.*?)\s*```\Z", re.DOTALL)
 _ONE_PAGE = re.compile(r"\bone[- ]pager?\b|\bone page\b|\bshort\b|\bbrief one\b", re.IGNORECASE)
@@ -77,6 +92,16 @@ def read_message(message: Any) -> Incoming:
     wants = str(metadata.get("output") or "").casefold() == "json" or bool(_JSON_WORDS.search(user))
     return Incoming(user, tuple(t for t in texts[1:] if t.strip()), wants)
 
+
+
+def enough_brief(brief: str) -> bool:
+    """Enough to write a PRD without inventing most of it: 40+ words, or 20+ words that name at least four of
+    who it is for, the need, a constraint, a deadline and a success metric."""
+    words = word_count(brief)
+    if words >= MIN_BRIEF_WORDS:
+        return True
+    signals = sum(1 for rx in _BRIEF_SIGNALS if rx.search(brief or ""))
+    return words >= COMPLETE_BRIEF_MIN_WORDS and signals >= COMPLETE_BRIEF_MIN_SIGNALS
 
 def word_count(text: str) -> int:
     return len((text or "").split())

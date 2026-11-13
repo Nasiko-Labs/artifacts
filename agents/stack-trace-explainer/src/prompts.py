@@ -56,13 +56,33 @@ else. Use only the data below.
 Return one JSON object only, same keys as before."""
 
 FOLLOWUP_SYSTEM = f"""TASK: FOLLOWUP
-The user asks a follow-up question about an error you already explained. Answer from the STORED RESULT and the
-TRACE / CODE data only, in at most 120 words. If the answer needs code that was not pasted, say which file and lines
-to paste. You may give a short test or code change if asked, using only names that appear in the data.
+The user asks a follow-up question about an error you already explained (STORED RESULT). Answer the QUESTION itself
+first, in 1-3 sentences: what it asks about, specifically. "And on Windows?" means say what differs there (or that
+nothing differs, and why). A safety or risk question ("is that safe?", "any downside?", "would that break
+anything?") is never a bare "yes": name at least one concrete risk or edge case of the suggested fix, read from the
+fix itself (an index like [0] still fails on an empty list; a default value can hide bad or missing data; a broad
+except can swallow other errors), then say when it is safe. Mention the earlier fix only when the question needs it, in a few words; never repeat it
+or the STORED RESULT verbatim. At most 120 words in all, from the STORED RESULT and the TRACE / CODE data only. If
+the answer needs code that was not pasted, say which file and lines to paste. You may give a short test or code
+change if asked, using only names that appear in the data.
 {SCOPE}
 {DATA_RULE}
 {NEVER}
 Return one JSON object only: {{"status": "ok", "answer": "..."}} or {{"status": "off_topic"}}."""
+
+RESTATED_RETRY = ("Your answer repeats your previous answer instead of answering the new QUESTION. Answer that "
+                  "question itself in 1-3 sentences; mention the earlier fix only if needed, in a few words. Same "
+                  "JSON object as before.")
+
+RELATED_SYSTEM = f"""TASK: RELATED
+An error was explained earlier in this conversation (ERROR below, and the PREVIOUS ANSWER about it). Decide
+whether the QUESTION plausibly continues that debugging conversation. Treat it as related whenever it could be
+about this error, its cause, the line, the fix or the previous answer, even when it is short or vague: "and on
+Windows?", "what about in production?", "is that safe?", "would that break anything?" are related.
+Only a question that is clearly unrelated to this error is off_topic: arithmetic, trivia and general facts, general
+chat, or another topic (writing unrelated code, other subjects). Never answer the question.
+{DATA_RULE}
+Return one JSON object only: {{"status": "related"}} or {{"status": "off_topic"}}."""
 
 SCOPE_SYSTEM = f"""TASK: SCOPE
 Decide whether the user's message (data below) asks for help with an error, crash, exception or stack trace in

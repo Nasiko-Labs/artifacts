@@ -33,8 +33,8 @@ _FINE = re.compile(r"\bdetailed\b|fine[- ]grained|\bgranular\b|\bin detail\b|\bs
 NUMBER_WORDS = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7, "eight": 8,
                 "nine": 9, "ten": 10}
 _NUM = r"(\d{1,2}|" + "|".join(NUMBER_WORDS) + r")"
-_TEAM = re.compile(rf"\b(?:team of|we are|we're|there are|with|for|by) {_NUM} ?(?:people|persons|engineers|devs|"
-                   rf"developers|of us|folks|designers|members)\b|\bteam of {_NUM}\b", re.IGNORECASE)
+_TEAM = re.compile(rf"\b(?:team of|we are|we're|there are|with|for|by) {_NUM} ?(?:people|persons?|engineers?|devs?|"
+                   rf"developers?|of us|folks|designers?|members?)\b|\bteam of {_NUM}\b", re.IGNORECASE)
 _MONTH = (r"(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|June?|July?|Aug(?:ust)?|Sep(?:t(?:ember)?)?|"
           r"Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)")
 _DAY = r"(?:Mon|Tues|Wednes|Thurs|Fri|Satur|Sun)day"
@@ -42,6 +42,8 @@ _PERIOD = r"(?:week|month|quarter|sprint|year)"
 _DEADLINE = re.compile(rf"\b(?:by|before|due|deadline:?|until|no later than)\s+(?:the\s+)?(?:end of\s+)?(?:"
                        rf"\d{{1,2}}(?:st|nd|rd|th)?\s+{_MONTH}|{_MONTH}\s+\d{{1,2}}(?:st|nd|rd|th)?|{_MONTH}|"
                        rf"\d{{4}}-\d{{2}}-\d{{2}}|{_DAY}|Q[1-4](?:\s+\d{{4}})?|(?:next|this)\s+{_PERIOD}|{_PERIOD})\b")
+# A timebox as typed ("a 2-week plan", "in 3 weeks"): kept as the deadline text, never converted to dates.
+_TIMEBOX = re.compile(rf"\b(?:(?:in|within|over) )?{_NUM}[- ]?(?:weeks?|days?|months?|sprints?)\b", re.IGNORECASE)
 _PLAN_ASK = re.compile(r"\b(?:plan|make a .{0,30}plan|break (?:it )?down|tasks?|phases?)\b", re.IGNORECASE)
 
 
@@ -110,8 +112,14 @@ def team_size(text: str) -> int | None:
 
 def deadline(text: str) -> str:
     """The deadline exactly as typed (never converted to a date)."""
-    match = _DEADLINE.search(text or "")
+    match = _DEADLINE.search(text or "") or _TIMEBOX.search(text or "")
     return match.group(0).strip() if match else ""
+
+
+def is_replan(text: str) -> bool:
+    """A change that re-plans around a team size or a timebox/deadline ("make it a 2-week plan for one
+    engineer"): always in scope for a plan, whatever the model says."""
+    return team_size(text) is not None or bool(deadline(text))
 
 
 def asks_for_plan(text: str) -> bool:
