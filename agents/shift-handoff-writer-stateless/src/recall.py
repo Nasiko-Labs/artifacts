@@ -1,6 +1,6 @@
 """Pure: what earlier turns left behind, recovered from the platform's chat history (no checkpointer).
 
-- `notes` / `instruction`: the most recent message with >= MIN_NOTES_WORDS of notes, cut to the cap.
+- `notes` / `instruction`: the most recent message with enough notes (`inputs.enough_notes`), cut to the cap.
 - `changes`: the follow-ups the user sent after it that changed the handoff ("add a note: ...", "mark #4812
   resolved"), in order, so a rebuilt handoff replays them.
 - `reply`: our most recent rendered handoff (`**Shift handoff**`), shown again when the notes were trimmed.
@@ -17,7 +17,7 @@ import followup
 import prompts
 from entries import split_instruction
 from history import ASSISTANT, USER, Turn
-from inputs import MIN_NOTES_WORDS, from_envelope, most_recent, word_count
+from inputs import enough_notes, from_envelope, most_recent
 
 REPLY_MARK = "**Shift handoff**"
 INSTRUCTION_MAX_CHARS = 200
@@ -53,7 +53,7 @@ def _last_notes(turns: Sequence[Turn]) -> tuple[str, str, tuple[followup.Command
             continue
         instruction, notes = split_instruction(from_envelope(turn.text) or turn.text)
         notes = prompts.strip_markers(notes).strip()
-        if word_count(notes) >= MIN_NOTES_WORDS:
+        if enough_notes(instruction, notes):
             return most_recent(notes), prompts.strip_markers(instruction), tuple(changes)
     return "", "", ()
 

@@ -34,7 +34,8 @@ CATEGORY_RULES = (
 SIGNAL_RULES = (
     "SIGNALS (report each only when the ticket itself says it, with a verbatim quote): service_down = the service "
     "is down, unreachable or erroring (e.g. '500 on login'); widespread = it hits all or most users ('all users', "
-    "'everyone', 'nobody can', 'the whole team'); data_loss = data lost, deleted, corrupted; security_concern = breach, leak, "
+    "'everyone', 'nobody can', 'the whole team'); data_loss = stored data lost, deleted, corrupted (an export "
+    "or report that leaves rows out is not data_loss); security_concern = breach, leak, "
     "vulnerability, unauthorized access; blocked_work = the customer cannot work ('can't work', 'blocking our "
     "team', 'cannot log in', login failing); deadline = a stated date or time pressure; churn_threat = threatens to cancel, not "
     "renew or switch; legal_threat = lawyer, legal action, chargeback, regulator; exec_involved = CEO, VP, "

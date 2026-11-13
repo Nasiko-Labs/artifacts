@@ -22,6 +22,7 @@ MIN_CALL_SECS = 5.0
 MAX_CALLS_PER_TURN = 13
 MAX_REPAIRS_PER_TURN = 2
 MAX_TOKENS = 3_000
+TEMPERATURE = 0  # same tickets, same category and signals: no sampling spread
 
 
 class LlmError(RuntimeError):
@@ -99,7 +100,7 @@ async def call(deps: TurnDeps, messages: Sequence[Mapping[str, Any]], max_tokens
         with bound_traceparent(deps.traceparent):
             response = await deps.llm.chat.completions.create(
                 model=deps.model, messages=[dict(m) for m in messages], max_tokens=max_tokens,
-                response_format={"type": "json_object"}, timeout=timeout,
+                temperature=TEMPERATURE, response_format={"type": "json_object"}, timeout=timeout,
                 extra_headers={"traceparent": deps.traceparent},
             )
     except Exception as e:  # network, status, timeout: one class for the caller
@@ -112,6 +113,18 @@ def load(raw: str) -> Any:
     if text.startswith("```"):
         text = text.strip("`").removeprefix("json").strip()
     try:
-        return json.loads(text)
+        return json.loads(text, object_pairs_hook=_merge_duplicates)
     except ValueError:
         return None
+
+
+def _merge_duplicates(pairs: list[tuple[str, Any]]) -> dict:
+    """gpt-4o-mini sometimes repeats a key per item (`{"tickets": [a], "tickets": [b]}`); plain json.loads keeps
+    only the last. Repeated list values are concatenated; any other repeat keeps the last value, as before."""
+    out: dict = {}
+    for key, value in pairs:
+        if isinstance(out.get(key), list) and isinstance(value, list):
+            out[key] = [*out[key], *value]
+        else:
+            out[key] = value
+    return out

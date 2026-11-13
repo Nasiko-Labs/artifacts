@@ -22,6 +22,7 @@ OPTIONAL_CALL_RESERVE_SECS = 30.0  # an optional call starts only with this much
 MAX_CALLS_PER_TURN = 6
 MAX_REPAIRS_PER_TURN = 1
 MAX_TOKENS = 1_800
+TEMPERATURE = 0  # the same PRD gets the same flags: no sampling spread
 
 
 class LlmError(RuntimeError):
@@ -93,7 +94,7 @@ async def call(deps: TurnDeps, messages: Sequence[Mapping[str, Any]], max_tokens
         with bound_traceparent(deps.traceparent):
             response = await deps.llm.chat.completions.create(
                 model=deps.model, messages=[dict(m) for m in messages], max_tokens=max_tokens,
-                response_format={"type": "json_object"}, timeout=timeout,
+                temperature=TEMPERATURE, response_format={"type": "json_object"}, timeout=timeout,
                 extra_headers={"traceparent": deps.traceparent},
             )
     except Exception as e:  # network, status, timeout: one class for the caller

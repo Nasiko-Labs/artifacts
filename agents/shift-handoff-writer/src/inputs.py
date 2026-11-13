@@ -114,3 +114,9 @@ def most_recent(text: str, limit: int = MAX_NOTES_CHARS) -> str:
     tail = text[-limit:]
     cut = tail.find("\n")
     return tail[cut + 1:] if 0 <= cut < limit // 2 else tail
+
+
+def enough_notes(instruction: str, notes: str) -> bool:
+    """Enough to build a handoff: the request words count too, since a one-line request ("Write my shift
+    handoff from these notes: ...") is split at the colon and its notes alone may fall short."""
+    return bool(notes.strip()) and word_count(f"{instruction} {notes}") >= MIN_NOTES_WORDS

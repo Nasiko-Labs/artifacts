@@ -1,7 +1,8 @@
 """Facts: what the model extracted, kept only when code finds its quote in the thread.
 
-A fact's snippet must be in the thread (normalised, at least 12 chars) and every number, date word,
-email and URL in its text must be there too. A wrong `message` is corrected to the message that holds
+A fact's snippet must be in the thread (normalised, at least 12 chars), every number, date word, email and
+URL in its text must be there too, and its text must share a content word with its own snippet (a fact
+quoting an unrelated line is made up). A wrong `message` is corrected to the message that holds
 the snippet. Speaker and timestamp come from that message, never from the model."""
 
 from __future__ import annotations
@@ -78,7 +79,7 @@ def _verify_one(entry: Mapping[str, Any], norm_thread: str, messages: tuple[Mess
     snippet = _SPACES.sub(" ", str(entry.get("snippet") or "")).strip()
     if kind not in KINDS or not text or g.locate(snippet, norm_thread) is None:
         return None
-    if g.ungrounded_tokens(text, norm_thread):
+    if g.ungrounded_tokens(text, norm_thread) or not g.content_words(text) & g.content_words(snippet):
         return None
     hint = str(entry.get("message") or "").strip() or None
     message = locate_message(snippet, messages, hint)

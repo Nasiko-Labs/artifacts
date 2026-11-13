@@ -74,8 +74,8 @@ stateless Rust builds (single static binary, image from `scratch`).
 | drafter-stateless | 1.0.0 | Writes one message from you to a specific person or group, in your tone and in the right register for where yo |
 | enterprise-deal-reconciler | 1.0.0 | Reconciles an enterprise contract or order form with its billing setup before the first invoice goes out |
 | escalation-predictor | 1.0.0 | Scores your open support-desk tickets for the risk that they escalate (priority, age, customer tier, unanswere |
-| escalation-summarizer | 1.0.1 | Turns a messy escalation thread you paste (ticket comments, a chat or email chain, internal notes) into what t |
-| escalation-summarizer-stateless | 1.0.0 | Turns a messy escalation thread you paste (ticket comments, a chat or email chain, internal notes) into what t |
+| escalation-summarizer | 1.0.2 | Turns a messy escalation thread you paste (ticket comments, a chat or email chain, internal notes) into what t |
+| escalation-summarizer-stateless | 1.0.1 | Turns a messy escalation thread you paste (ticket comments, a chat or email chain, internal notes) into what t |
 | exec-brief-writer | 1.0.1 | Turns the outputs of other agents (or your own notes) that you PASTE into one conversation into a one-page exe |
 | exec-brief-writer-stateless | 1.0.0 | Turns the outputs of other agents (or your own notes) that you PASTE into one conversation into a one-page exe |
 | failed-payment-rescuer | 1.0.0 | Finds failed payments in your own payments account over the last 7 days (1 to 30 if you ask, or since your las |
@@ -123,8 +123,8 @@ stateless Rust builds (single static binary, image from `scratch`).
 | pr-description-writer | 1.0.0 | Turns a diff you paste into the chat (git diff,  |
 | pr-description-writer-stateless | 1.0.0 | Turns a diff you paste into the chat (git diff, .patch or git diff --stat) into a pull request draft: a conven |
 | pr-review-queue | 1.0.0 | Shows the pull request review queue for the repositories you name (owner/repo, up to 5): which open pull reque |
-| prd-critic | 1.0.1 | Reviews a PRD you paste into the chat and returns its gaps: missing sections (problem, users, goals, non-goals |
-| prd-critic-stateless | 1.0.0 | Reviews a PRD you paste into the chat and returns its gaps: missing sections (problem, users, goals, non-goals |
+| prd-critic | 1.0.2 | Reviews a PRD you paste into the chat and returns its gaps: missing sections (problem, users, goals, non-goals |
+| prd-critic-stateless | 1.0.1 | Reviews a PRD you paste into the chat and returns its gaps: missing sections (problem, users, goals, non-goals |
 | prd-writer | 1.0.1 | Turns a product brief you paste into the chat (the idea, who it is for, constraints, any data) into a PRD with |
 | prd-writer-stateless | 1.0.0 | Turns a product brief you paste into the chat (the idea, who it is for, constraints, any data) into a PRD with |
 | pre-mortem | 1.0.0 | Runs a pre-mortem on a plan, PRD or brief you paste into the chat: it assumes the plan already failed and writ |
@@ -151,8 +151,8 @@ stateless Rust builds (single static binary, image from `scratch`).
 | security-reviewer | 1.0.0 | Reviews code or a diff you paste into the chat for security problems: injection, authentication and authorizat |
 | seo-audit | 1.0.0 | Audits one web page for on-page SEO and for readiness to be cited by AI answer engines |
 | sheet-watcher | 1.0.0 | Watches a tracking spreadsheet on demand: reads the sheet you name (or a table you paste), compares it in code |
-| shift-handoff-writer | 1.0.1 | Turns the day's notes you paste into the chat (queue notes, ticket updates, chat jottings, a running log) into |
-| shift-handoff-writer-stateless | 1.0.0 | Turns the day's notes you paste into the chat (queue notes, ticket updates, chat jottings, a running log) into |
+| shift-handoff-writer | 1.0.2 | Turns the day's notes you paste into the chat (queue notes, ticket updates, chat jottings, a running log) into |
+| shift-handoff-writer-stateless | 1.0.1 | Turns the day's notes you paste into the chat (queue notes, ticket updates, chat jottings, a running log) into |
 | slack-catch-up | 1.0.0 | Catches you up on your team chat workspace: for the channels and direct messages you are in, since your last c |
 | slack-thread-to-issue | 1.0.0 | Scans your chat channels (the ones you name, else your 8 most active; last 3 days by default, 1 to 14 if you a |
 | slo-burn-forecaster | 1.0.0 | Forecasts SLO error-budget burn from SLI data you paste (timestamped good/total, errors/total or error-rate ro |
@@ -179,8 +179,8 @@ stateless Rust builds (single static binary, image from `scratch`).
 | terraform-plan-reviewer | 1.0.0 | Reviews a Terraform plan you paste into the chat (`terraform plan` text, `terraform show -json` or `terraform  |
 | test-writer | 1.0.0 | Writes unit tests with edge cases for Python, JavaScript/TypeScript or Go code you paste into the chat: a func |
 | thread-untangler | 1.0.1 | Untangles a Slack thread or an email chain you paste into the chat: it splits it into numbered messages with s |
-| ticket-triager | 1.0.1 | Triages a batch of support tickets you paste into the chat (a CSV export, a JSON array, or blocks like 'Ticket |
-| ticket-triager-stateless | 1.0.0 | Triages a batch of support tickets you paste into the chat (a CSV export, a JSON array, or blocks like 'Ticket |
+| ticket-triager | 1.0.2 | Triages a batch of support tickets you paste into the chat (a CSV export, a JSON array, or blocks like 'Ticket |
+| ticket-triager-stateless | 1.0.1 | Triages a batch of support tickets you paste into the chat (a CSV export, a JSON array, or blocks like 'Ticket |
 | token-spend-analyzer | 1.0.0 | Analyzes an AI/LLM usage or spend export you paste into the chat: an OpenAI or Anthropic usage CSV, LiteLLM-st |
 | translator | 1.0.0 | Translates text you paste into about 40 target languages (Spanish, French, German, Portuguese, Japanese, Chine |
 | translator-rust | 1.0.0 | Translates text you paste into about 40 target languages (Spanish, French, German, Portuguese, Japanese, Chine |

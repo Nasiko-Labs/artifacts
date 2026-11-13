@@ -58,12 +58,17 @@ def ungrounded_names(text: str, norm_thread: str, allowed: frozenset[str] = froz
     missing = []
     for match in _CAPITALISED.finditer(text or ""):
         word = re.sub(r"['’]s$", "", match.group(0)).casefold()
-        if word in COMMON or word in allowed or g.is_calendar_word(word) or (
+        if word in COMMON or word in allowed or g.is_calendar_word(word) or _clock_suffix(word, norm_thread) or (
                 _opens_sentence(text, match.start()) and _ordinary(word)):
             continue
         if not re.search(rf"(?<![a-z0-9]){re.escape(word)}(?![a-z0-9])", norm_thread):
             missing.append(match.group(0))
     return tuple(missing)
+
+
+def _clock_suffix(word: str, norm_thread: str) -> bool:
+    """"10 AM" when the thread writes "10am": the AM/PM of a time the thread gives (its number is checked apart)."""
+    return word in ("am", "pm") and bool(re.search(rf"\d\s?{word}\b", norm_thread))
 
 
 def _opens_sentence(text: str, start: int) -> bool:

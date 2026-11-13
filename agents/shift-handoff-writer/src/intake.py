@@ -21,9 +21,9 @@ import smalltalk
 from entries import split_instruction
 from inputs import (
     MAX_NOTES_CHARS,
-    MIN_NOTES_WORDS,
     Incoming,
     assemble,
+    enough_notes,
     from_envelope,
     most_recent,
     word_count,
@@ -55,7 +55,7 @@ def plan_turn(incoming: Incoming, has_stored: bool) -> Plan:
     instruction, notes = split_instruction(assemble(text, incoming.files))
     notes = prompts.strip_markers(notes).strip()
     instruction = prompts.strip_markers(instruction)
-    if word_count(notes) >= MIN_NOTES_WORDS:
+    if enough_notes(instruction, notes):
         if len(notes) > MAX_NOTES_CHARS:
             pending = pauses.Pending(pauses.TOO_BIG, instruction, most_recent(notes), chars=len(notes))
             return Plan("pause", pending=pending)

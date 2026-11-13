@@ -53,6 +53,8 @@ def explain(ticket: Ticket) -> str:
     head = (f"**{ticket.label}** — {ticket.priority}, {ticket.category}, risk {ticket.escalation_risk}, "
             f"suggested owner {ticket.suggested_owner}")
     lines = [head, f"- Priority {ticket.priority}: {ticket.priority_rule}."]
+    if ticket.category_rule:
+        lines.append(f"- Category: {ticket.category_rule}.")
     points = ", ".join(f"+{n} {label}" for label, n in ticket.risk_points) or "no risk points"
     total = sum(n for _, n in ticket.risk_points)
     lines.append(f"- Risk {ticket.escalation_risk}: {points} = {total} (high >= 5, medium 2-4).")

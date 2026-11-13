@@ -4,7 +4,7 @@ The description carries the distinction from other agents: workflow generation s
 and description."""
 
 AGENT_NAME = "escalation-summarizer"
-AGENT_VERSION = "1.0.1"
+AGENT_VERSION = "1.0.2"
 AGENT_DESCRIPTION = (
     "Turns a messy escalation thread you paste (ticket comments, a chat or email chain, internal notes) "
     "into what the person it is escalated to needs: a one-paragraph summary, the explicit ask (what is "

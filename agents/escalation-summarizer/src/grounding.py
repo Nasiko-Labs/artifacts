@@ -98,3 +98,24 @@ def _abbreviated(token: str, norm_source: str) -> bool:
     if not is_calendar_word(word):
         return False
     return any(re.search(rf"\b{a}\.?(?![a-z])", norm_source) for a in {word[:3], word[:4]})
+
+
+CONTENT_WORD_CHARS = 4
+_WORD = re.compile(r"[a-z0-9]+")
+_STOP = frozenset("""this that with have has from their there they were been will what when which into about after
+before over under than then them these those also just only very more most some such each other being does ours
+your""".split())
+
+
+def content_words(text: str) -> set[str]:
+    """The words that carry meaning: 4+ letters or a number, casefolded, no possessive 's, no stop words."""
+    plain = re.sub(r"['’]s\b", "", normalise(text))
+    return {w for w in _WORD.findall(plain) if (len(w) >= CONTENT_WORD_CHARS or w.isdigit()) and w not in _STOP}
+
+
+def support(text: str, norm_source: str) -> float:
+    """The share of `text`'s content words that occur in the (normalised) source; 1.0 when it has none."""
+    words = content_words(text)
+    found = set(_WORD.findall(norm_source))
+    return len(words & found) / len(words) if words else 1.0
+

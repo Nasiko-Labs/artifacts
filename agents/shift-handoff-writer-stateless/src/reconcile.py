@@ -2,12 +2,16 @@
 
 - A snippet must appear (normalised, >= 12 chars) in the LATEST entry the item cites; if it is in another
   entry instead, the item is re-pointed there; if it is in no entry, the item is dropped.
-- owner, customer and due must appear as written in the item's own entries, refs in the notes, else they are
-  cleared (never filled in): a customer named in another entry is not this item's customer.
+- An item may not span two clauses of one run-on line (`;`-split siblings): it is cut back to the clause its
+  snippet is in, plus any sibling that names the same ticket. Each clause is its own update.
+- owner, customer, due and refs must appear as written in the item's own entries, else they are cleared (never
+  filled in): a customer or ticket named in another entry is not this item's, so two items never merge on a
+  ref borrowed from another clause.
 - An "instruction" whose entry has no instruction or promise wording (if/when/do not/check/call/told/...) is the
   model misfiling an update; it is dropped, and the backstop below keeps the update as an item.
-- Backstop: an entry no item or instruction cites (nor shares a ticket ref with an item) that has a hot cue
-  becomes an item quoted verbatim, so an urgent update can never vanish because the model skipped it.
+- Backstop: every entry no item or instruction cites (nor shares a ticket ref with an item) becomes an item
+  quoted verbatim, except a closing remark ("nothing else pending"), so no update can vanish because the model
+  skipped it or because its clause was cut off a mixed item.
 - Items that share a ref are merged: the latest entry wins for words, status and next step; the earlier
   snippets are kept as `history` quotes. Every entry that mentions an item's ref is attached to it.
 """
@@ -18,8 +22,7 @@ import re
 from dataclasses import dataclass, replace
 
 import grounding
-from entries import Entry, find_refs, ref_key, without_stamp
-from hot import cue_reasons
+from entries import Entry, find_refs, is_nothing_pending, ref_key, without_stamp
 from items import INSTRUCTION, Instruction, Item
 
 MAX_HISTORY = 3
@@ -46,17 +49,24 @@ def _locate(snippet: str, cited: list[Entry], all_entries: list[Entry]) -> tuple
     return None, False
 
 
-def _item(raw: dict, by_id: dict[str, Entry], all_entries: list[Entry], notes_norm: str) -> Item | None:
+def _own_entries(home: Entry, cited: list[Entry]) -> list[Entry]:
+    """The cited entries this item may span: never a sibling clause, unless it names the home clause's ticket."""
+    keys = {ref_key(r) for r in home.refs}
+    kept = [e for e in cited if not home.is_sibling(e) or keys & {ref_key(r) for r in e.refs}]
+    return sorted({*kept, home}, key=lambda e: e.order)
+
+
+def _item(raw: dict, by_id: dict[str, Entry], all_entries: list[Entry]) -> Item | None:
     cited = sorted((by_id[e] for e in raw["entries"] if e in by_id), key=lambda e: e.order)
     home, moved = _locate(raw["snippet"], cited, all_entries)
     if home is None:
         return None
-    entries = sorted({*cited, home}, key=lambda e: e.order)
-    refs = [r for r in raw.get("refs") or [] if grounding.present(notes_norm, r)]
+    entries = _own_entries(home, cited)
+    own = grounding.normalise("\n".join(e.text for e in entries))
+    refs = [r for r in raw.get("refs") or [] if grounding.present(own, r)]
     refs += [r for r in find_refs(raw["snippet"]) if ref_key(r) not in {ref_key(x) for x in refs}]
     if not refs and len(home.refs) == 1:
         refs = list(home.refs)
-    own = grounding.normalise("\n".join(e.text for e in entries))
     kept = {k: (raw.get(k) if grounding.present(own, raw.get(k)) else None)
             for k in ("owner", "customer", "due", "status_words")}
     return Item(id="", what=raw["what"], snippet=grounding.clip(raw["snippet"]), snippet_entry=home.id,
@@ -139,7 +149,7 @@ def _uncovered(items: list[Item], instructions: list[Instruction], entries: list
     out = []
     for entry in entries:
         text = without_stamp(entry.text).strip()
-        if entry.id in used or covered_refs & {ref_key(r) for r in entry.refs} or not cue_reasons([text]):
+        if entry.id in used or covered_refs & {ref_key(r) for r in entry.refs} or is_nothing_pending(text):
             continue
         snippet = grounding.clip(text)
         out.append(Item(id="", what=f'"{snippet}"', snippet=snippet, snippet_entry=entry.id, entries=(entry.id,),
@@ -150,8 +160,7 @@ def _uncovered(items: list[Item], instructions: list[Instruction], entries: list
 def reconcile(raw_items: list[dict], raw_instructions: list[dict], entries: list[Entry],
               existing: tuple[Item, ...] = (), existing_instructions: tuple[Instruction, ...] = ()) -> Reconciled:
     by_id = {e.id: e for e in entries}
-    notes_norm = grounding.normalise("\n".join(e.text for e in entries))
-    checked = [i for i in (_item(r, by_id, entries, notes_norm) for r in raw_items) if i is not None]
+    checked = [i for i in (_item(r, by_id, entries) for r in raw_items) if i is not None]
     located = [i for i in (instruction(r, by_id, entries) for r in raw_instructions) if i is not None]
     found = [i for i in located if INSTRUCTION_WORDING.search(by_id[i.entry].text)]
     merged = merge_by_ref([*existing, *checked, *_uncovered([*existing, *checked], found, entries)], entries)

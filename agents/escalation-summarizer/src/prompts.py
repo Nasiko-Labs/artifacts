@@ -29,7 +29,9 @@ KINDS = (
     "reproduced it'); ask ('decide by Friday on the hotfix'); deadline ('renewal on Nov 30'); blocker "
     "('waiting on the vendor's logs'); stakeholder ('the customer's CTO is on the thread'). An ask is a "
     "specific request to the person escalated to, written in the thread; never invent one. Impact is who is "
-    "affected and how, only as stated. For status prefer the latest statement. Skip pleasantries."
+    "affected and how, only as stated; it is often a plain statement such as 'our ops team is blind', 'we can't "
+    "work', '40 agents are blocked' or 'we are losing revenue', and it is its own impact fact even inside a "
+    "sentence about the problem. For status prefer the latest statement. Skip pleasantries."
 )
 EXTRACT_CONTRACT = (
     'Return one JSON object: {"status": "ok" | "off_topic" | "not_thread", "facts": [{"id": "f1", "kind": '
@@ -108,8 +110,9 @@ def compose_messages(facts_block: str, latest_status: str, style: str, context: 
     latest = f"LATEST STATUS: {latest_status}" if latest_status else "LATEST STATUS: none stated"
     user = [_request_block(style), fence("FACTS", facts_block), latest]
     if problems:
-        user.append("Your previous answer had these problems; fix them and return the same JSON:\n"
-                    + "\n".join(f"- {p}" for p in problems))
+        user.append("Your previous answer had these problems. Rewrite or remove only the sentences named, using "
+                    "only the FACTS and citing their ids; keep every other sentence as it was. Return the same "
+                    "JSON:\n" + "\n".join(f"- {p}" for p in problems))
     return [{"role": "system", "content": system(task, (COMPOSE_RULES,), COMPOSE_CONTRACT, context)},
             {"role": "user", "content": "\n\n".join(b for b in user if b)}]
 

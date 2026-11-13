@@ -1,20 +1,23 @@
 """Compose the three fields from checked facts only, then check them in code.
 
-One compose call (+1 JSON repair inside llm.complete_json). When the checks find a problem (an ungrounded
-number, date or name, blame wording, a sentence citing no or unknown fact ids, fewer than two ids cited)
-there is one more call with the problems listed; whatever still fails is then dropped (summary sentences)
-or replaced by code-built text from the facts (ask, impact). No ask fact -> the fixed ask fallback; no
-impact fact -> "Not stated in the thread": the model is never asked to infer either."""
+One compose call (+1 JSON repair inside llm.complete_json). Every sentence must rest on checked facts: its
+ids are read leniently and, when it cites none, attributed in code to the facts it restates (citations.py).
+When the checks find a problem (an ungrounded number, date or name, blame wording, a sentence restating no
+fact, fewer than two facts cited) there is one more call that quotes each unsupported sentence and its
+problem; the better of the two answers (a paragraph over bullets, then fewer sentences dropped) is kept, and
+whatever still fails is dropped (summary sentences) or replaced by code-built text from the facts (ask,
+impact; an impact whose words the thread mostly does not contain is replaced too). No ask fact -> the fixed ask fallback; no impact fact -> "Not stated in the thread": the model is
+never asked to infer either."""
 
 from __future__ import annotations
 
 import logging
-import re
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
 
 import checks
+import citations
 import facts as fx
 import grounding as g
 import llm
@@ -26,8 +29,9 @@ log = logging.getLogger("escalation.compose")
 
 ASK_MAX_WORDS = 40
 IMPACT_MAX_WORDS = 60
+IMPACT_MIN_SUPPORT = 0.6   # share of the impact's content words the thread must contain ("as the thread states")
 MIN_CITED_FACTS = 2
-_FACT_REFS = re.compile(r"\s*[(\[]\s*f\d+(?:\s*,\s*f\d+)*\s*[)\]]")  # "(f1, f2)" the model leaks into prose
+_FACT_REFS = citations.FACT_REFS  # "(f1, f2)" the model leaks into prose
 
 
 @dataclass(frozen=True)
@@ -65,15 +69,22 @@ async def compose(deps: llm.TurnDeps, facts: Sequence[fx.Fact], thread: str, tim
     except llm.LlmError:
         log.exception("compose failed; rendering the checked facts as bullets")
         return finalize({"summary": [], "ask": None, "customer_impact": None}, ctx)
+    first = finalize(parsed, ctx)
     problems = evaluate(parsed, ctx)
-    if problems:
-        log.info("compose check found %d problems (%s); one repair call", len(problems), _kinds(problems))
-        try:
-            parsed = await llm.complete_json(deps, prompts.compose_messages(*base, problems=problems),
-                                             prompts.COMPOSE_CONTRACT, parse_compose)
-        except llm.LlmError:
-            log.warning("compose repair failed; checking the first answer")
-    return finalize(parsed, ctx)
+    if not problems:
+        return first
+    log.info("compose check found %d problems (%s); one repair call", len(problems), _kinds(problems))
+    try:
+        repaired = await llm.complete_json(deps, prompts.compose_messages(*base, problems=problems),
+                                           prompts.COMPOSE_CONTRACT, parse_compose)
+    except llm.LlmError:
+        log.warning("compose repair failed; checking the first answer")
+        return first
+    return max((finalize(repaired, ctx), first), key=_quality)  # a tie keeps the repaired answer
+
+
+def _quality(composed: Composed) -> tuple[bool, int, int]:
+    return not composed.bullets, -composed.dropped, -composed.replaced
 
 
 def parse_compose(data: Any) -> dict | None:
@@ -86,21 +97,25 @@ def parse_compose(data: Any) -> dict | None:
         return None
     sentences = []
     for entry in summary:  # an entry holding several sentences is split; each keeps the entry's ids
-        ids = [str(i) for i in entry.get("fact_ids") or [] if isinstance(i, (str, int))]
-        sentences += [{"text": text, "fact_ids": ids} for text in checks.sentences(fx.clean(entry.get("text")))]
+        ids = citations.ids_of(entry.get("fact_ids") or [])
+        for text in checks.sentences(fx.clean(entry.get("text"))):
+            plain, inline = citations.split_refs(text)
+            sentences.append({"text": plain, "fact_ids": list(dict.fromkeys([*ids, *inline]))})
     return {"summary": sentences, "ask": _optional(data.get("ask")), "customer_impact": _optional(data.get("customer_impact"))}
 
 
 def evaluate(parsed: Mapping[str, Any], ctx: _Ctx) -> list[str]:
-    known = {f.id for f in ctx.facts}
+    """The problems, each naming the sentence it is about, so the repair call knows what to rewrite."""
     problems: list[str] = []
     cited: set[str] = set()
     for n, sentence in enumerate(parsed["summary"], start=1):
-        ids = sentence["fact_ids"]
-        if not ids or not set(ids) <= known:
-            problems.append(f"summary sentence {n} must cite only fact ids from the FACTS block")
-        cited |= set(ids) & known
-        problems += [f"summary sentence {n}: {p}" for p in checks.issues(sentence["text"], ctx.norm, ctx.allowed)]
+        ids = citations.cited(sentence, ctx.facts)
+        named = f'summary sentence {n} ("{sentence["text"]}")'
+        if not ids:
+            problems.append(f"{named} restates no fact in the FACTS block: rewrite it from the facts, citing "
+                            "their ids, or remove it")
+        cited |= set(ids)
+        problems += [f"{named}: {p}" for p in checks.issues(sentence["text"], ctx.norm, ctx.allowed)]
     if len(cited) < MIN_CITED_FACTS:
         problems.append(f"the summary must cite at least {MIN_CITED_FACTS} different fact ids")
     for field, kind in (("ask", "ask"), ("customer_impact", "impact")):
@@ -110,11 +125,10 @@ def evaluate(parsed: Mapping[str, Any], ctx: _Ctx) -> list[str]:
 
 
 def finalize(parsed: Mapping[str, Any], ctx: _Ctx) -> Composed:
-    known = {f.id for f in ctx.facts}
     kept, dropped, words = [], 0, 0
     for sentence in parsed["summary"]:
         text = _FACT_REFS.sub("", checks.remove_hedges(sentence["text"], ctx.norm)).strip()
-        ids = tuple(i for i in sentence["fact_ids"] if i in known)
+        ids = citations.cited(sentence, ctx.facts)
         if not text or not ids or checks.issues(text, ctx.norm, ctx.allowed):
             dropped += 1
             continue
@@ -147,9 +161,11 @@ def _impact(text: str | None, ctx: _Ctx) -> tuple[str, bool, int]:
     if not impacts:
         return prompts.NOT_STATED, False, 0
     cleaned = checks.remove_hedges(text or "", ctx.norm)
-    if cleaned and not checks.issues(cleaned, ctx.norm, ctx.allowed):
+    if (cleaned and not checks.issues(cleaned, ctx.norm, ctx.allowed)
+            and g.support(cleaned, ctx.norm) >= IMPACT_MIN_SUPPORT):
         return checks.cap_words(cleaned, IMPACT_MAX_WORDS), True, 0
-    return checks.cap_words("; ".join(f.text.rstrip(".") for f in impacts) + ".", IMPACT_MAX_WORDS), True, int(bool(text))
+    built = "; ".join(f.text.rstrip(".") for f in impacts) + "."
+    return checks.cap_words(built[:1].upper() + built[1:], IMPACT_MAX_WORDS), True, int(bool(text))
 
 
 def _kinds(problems: Sequence[str]) -> str:

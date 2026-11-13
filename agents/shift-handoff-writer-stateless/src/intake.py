@@ -23,9 +23,9 @@ import smalltalk
 from entries import split_instruction
 from inputs import (
     MAX_NOTES_CHARS,
-    MIN_NOTES_WORDS,
     Incoming,
     assemble,
+    enough_notes,
     from_envelope,
     most_recent,
     word_count,
@@ -57,9 +57,9 @@ def plan_turn(incoming: Incoming, prior: Prior) -> Plan:
     text = from_envelope(incoming.text) or incoming.text
     instruction, notes = split_instruction(assemble(text, incoming.files))
     notes = prompts.strip_markers(notes).strip()
-    instruction = prompts.strip_markers(instruction) or prior.asked_for
-    if word_count(notes) >= MIN_NOTES_WORDS:
-        return _build(notes, instruction, incoming.notes)
+    instruction = prompts.strip_markers(instruction)
+    if enough_notes(instruction, notes):
+        return _build(notes, instruction or prior.asked_for, incoming.notes)
     if any_command is not None and any_command.kind == "act":
         return Plan("reply", prompts.NO_ACTION, extra=incoming.notes)
     if command is not None:

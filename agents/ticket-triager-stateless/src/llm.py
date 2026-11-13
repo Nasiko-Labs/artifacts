@@ -27,6 +27,7 @@ MIN_CALL_SECS = 5.0
 MAX_CALLS_PER_TURN = 13
 MAX_REPAIRS_PER_TURN = 2
 MAX_TOKENS = 3_000
+TEMPERATURE = 0  # same tickets, same category and signals: no sampling spread
 
 
 class LlmError(RuntimeError):
@@ -116,7 +117,8 @@ def json_chain(deps: TurnDeps, max_tokens: int, timeout: float) -> Runnable:
     instrumentor does not wrap (no token spans). This way the wire body matches the plain-SDK original and the
     call goes through the instrumented `completions.create`."""
     model = deps.llm.bind(model=deps.model, timeout=timeout, extra_headers={"traceparent": deps.traceparent},
-                          extra_body={"response_format": {"type": "json_object"}, "max_tokens": max_tokens})
+                          extra_body={"response_format": {"type": "json_object"}, "max_tokens": max_tokens,
+                                      "temperature": TEMPERATURE})
     return RunnableLambda(_as_messages) | model | StrOutputParser()
 
 
@@ -130,6 +132,18 @@ def load(raw: str) -> Any:
     if text.startswith("```"):
         text = text.strip("`").removeprefix("json").strip()
     try:
-        return json.loads(text)
+        return json.loads(text, object_pairs_hook=_merge_duplicates)
     except ValueError:
         return None
+
+
+def _merge_duplicates(pairs: list[tuple[str, Any]]) -> dict:
+    """gpt-4o-mini sometimes repeats a key per item (`{"tickets": [a], "tickets": [b]}`); plain json.loads keeps
+    only the last. Repeated list values are concatenated; any other repeat keeps the last value, as before."""
+    out: dict = {}
+    for key, value in pairs:
+        if isinstance(out.get(key), list) and isinstance(value, list):
+            out[key] = [*out[key], *value]
+        else:
+            out[key] = value
+    return out

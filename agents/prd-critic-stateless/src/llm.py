@@ -40,6 +40,7 @@ TURN_DEADLINE_SECS = 300.0
 MIN_CALL_SECS = 5.0
 MAX_CALLS_PER_TURN = 3
 MAX_TOKENS = 4_000
+TEMPERATURE = 0  # the same PRD gets the same flags: no sampling spread
 MAX_REPAIRS_PER_TURN = 1
 TRANSPORT_ERRORS = (openai.APIError, httpx.HTTPError, TimeoutError, ConnectionError)
 
@@ -121,7 +122,7 @@ def build_llm(deps: TurnDeps, max_tokens: int, n_steps: int) -> LLM:
     kwargs: dict[str, Any] = {
         "model": deps.settings.model, "api_key": deps.settings.api_key or "unset",
         "default_headers": {"traceparent": deps.traceparent or ""}, "timeout": timeout, "max_retries": 0,
-        "max_tokens": max_tokens, "response_format": {"type": "json_object"},
+        "max_tokens": max_tokens, "temperature": TEMPERATURE, "response_format": {"type": "json_object"},
     }
     if deps.settings.base_url:
         kwargs.update(base_url=deps.settings.base_url, custom_openai=True)

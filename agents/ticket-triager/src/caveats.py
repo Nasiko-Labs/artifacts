@@ -45,7 +45,7 @@ def caveats(tickets: Sequence[Ticket], skipped: int = 0, duplicates: int = 0, dr
 def _state_text(state: str) -> str:
     if state == LEXICON_ONLY:
         return "Triaged from keyword signals only (lexicon-only)"
-    return "Not analysed by the model (keyword signals only, category other)"
+    return "Not analysed by the model (keyword signals only)"
 
 
 def _pct(part: int, whole: int) -> str:

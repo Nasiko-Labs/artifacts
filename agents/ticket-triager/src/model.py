@@ -39,6 +39,7 @@ class Ticket:
     generated_id: bool = False
     # Filled by the signals step and the rules (code).
     category: str = "other"
+    category_rule: str = ""  # set when clear signals overrode the model's category (rules.py)
     signals: tuple[Signal, ...] = ()
     analysis: str = MODEL
     priority: str = "P4"

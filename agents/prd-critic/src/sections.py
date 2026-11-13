@@ -2,8 +2,9 @@
 
 A line is a heading when it is a markdown heading (`## Goals`), a bold line (`**Goals**`), a short numbered
 line whose words name a section (`2. Success metrics`), or a label line (`Problem: checkout is slow`, whose
-text after the colon is section body). A section is *present* when its body has at least 15 words; a heading
-with less under it is *empty*. The model only locates sections when headings fail (see review.py)."""
+text after the colon is section body). A section is *present* when its body has at least 15 words (5 for
+Non-goals, Users and Metrics, where one short line is real content: each metric line is checked on its own); a
+heading with less under it is *empty*. The model only locates sections when headings fail (see review.py)."""
 
 from __future__ import annotations
 
@@ -28,7 +29,7 @@ OPTIONAL = frozenset({"timeline", "milestones", "risks", "rollout", "rollout pla
                       "competition", "competitive landscape", "alternatives considered", "summary", "overview",
                       "tl dr", "tldr", "assumptions", "constraints", "go to market"})
 MIN_SECTION_WORDS = 15
-SHORT_SECTION_MIN_WORDS = {"non_goals": 5}   # one plain sentence ("SSO is out of scope") is a real Non-goals
+SHORT_SECTION_MIN_WORDS = {"non_goals": 5, "users": 5, "metrics": 5}  # one plain sentence is real content
 MAX_LINE_CHARS = 400
 
 _ALIAS_TO_KEY = {alias: key for key, names in ALIASES.items() for alias in names}

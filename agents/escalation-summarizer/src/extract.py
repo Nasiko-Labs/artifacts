@@ -1,6 +1,7 @@
 """Fact extraction: one call for a thread up to SINGLE_PASS_MAX_CHARS, else one call per chunk
 (concurrency MAP_CONCURRENCY, at most MAX_CHUNKS). Each answer is checked against the whole thread
-(facts.verify) and the parts are merged in code. The map window closes MAP_RESERVE_SECS before the turn
+(facts.verify) and the parts are merged in code; with no impact fact, a stated impact clause is added by
+code (impact.py). The map window closes MAP_RESERVE_SECS before the turn
 deadline; parts still running are cancelled and the reply says how much was covered."""
 
 from __future__ import annotations
@@ -8,10 +9,11 @@ from __future__ import annotations
 import asyncio
 import logging
 from collections.abc import Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 
 import chunking
 import facts as fx
+import impact
 import llm
 import prompts
 from messages import Message
@@ -47,8 +49,12 @@ class Extracted:
 async def extract(deps: llm.TurnDeps, thread: str, messages: tuple[Message, ...], labelled: str,
                   context: Sequence[str] = ()) -> Extracted:
     if len(labelled) <= chunking.SINGLE_PASS_MAX_CHARS:
-        return await _single(deps, thread, messages, labelled, context)
-    return await _map(deps, thread, messages, chunking.split(labelled), context)
+        found = await _single(deps, thread, messages, labelled, context)
+    else:
+        found = await _map(deps, thread, messages, chunking.split(labelled), context)
+    if found.status != "ok":
+        return found
+    return replace(found, facts=impact.backstop(found.facts, thread, messages))
 
 
 async def _single(deps, thread, messages, labelled, context) -> Extracted:

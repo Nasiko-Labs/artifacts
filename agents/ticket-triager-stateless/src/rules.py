@@ -1,6 +1,6 @@
-"""Pure: priority, escalation risk, SLA and suggested owner, computed in code from the checked signals and the
-pasted fields. One policy, kept in the tables below so it can be retuned in one place. The model never
-assigns any of these."""
+"""Pure: category (when the signals are clear), priority, escalation risk, SLA and suggested owner, computed in
+code from the checked signals and the pasted fields. One policy, kept in the tables below so it can be retuned in
+one place. The model never assigns any of these; its category stands only when no signal decides it."""
 
 from __future__ import annotations
 
@@ -74,6 +74,20 @@ RISK_TABLE: tuple[tuple[str, int, Callable[[Ticket], bool]], ...] = (
     ("past SLA", 1, lambda t: t.past_sla),
 )
 
+_BILLING = re.compile(r"\b(?:billing|billed|invoices?|refunds?|charged|overcharg\w*|double[- ]charg\w*|"
+                      r"payment (?:failed|declined))\b", re.IGNORECASE)
+
+# (rule text, condition, category, owner); the first matching row overrides the model's category, because these
+# signals decide who has to act. No row matches: the model's category stands, with DEFAULT_OWNERS.
+CATEGORY_TABLE: tuple[tuple[str, Callable[[Ticket], bool], str, str], ...] = (
+    ("security_concern", lambda t: t.has("security_concern"), "security", "Security team"),
+    ("service_down", lambda t: t.has("service_down"), "outage", "Engineering on-call"),
+    ("blocked_work for all or most users", lambda t: t.has("blocked_work") and t.has("widespread"), "outage",
+     "Engineering on-call"),
+    ("data_loss", lambda t: t.has("data_loss"), "data_issue", "Engineering"),
+    ("billing words", lambda t: bool(_BILLING.search(t.text)), "billing", "Billing support"),
+)
+
 DEFAULT_OWNERS = {
     "outage": "Engineering on-call", "bug": "Support tier 2", "how_to": "Support tier 1",
     "billing": "Billing support", "account_access": "Support tier 1", "security": "Security team",
@@ -102,22 +116,34 @@ def risk(ticket: Ticket) -> tuple[str, tuple[tuple[str, int], ...]]:
     return level, points
 
 
-def owner(ticket: Ticket, routing: dict[str, str]) -> str:
+def categorise(ticket: Ticket) -> tuple[str, str, str | None]:
+    """(category, rule text, owner) from the first CATEGORY_TABLE row that matches; else the model's category."""
+    for rule, cond, category, team in CATEGORY_TABLE:
+        if cond(ticket):
+            return category, f"category {category} from {rule}", team
+    return ticket.category, "", None
+
+
+def owner(ticket: Ticket, routing: dict[str, str], derived: str | None = None) -> str:
     if ticket.category in routing:
         return routing[ticket.category]
+    if derived:
+        return derived
     if ticket.category == "account_access" and ticket.tier == "enterprise":
         return "Support tier 2"
     return DEFAULT_OWNERS.get(ticket.category, DEFAULT_OWNERS["other"])
 
 
 def apply(ticket: Ticket, config: Config) -> Ticket:
-    """A new ticket with priority, SLA flag, risk and owner filled in (reason is added by `reason.py`)."""
+    """A new ticket with category, priority, SLA flag, risk and owner filled in (reason is added by `reason.py`)."""
+    category, category_rule, team = categorise(ticket)
+    ticket = replace(ticket, category=category, category_rule=category_rule)
     level, rule = priority(ticket)
     flagged = replace(ticket, priority=level, priority_rule=rule,
                       past_sla=past_sla(ticket, level, dict(config.sla_hours)))
     risk_level, points = risk(flagged)
     return replace(flagged, escalation_risk=risk_level, risk_points=points,
-                   suggested_owner=owner(flagged, dict(config.routing)))
+                   suggested_owner=owner(flagged, dict(config.routing), team))
 
 
 def sort_key(ticket: Ticket, by: str = "priority") -> tuple:

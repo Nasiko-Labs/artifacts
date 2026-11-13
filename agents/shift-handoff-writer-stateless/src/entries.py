@@ -3,7 +3,9 @@ leading instruction line ("Handoff at 17:30", "for the night team", "short") spl
 
 An entry starts at a bullet, a numbered line, a timestamped line, or after a blank line; any other line
 continues the entry above it. A run-on entry of 3 or more `;`-separated clauses (notes typed on one line) is
-split into one entry per clause, so each update keeps its own status, cues and customer."""
+split into one entry per clause, so each update keeps its own status, cues and customer; the clauses of one line
+share a `group`, and an item may not span sibling clauses (reconcile.py). A one-line request ("Write my shift
+handoff from these notes: ...") has its instruction split off at the first colon."""
 
 from __future__ import annotations
 
@@ -22,6 +24,10 @@ _REF = re.compile(r"(?<![\w#])#\d{2,}\b|\b[A-Z][A-Z0-9]{1,9}-\d{1,7}\b")
 _INSTRUCTION = re.compile(
     r"\b(?:hand-?\s?off|hand over|as of|next shift|night team|day team|morning team|evening team|"
     r"shift|short(?:er)?|brief|end of (?:day|shift)|write (?:my|the|a)|from these notes)\b", re.IGNORECASE)
+_COLON_HEAD = re.compile(r"^([^\n:]{3,%d}):\s+(\S.*)$" % INSTRUCTION_MAX_CHARS, re.DOTALL)
+NOTHING_PENDING = re.compile(
+    r"^\W*(?:nothing(?: else)?(?: (?:pending|open|to report|outstanding|to hand over))?|no other (?:updates|items)|"
+    r"all (?:quiet|good)|that'?s (?:it|all))\W*$", re.IGNORECASE)
 
 
 @dataclass(frozen=True)
@@ -31,14 +37,25 @@ class Entry:
     order: int
     stamp: str | None = None
     refs: tuple[str, ...] = ()
+    group: int | None = None           # set on the clauses of one run-on line (siblings share it)
 
     def to_dict(self) -> dict:
-        return {"id": self.id, "text": self.text, "order": self.order, "stamp": self.stamp, "refs": list(self.refs)}
+        return {"id": self.id, "text": self.text, "order": self.order, "stamp": self.stamp, "refs": list(self.refs),
+                "group": self.group}
 
     @staticmethod
     def from_dict(data: dict) -> Entry:
         return Entry(str(data["id"]), str(data["text"]), int(data["order"]), data.get("stamp"),
-                     tuple(data.get("refs") or ()))
+                     tuple(data.get("refs") or ()), data.get("group"))
+
+    def is_sibling(self, other: Entry) -> bool:
+        """Another clause of the same run-on line."""
+        return self.group is not None and self.group == other.group and self.id != other.id
+
+
+def is_nothing_pending(text: str) -> bool:
+    """"nothing else pending", "all quiet": a closing remark, not an update."""
+    return bool(NOTHING_PENDING.match(without_stamp(text)))
 
 
 def ref_key(ref: str) -> str:
@@ -79,6 +96,9 @@ def _heads(text: str) -> list[tuple[str, str]]:
     line = text.find("\n")
     if line > 0:
         out.append((text[:line].strip(), text[line + 1:].strip()))
+    colon = _COLON_HEAD.match(text)
+    if colon:
+        out.append((colon.group(1).strip(), colon.group(2).strip()))
     return out
 
 
@@ -96,11 +116,13 @@ def parse(notes: str, start: int = 1) -> list[Entry]:
             blocks[-1].append(line.strip())
         after_blank = False
     entries = []
-    texts = [clause for lines in blocks for clause in _clauses(" ".join(lines))]
-    for offset, text in enumerate(texts):
+    texts = [(clause, index if len(clauses) > 1 else None)
+             for index, lines in enumerate(blocks) for clauses in [_clauses(" ".join(lines))] for clause in clauses]
+    for offset, (text, group) in enumerate(texts):
         stamp = _STAMP.match(text)
         number = start + offset
-        entries.append(Entry(f"n{number}", text, number, stamp.group(1) if stamp else None, find_refs(text)))
+        entries.append(Entry(f"n{number}", text, number, stamp.group(1) if stamp else None, find_refs(text),
+                             None if group is None else start + group))
     return entries
 
 

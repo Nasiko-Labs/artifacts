@@ -1,5 +1,6 @@
 """The signals step: batched model calls (20 tickets each, 4 at a time) that return a category and quoted
-signals per ticket, then the code check (quote verbatim in that ticket, known names, category enum), one
+signals per ticket, then the code check (quote verbatim in that ticket, known names, category enum, a
+data_loss quote that says data was lost), one
 re-ask for skipped tickets, and the lexicon pass. Batches that fail or miss the deadline are lexicon-only."""
 
 from __future__ import annotations
@@ -24,6 +25,9 @@ MIN_QUOTE_CHARS = 8
 QUOTE_MAX_CHARS = 160
 _QUOTES = str.maketrans({"‘": "'", "’": "'", "“": '"', "”": '"', "…": "..."})
 _SPACES = re.compile(r"\s+")
+# A data_loss quote must say stored data was destroyed; "export drops rows" is a data_issue, not lost data.
+_LOSS_WORDS = re.compile(r"\b(?:lost|lose|losing|loss|deleted|deleting|wiped|erased|disappeared|gone|corrupt\w*|"
+                         r"overwritten|purged|destroyed)\b", re.IGNORECASE)
 
 
 @dataclass(frozen=True)
@@ -48,7 +52,8 @@ def check(entry: dict, ticket: Ticket) -> tuple[str, tuple[Signal, ...], int]:
             continue
         quote = str(raw.get("quote") or "").strip()
         needle = normalise(quote).strip("\"'.,;:!? ")
-        if len(needle) < MIN_QUOTE_CHARS or len(quote) > QUOTE_MAX_CHARS * 2 or needle not in haystack:
+        unsupported = raw["name"] == "data_loss" and not _LOSS_WORDS.search(quote)
+        if len(needle) < MIN_QUOTE_CHARS or len(quote) > QUOTE_MAX_CHARS * 2 or needle not in haystack or unsupported:
             dropped += 1
             continue
         kept.setdefault(raw["name"], Signal(raw["name"], quote[:QUOTE_MAX_CHARS]))
