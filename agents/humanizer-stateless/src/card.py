@@ -4,7 +4,7 @@ The description carries the distinction from other agents: workflow generation s
 and description."""
 
 AGENT_NAME = "humanizer-stateless"
-AGENT_VERSION = "1.0.0"
+AGENT_VERSION = "1.0.1"
 AGENT_DESCRIPTION = (
     "Takes a draft you paste (an email, a message, a memo, a post, or another agent's draft) and returns the "
     "same draft without AI-writing patterns: inflated phrases ('serves as a testament', 'delve'), chatbot "
@@ -27,6 +27,7 @@ SKILL_DESCRIPTION = (
 SKILL_TAGS = ["humanize", "ai tone", "style", "polish", "editing", "writing", "draft"]
 SKILL_EXAMPLES = [
     "Humanize this: <paste your draft>",
+    "Can you make this sound more natural? <paste your draft>",
     "Remove the AI tone from this email, keep my em dashes: <paste the email>",
     "Show the changes",
 ]

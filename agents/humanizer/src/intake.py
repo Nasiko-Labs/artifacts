@@ -4,11 +4,13 @@
     another agent's envelope                       → humanize its draft fields
     a draft of ≥ 15 words ─┬─ over 20,000 chars    → pause: first ~3k words or a shorter section
                            └─ otherwise            → humanize
+      (≥ 3 words is enough after an explicit cue, "humanize: <one sentence>"; where the draft is: natural.py)
     a draft is stored ─┬─ show the changes / patterns / as json → render (no call)
                        ├─ "shorter"                → shorten the stored version shown, capped at 85% of its words
                        └─ an option ("keep my em dashes", "more casual") → re-run from the stored original
     a humanize request with no draft               → pause: paste the draft
-    anything else                                  → one scope call (declined, or asked for the draft)
+    anything else                                  → one scope call: declined, asked for the draft, or the draft
+                                                     it copied from the message (checked verbatim in code)
 """
 
 from __future__ import annotations
@@ -21,14 +23,8 @@ import hitl
 import options
 import prompts
 import smalltalk
-from inputs import (
-    CUE,
-    MAX_DRAFT_CHARS,
-    MIN_DRAFT_WORDS,
-    Incoming,
-    split_draft,
-    word_count,
-)
+from inputs import MAX_DRAFT_CHARS, Incoming, word_count
+from natural import CUE, has_draft, split_draft
 
 COMMAND_MAX_WORDS = 12
 CUE_REQUEST_MAX_WORDS = 25
@@ -64,7 +60,7 @@ def plan_turn(incoming: Incoming, stored: bool) -> Plan:
     if incoming.files:
         request, draft = text, "\n\n".join(body.strip() for _, body in incoming.files)
     draft, request = prompts.strip_markers(draft).strip(), prompts.strip_markers(request)
-    if word_count(draft) >= MIN_DRAFT_WORDS:
+    if has_draft(request, draft):
         if len(draft) > MAX_DRAFT_CHARS:
             return Plan("pause", pending=hitl.too_big(request, draft))
         return Plan("humanize", draft=draft, request=request, notes=incoming.notes)

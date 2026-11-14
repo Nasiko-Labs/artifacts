@@ -8,9 +8,11 @@ import re
 FORMAL, NEUTRAL, CASUAL = "formal", "neutral", "casual"
 REGISTERS = (FORMAL, NEUTRAL, CASUAL)
 
-_CASUAL = re.compile(r"\b(?:less formal|more casual|casual|informal|friendly|relaxed|colloquial|tu|tú|du)\b",
+_CASUAL = re.compile(r"\b(?:less formal|more casual|casually|informally|casual|informal|friendly|relaxed|"
+                     r"colloquial|tu|tú|du)\b",
                      re.IGNORECASE)
-_FORMAL = re.compile(r"\b(?:more formal|formal|polite|business|professional|vous|sie|usted)\b", re.IGNORECASE)
+_FORMAL = re.compile(r"\b(?:more formal|formally|politely|formal|polite|business|professional|vous|sie|usted)\b",
+                     re.IGNORECASE)
 _NEUTRAL = re.compile(r"\bneutral\b", re.IGNORECASE)
 
 # base code: (formal second person, casual second person)

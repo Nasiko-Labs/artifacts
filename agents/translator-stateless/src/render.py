@@ -11,6 +11,7 @@ import languages
 HINT = 'Say "more formal", "now in French", "show the original".'
 REVIEW = "A person should review this before it is used."
 MAX_FOOTER_NOTES = 4
+SHORT_TRANSLATION_CHARS = 80  # a phrase: one note at most, so the translation leads and is not drowned
 
 
 def fenced_json(data: dict) -> str:
@@ -32,7 +33,8 @@ def reply(envelope: dict, translated_input: dict | None, json_mode: bool) -> str
 def footer(envelope: dict) -> str:
     target = languages.BY_CODE[envelope["target_language"].casefold()].name
     head = f"{target} ({envelope['register']}) from {languages.name_for(envelope['source_language'])}."
-    notes = [_note(n) for n in envelope.get("notes") or ()][:MAX_FOOTER_NOTES]
+    short = len(str(envelope.get("translation") or "")) <= SHORT_TRANSLATION_CHARS
+    notes = [_note(n) for n in envelope.get("notes") or ()][:1 if short else MAX_FOOTER_NOTES]
     pieces = [head]
     if notes:
         pieces.append("Notes: " + " ".join(notes))

@@ -2596,7 +2596,7 @@ dependencies = [
 
 [[package]]
 name = "translator-rust"
-version = "1.0.0"
+version = "1.0.1"
 dependencies = [
  "a2a-lf",
  "a2a-server-lf",

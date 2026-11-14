@@ -5,13 +5,15 @@
 //! ```text
 //! greeting / small talk                         -> canned intro (no call)
 //! instruction + text, or an envelope            -> translate (over the cap: the first part, said so)
+//! a natural request ("how do you say X in German") -> translate (`natural::parse`, no call)
 //! short follow-up on the last job               -> original (no call) or re-translate / json (one run)
 //!   ... whose text was trimmed from the history -> translate the last translation into the new language
 //!                                                  (said so), else ask for a re-paste
 //! an instruction with no text                   -> reply: paste the text (completed)
 //! text with no target language                  -> reply: which language? (completed; the answer works
 //!                                                  from the history)
-//! anything else                                 -> one scope call: text to translate, or declined
+//! anything else                                 -> one scope call: the text (and language) to translate,
+//!                                                  or declined
 //! ```
 
 use serde_json::{Map, Value};
@@ -19,6 +21,7 @@ use serde_json::{Map, Value};
 use crate::followup::{self, FollowUp};
 use crate::inputs::Incoming;
 use crate::languages;
+use crate::natural;
 use crate::prompts;
 use crate::recall;
 use crate::render;
@@ -74,6 +77,15 @@ pub fn plan_turn(incoming: &Incoming) -> Plan {
     if let Some(follow) = followup::parse(&text, stored.as_ref()) {
         return follow_up(follow, stored, incoming);
     }
+    if let Some((instruction, source)) = natural::parse(&text) {
+        // "how do you say thank you in German", "translate I am hungry into spanish"
+        let job = Job { source, ..base };
+        return next_step(
+            request::apply_instruction(job, &instruction),
+            incoming,
+            false,
+        );
+    }
     if !instruction.is_empty() {
         // a cue with no text
         return next_step(
@@ -86,6 +98,29 @@ pub fn plan_turn(incoming: &Incoming) -> Plan {
         source: body,
         ..base
     })
+}
+
+/// The scope call's extracted text and target applied to `job`: the checked text, and the named target (a
+/// name that is not a known language clears the target and is reported as unknown).
+pub fn from_extraction(job: Job, message: &str, text: &str, target: &str) -> Job {
+    let (source, found, unknown) = natural::checked_extraction(text, target, message);
+    match found {
+        Some(found) => Job {
+            source,
+            target: found.language.code.to_string(),
+            target_note: found.note.to_string(),
+            unknown: String::new(),
+            ..job
+        },
+        None if !unknown.is_empty() => Job {
+            source,
+            target: String::new(),
+            target_note: String::new(),
+            unknown,
+            ..job
+        },
+        None => Job { source, ..job },
+    }
 }
 
 fn follow_up(follow: FollowUp, stored: Option<Job>, incoming: &Incoming) -> Plan {

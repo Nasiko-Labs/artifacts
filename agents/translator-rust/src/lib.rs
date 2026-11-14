@@ -13,6 +13,7 @@ pub mod intake;
 pub mod languages;
 pub mod llm;
 pub mod mask;
+pub mod natural;
 pub mod prompts;
 pub mod recall;
 pub mod register;

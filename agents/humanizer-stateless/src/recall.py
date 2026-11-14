@@ -1,7 +1,7 @@
 """Pure: what earlier turns of this conversation still give a follow-up, read from the platform's history
 block (this agent stores nothing). Three things can be recalled:
 
-- the source: the most recent draft the user pasted (>= MIN_DRAFT_WORDS words), or another agent's envelope,
+- the source: the most recent draft the user pasted (`inputs.has_draft`), or another agent's envelope,
   with the options its request words set, layered with any short option follow-ups after it;
 - the most recent humanized version this agent replied with (its text, without the footer);
 - for "show the changes" / "show the patterns" / "as json": an Outcome rebuilt in code from that pair (pattern
@@ -21,7 +21,8 @@ import envelope
 import options as opts
 import prompts
 from history import ASSISTANT, USER, HistoryTurn
-from inputs import MIN_DRAFT_WORDS, split_draft, word_count
+from inputs import word_count
+from natural import has_draft, split_draft
 from outcome import CLEAN, OK, Outcome, found_phrases, removed_counts
 from patterns import detect
 
@@ -106,6 +107,6 @@ def _last_source(turns: Sequence[HistoryTurn], before: int) -> int:
         turn = turns[at]
         if turn.role != USER:
             continue
-        if envelope.parse(turn.text) is not None or word_count(source_of_text(turn.text)[1]) >= MIN_DRAFT_WORDS:
+        if envelope.parse(turn.text) is not None or has_draft(*source_of_text(turn.text)):
             return at
     return -1

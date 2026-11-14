@@ -1,7 +1,8 @@
 """Pure: what an earlier turn of this conversation still gives a follow-up, read from the platform's
 history block (this agent stores nothing). Two things can be recalled:
 
-- the most recent pasted source (a user turn with at least MIN_SOURCE_WORDS words of text);
+- the most recent pasted source (a user turn with at least MIN_SOURCE_WORDS words of text, or 15 after an
+  explicit cue such as "summarize this: ...");
 - the most recent summary reply (an assistant turn rendered by `render.py`), cut into its sections so a view
   ("only the action items", "as a table", "who owns what") is rebuilt from it in code, with zero LLM calls.
 
@@ -15,7 +16,8 @@ from collections.abc import Sequence
 
 import prompts
 from history import ASSISTANT, USER, HistoryTurn, latest, texts
-from inputs import MIN_SOURCE_WORDS, split_request, word_count
+from cues import find_cue
+from inputs import min_source_words, split_request, word_count
 from items import NOT_STATED
 from render import EMPTY
 
@@ -28,8 +30,9 @@ _LISTED_ACTION = re.compile(r"^\d+\. (.+) \(owner: (.+); due: (.+)\)$")
 def source(turns: Sequence[HistoryTurn]) -> tuple[str, str]:
     """(instruction, source) of the most recent user turn that pasted a text to summarize, else ("", "")."""
     for text in texts(turns, USER):
-        instruction, pasted = split_request(text)
-        if word_count(pasted) >= MIN_SOURCE_WORDS:
+        cue = find_cue(text)
+        instruction, pasted = cue or split_request(text)
+        if word_count(pasted) >= min_source_words(cue is not None):
             return prompts.strip_markers(instruction), prompts.strip_markers(pasted)
     return "", ""
 

@@ -35,6 +35,12 @@ NO_TEXT_YET = ("I don't see a text to answer from in the part of our conversatio
                "between messages and long earlier inputs drop out), so paste it again and ask. " + INTRO)
 
 
+def short_enough(text: str) -> str:
+    """An explicit "summarize this: <a line or two>": one sentence and the text back, no intro."""
+    quoted = "\n".join(f"> {line}" if line.strip() else ">" for line in text.strip().splitlines())
+    return f"That's short enough to read as is:\n\n{quoted}"
+
+
 def reply_to(message: str) -> str | None:
     """The canned answer, or None when the message may be a real request."""
     text = _SPACES.sub(" ", _NOT_WORD.sub(" ", (message or "").casefold())).strip()

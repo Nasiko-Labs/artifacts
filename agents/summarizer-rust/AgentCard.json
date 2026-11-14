@@ -9,7 +9,7 @@
     "organization": "Nasiko",
     "url": "https://nasiko.io"
   },
-  "version": "1.0.0",
+  "version": "1.0.1",
   "capabilities": {
     "streaming": true,
     "pushNotifications": false,
@@ -45,8 +45,9 @@
         "owners"
       ],
       "examples": [
-        "Summarize this call: <paste the transcript>",
+        "Can you summarize this for me? <paste the transcript>",
         "TL;DR of this thread, focus on pricing: <paste the thread>",
+        "What are the action items here? <paste the notes>",
         "Only the action items, with sources."
       ],
       "inputModes": [

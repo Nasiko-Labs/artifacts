@@ -9,7 +9,7 @@ use a2a::{
 };
 
 pub const AGENT_NAME: &str = "translator-rust";
-pub const AGENT_VERSION: &str = "1.0.0";
+pub const AGENT_VERSION: &str = "1.0.1";
 pub const AGENT_DESCRIPTION: &str = concat!(
     "Translates text you paste into about 40 target languages (Spanish, French, German, Portuguese, ",
     "Japanese, Chinese, Hindi and more) at a formal, neutral or casual register, and returns the ",
@@ -43,7 +43,7 @@ pub const SKILL_TAGS: &[&str] = &[
 ];
 pub const SKILL_EXAMPLES: &[&str] = &[
     "Translate to Spanish, formal: <paste the text>",
-    "Translate this into Japanese: <paste the text>",
+    "How do you say 'thank you' in Japanese?",
     "Now in French, more casual",
 ];
 pub const INPUT_MODES: &[&str] = &["text/plain", "text/markdown", "application/json"];

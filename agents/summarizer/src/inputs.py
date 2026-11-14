@@ -15,10 +15,11 @@ from dataclasses import dataclass
 from pathlib import PurePath
 from typing import Any
 
+from cues import CUED_MIN_SOURCE_WORDS, INSTRUCTION_MAX_CHARS, find_cue
+
 CURRENT_MESSAGE_MARKER = "\n\nCurrent message: "
 MAX_SOURCE_CHARS = 120_000
 MIN_SOURCE_WORDS = 60
-INSTRUCTION_MAX_CHARS = 300
 SPLIT_MIN_REST_CHARS = 500
 
 TEXT_TYPES = frozenset({"text/plain", "text/markdown", "text/x-markdown", "text/csv", "application/json",
@@ -93,9 +94,17 @@ def strip_cues(text: str) -> str:
     return _BLANK_RUNS.sub("\n\n", body).strip()
 
 
+def min_source_words(cued: bool) -> int:
+    return CUED_MIN_SOURCE_WORDS if cued else MIN_SOURCE_WORDS
+
+
 def split_request(text: str) -> tuple[str, str]:
-    """(instruction, source). A short first paragraph before a long rest is the instruction."""
+    """(instruction, source). An explicit cue (`find_cue`) splits at the cue; otherwise a short first
+    paragraph before a long rest is the instruction."""
     stripped = (text or "").strip()
+    cued = find_cue(stripped)
+    if cued is not None:
+        return cued
     match = _PARAGRAPH_BREAK.search(stripped)
     if match:
         head, rest = stripped[:match.start()].strip(), stripped[match.end():].strip()

@@ -13,12 +13,12 @@ use std::sync::LazyLock;
 use a2a::{Message, PartContent};
 use regex::Regex;
 
+pub use crate::cues::{CUED_MIN_SOURCE_WORDS, INSTRUCTION_MAX_CHARS, find_cue};
 use crate::history::{self, Turn};
 use crate::util::{char_len, re, take_chars};
 
 pub const MAX_SOURCE_CHARS: usize = 120_000;
 pub const MIN_SOURCE_WORDS: usize = 60;
-pub const INSTRUCTION_MAX_CHARS: usize = 300;
 pub const SPLIT_MIN_REST_CHARS: usize = 500;
 
 const TEXT_TYPES: &[&str] = &[
@@ -172,9 +172,22 @@ pub fn strip_cues(text: &str) -> String {
     BLANK_RUNS.replace_all(&body, "\n\n").trim().to_string()
 }
 
-/// (instruction, source). A short first paragraph before a long rest is the instruction.
+/// The least source words that are summarized: fewer after an explicit cue.
+pub fn min_source_words(cued: bool) -> usize {
+    if cued {
+        CUED_MIN_SOURCE_WORDS
+    } else {
+        MIN_SOURCE_WORDS
+    }
+}
+
+/// (instruction, source). An explicit cue (`find_cue`) splits at the cue; otherwise a short first
+/// paragraph before a long rest is the instruction.
 pub fn split_request(text: &str) -> (String, String) {
     let stripped = text.trim();
+    if let Some(cued) = find_cue(stripped) {
+        return cued;
+    }
     if let Some(found) = PARAGRAPH_BREAK.find(stripped) {
         let head = stripped[..found.start()].trim();
         let rest = stripped[found.end()..].trim();

@@ -9,7 +9,7 @@
     "organization": "Nasiko",
     "url": "https://nasiko.io"
   },
-  "version": "1.0.1",
+  "version": "1.0.2",
   "capabilities": {
     "streaming": false,
     "pushNotifications": false,
@@ -43,6 +43,7 @@
       ],
       "examples": [
         "Humanize this: <paste your draft>",
+        "Can you make this sound more natural? <paste your draft>",
         "Remove the AI tone from this email, keep my em dashes: <paste the email>",
         "Show the changes"
       ],

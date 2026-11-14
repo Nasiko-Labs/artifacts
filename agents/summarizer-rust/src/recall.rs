@@ -1,7 +1,8 @@
 //! Pure: what an earlier turn of this conversation still gives a follow-up, read from the platform's
 //! history block (this agent stores nothing). Two things can be recalled:
 //!
-//! - the most recent pasted source (a user turn with at least MIN_SOURCE_WORDS words of text);
+//! - the most recent pasted source (a user turn with at least MIN_SOURCE_WORDS words of text, or 15
+//!   after an explicit cue such as "summarize this: ...");
 //! - the most recent summary reply (an assistant turn rendered by `render.rs`), cut into its sections so
 //!   a view ("only the action items", "as a table", "who owns what") is rebuilt from it in code, with
 //!   zero LLM calls.
@@ -14,7 +15,7 @@ use std::sync::LazyLock;
 use regex::Regex;
 
 use crate::history::{ASSISTANT, Turn, USER, latest, texts};
-use crate::inputs::{MIN_SOURCE_WORDS, split_request, word_count};
+use crate::inputs::{find_cue, min_source_words, split_request, word_count};
 use crate::prompts;
 use crate::render::{EMPTY, View, owners_text, table_text};
 use crate::util::{group, lines, re};
@@ -32,8 +33,10 @@ static LISTED_ACTION: LazyLock<Regex> =
 /// (instruction, source) of the most recent user turn that pasted a text to summarize, else ("", "").
 pub fn source(turns: &[Turn]) -> (String, String) {
     for text in texts(turns, USER) {
-        let (instruction, pasted) = split_request(text);
-        if word_count(&pasted) >= MIN_SOURCE_WORDS {
+        let cue = find_cue(text);
+        let cued = cue.is_some();
+        let (instruction, pasted) = cue.unwrap_or_else(|| split_request(text));
+        if word_count(&pasted) >= min_source_words(cued) {
             return (
                 prompts::strip_markers(&instruction),
                 prompts::strip_markers(&pasted),

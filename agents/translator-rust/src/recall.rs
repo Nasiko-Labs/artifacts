@@ -16,6 +16,7 @@ use regex::Regex;
 use crate::followup::{self, FollowUp};
 use crate::history::{ASSISTANT, Turn, USER};
 use crate::languages;
+use crate::natural;
 use crate::prompts;
 use crate::request::{self, Job};
 use crate::smalltalk;
@@ -83,6 +84,13 @@ pub fn step(stored: Option<Job>, raw: &str, was_text: bool) -> Option<Job> {
             FollowUp::Retranslate(job) => Some(*job),
             FollowUp::Original | FollowUp::Json => stored,
         };
+    }
+    if let Some((instruction, source)) = natural::parse(&text) {
+        let base = Job {
+            source,
+            ..carry(stored.as_ref(), false)
+        };
+        return Some(request::apply_instruction(base, &instruction));
     }
     if !instruction.is_empty() {
         return Some(request::apply_instruction(

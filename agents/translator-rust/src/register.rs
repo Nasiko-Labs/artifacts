@@ -12,10 +12,14 @@ pub const NEUTRAL: &str = "neutral";
 pub const CASUAL: &str = "casual";
 
 static CASUAL_WORDS: LazyLock<Regex> = LazyLock::new(|| {
-    re(r"(?i)\b(?:less formal|more casual|casual|informal|friendly|relaxed|colloquial|tu|tú|du)\b")
+    re(
+        r"(?i)\b(?:less formal|more casual|casually|informally|casual|informal|friendly|relaxed|colloquial|tu|tú|du)\b",
+    )
 });
 static FORMAL_WORDS: LazyLock<Regex> = LazyLock::new(|| {
-    re(r"(?i)\b(?:more formal|formal|polite|business|professional|vous|sie|usted)\b")
+    re(
+        r"(?i)\b(?:more formal|formally|politely|formal|polite|business|professional|vous|sie|usted)\b",
+    )
 });
 static NEUTRAL_WORDS: LazyLock<Regex> = LazyLock::new(|| re(r"(?i)\bneutral\b"));
 

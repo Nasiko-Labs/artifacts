@@ -47,8 +47,12 @@ CONTRACT = (
     'exactly from your text, or empty if cut"}]}.'
 )
 CLASSIFY_CONTRACT = (
-    'Return one JSON object: {"status": "needs_draft" | "off_topic"}. needs_draft: the user wants a draft '
-    "humanized, polished or made to sound less like AI but has not pasted it yet. off_topic: anything else."
+    'Return one JSON object, exactly one of: {"status": "has_draft", "draft": "<the draft text, copied verbatim '
+    'from the message>"} | {"status": "needs_draft"} | {"status": "off_topic"}. has_draft: the user wants a '
+    "draft humanized, polished, cleaned up or made to sound less like AI, and the message contains that draft; "
+    "copy only the draft, word for word, without the instruction around it. needs_draft: the user wants that "
+    "but has not pasted the draft yet. off_topic: anything else (a question, arithmetic, a request to write, "
+    "translate or summarise something)."
 )
 
 NO_TRACE_CONTEXT = ("This request arrived without a trace context, so I can't call the language model for it. "
@@ -135,6 +139,7 @@ def repair_messages(base: Sequence[dict], previous: str, problems: Sequence[str]
 
 
 def classify_messages(message: str) -> list[dict]:
-    task = "You decide whether the user's message asks for a draft to be humanized."
+    task = ("You decide whether the user's message asks for a draft to be humanized and, if the draft is "
+            "in the message, copy it out.")
     system_text = f"{task}\n\n{SCOPE}\n\n{CLASSIFY_CONTRACT}"
     return [{"role": "system", "content": system_text}, {"role": "user", "content": fence("USER_REQUEST", message)}]

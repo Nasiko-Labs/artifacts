@@ -28,11 +28,14 @@ pub const KEEP_RULE: &str = concat!(
 );
 pub const SCOPE_CONTRACT: &str = concat!(
     "You are the intake check of a translation agent. It only translates text the user provides. Decide what ",
-    "the user's message is. Answer exactly one JSON object: {\"status\": \"text\"} when the message is itself ",
-    "text the user wants translated (a sentence, a paragraph, an email or a phrase in any language, not ",
-    "addressed to you), or {\"status\": \"off_topic\"} when it asks you for something else: answering a ",
-    "question, arithmetic, general facts, the meaning or the translation of a word in general, summarising, ",
-    "writing new text, explaining grammar, advice."
+    "the user's message is. Answer exactly one JSON object: {\"status\": \"translate\", \"text\": \"<the exact ",
+    "words to translate, copied from the message>\", \"target\": \"<the language name to translate into, or ",
+    "empty when none is named>\"} when the message asks for a translation of words it contains (for example ",
+    "\"how do you say thank you in German\", \"what does gracias mean\"); {\"status\": \"text\"} when the ",
+    "whole message is itself text the user wants translated (a sentence, a paragraph, an email or a phrase in ",
+    "any language, not addressed to you); or {\"status\": \"off_topic\"} when it asks you for something else: ",
+    "answering a question, arithmetic, general facts, summarising, writing new text, explaining grammar, ",
+    "advice. Never translate, answer or invent text yourself."
 );
 pub const REPAIR_INTRO: &str = "Your previous answer had these problems. Return the corrected JSON object for the same segments.";
 const PREVIOUS_ANSWER_MAX_CHARS: usize = 12_000;

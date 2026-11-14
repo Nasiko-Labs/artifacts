@@ -98,6 +98,25 @@ pub static NO_TEXT_YET: LazyLock<String> = LazyLock::new(|| {
     )
 });
 
+/// An explicit "summarize this: <a line or two>": one sentence and the text back, no intro.
+pub fn short_enough(text: &str) -> String {
+    let quoted: Vec<String> = text
+        .trim()
+        .lines()
+        .map(|line| {
+            if line.trim().is_empty() {
+                ">".to_string()
+            } else {
+                format!("> {line}")
+            }
+        })
+        .collect();
+    format!(
+        "That's short enough to read as is:\n\n{}",
+        quoted.join("\n")
+    )
+}
+
 /// The canned answer, or None when the message may be a real request.
 pub fn reply_to(message: &str) -> Option<String> {
     let lowered = message.to_lowercase();

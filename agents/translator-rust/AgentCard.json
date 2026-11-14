@@ -9,7 +9,7 @@
     "organization": "Nasiko",
     "url": "https://nasiko.io"
   },
-  "version": "1.0.0",
+  "version": "1.0.1",
   "capabilities": {
     "streaming": true,
     "pushNotifications": false,
@@ -44,7 +44,7 @@
       ],
       "examples": [
         "Translate to Spanish, formal: <paste the text>",
-        "Translate this into Japanese: <paste the text>",
+        "How do you say 'thank you' in Japanese?",
         "Now in French, more casual"
       ],
       "inputModes": [

@@ -129,12 +129,13 @@ def _route(plan: intake.Plan, state: TranslatorState, scope: _Scope) -> dict:
 
 async def _scope_check(scope: _Scope) -> dict:
     try:
-        status = await llm.scope(scope.deps, prompts.scope_messages(scope.plan.job.source, scope.incoming.context))
+        message = scope.plan.job.source
+        extraction = await llm.scope(scope.deps, prompts.scope_messages(message, scope.incoming.context))
     except llm.LlmError:
         return {"route": "", "reply": prompts.MODEL_FAILED}
-    if status != "text":
+    if extraction.status != "translate":
         return {"route": "", "reply": smalltalk.OFF_TOPIC_REPLY}
-    plan = intake.next_step(scope.plan.job)
+    plan = intake.next_step(intake.from_extraction(scope.plan.job, message, extraction))
     scope.plan = plan
     if plan.route == "pause":
         return {"route": "", "pause": plan.pending.to_metadata()}

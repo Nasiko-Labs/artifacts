@@ -6,6 +6,8 @@
                            └─ otherwise           → summarize
     short, a summary stored ─┬─ re-render command → render (no call)
                              └─ anything else     → one quote-checked question
+    an explicit cue ("summarize this: ...", "tl;dr ...", "<text>\n\nsummarize") lowers the bar to 15 words;
+    a cue with fewer words of text           → "short enough to read as is", the text quoted back (no call)
     short, nothing stored ─┬─ "summarize this" with no text → pause: paste the text
                            ├─ a question or task  → one scope-checked call (declined or "no text yet")
                            └─ otherwise           → "short enough to read as is" (no call)
@@ -17,14 +19,15 @@ import re
 from dataclasses import dataclass
 
 import followup
+from cues import find_cue
 import hitl
 import prompts
 import smalltalk
 from inputs import (
     MAX_SOURCE_CHARS,
-    MIN_SOURCE_WORDS,
     Incoming,
     assemble_source,
+    min_source_words,
     split_request,
     truncate_source,
     word_count,
@@ -55,13 +58,16 @@ def plan_turn(incoming: Incoming, stored_source: str) -> Plan:
     canned = None if incoming.files else smalltalk.reply_to(incoming.text)
     if canned is not None:
         return Plan("reply", canned, notes=incoming.notes)
-    instruction, pasted = split_request(incoming.text)
+    cue = find_cue(incoming.text)
+    instruction, pasted = cue or split_request(incoming.text)
     source = prompts.strip_markers(assemble_source(pasted, incoming.files))
     words = word_count(source)
-    if words >= MIN_SOURCE_WORDS:
+    if words >= min_source_words(cue is not None):
         return _new_source(source, prompts.strip_markers(instruction), words, stored_source, incoming.notes)
     if stored_source:
         return _on_stored(incoming)
+    if cue is not None and not followup.is_question_like(instruction):
+        return Plan("reply", smalltalk.short_enough(prompts.strip_markers(pasted)), notes=incoming.notes)
     if followup.is_summarize_request(incoming.text) and word_count(incoming.text) <= SHORT_REQUEST_MAX_WORDS:
         pending = hitl.Pending(hitl.NEED_SOURCE, instruction=prompts.strip_markers(incoming.text)[:300],
                                notes=incoming.notes)

@@ -34,6 +34,12 @@ TOO_SHORT_REPLY = "That's short enough to read as is. " + INTRO
 NO_TEXT_YET = "You haven't given me any text to summarize yet. " + INTRO
 
 
+def short_enough(text: str) -> str:
+    """An explicit "summarize this: <a line or two>": one sentence and the text back, no intro."""
+    quoted = "\n".join(f"> {line}" if line.strip() else ">" for line in text.strip().splitlines())
+    return f"That's short enough to read as is:\n\n{quoted}"
+
+
 def reply_to(message: str) -> str | None:
     """The canned answer, or None when the message may be a real request."""
     text = _SPACES.sub(" ", _NOT_WORD.sub(" ", (message or "").casefold())).strip()

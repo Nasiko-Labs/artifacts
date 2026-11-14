@@ -6,6 +6,7 @@
 pub mod card;
 pub mod checks;
 pub mod chunking;
+pub mod cues;
 pub mod followup;
 pub mod grounding;
 pub mod history;

@@ -8,6 +8,8 @@ block (`recall.py`).
                             └─ otherwise           -> summarize
     re-render command ("only the action items")   -> rebuilt from the last summary reply (no call), else
                                                      summarize the source in history, else ask for a re-paste
+    an explicit cue ("summarize this: ...", "tl;dr ...", "<text>\n\nsummarize") lowers the bar to 15 words;
+    a cue with fewer words of text (not a question) -> "short enough to read as is", text quoted back (no call)
     "summarize this" with no text                 -> the last summary reply, else the source in history,
                                                      else ask to paste it
     a question                                    -> one quote-checked call over the source in history, else
@@ -21,6 +23,7 @@ import re
 from dataclasses import dataclass
 
 import followup
+from cues import find_cue
 import prompts
 import recall
 import smalltalk
@@ -30,6 +33,7 @@ from inputs import (
     MIN_SOURCE_WORDS,
     Incoming,
     assemble_source,
+    min_source_words,
     split_request,
     truncate_source,
     word_count,
@@ -62,13 +66,16 @@ def plan_turn(incoming: Incoming) -> Plan:
     canned = None if incoming.files else smalltalk.reply_to(incoming.text)
     if canned is not None:
         return Plan("reply", canned, notes=incoming.notes)
-    instruction, pasted = split_request(incoming.text)
+    cue = find_cue(incoming.text)
+    instruction, pasted = cue or split_request(incoming.text)
     source = prompts.strip_markers(assemble_source(pasted, incoming.files))
-    if word_count(source) >= MIN_SOURCE_WORDS:
+    if word_count(source) >= min_source_words(cue is not None):
         return _new_source(source, prompts.strip_markers(instruction), incoming.notes)
     command = followup.parse_command(incoming.text)
     if command is not None:
         return _view(incoming, command, REPASTE)
+    if cue is not None and not followup.is_question_like(instruction):
+        return Plan("reply", smalltalk.short_enough(prompts.strip_markers(pasted)), notes=incoming.notes)
     if followup.is_summarize_request(incoming.text) and word_count(incoming.text) <= SHORT_REQUEST_MAX_WORDS:
         return _view(incoming, ("default", False), NEED_PASTE)
     if followup.is_question_like(incoming.text):

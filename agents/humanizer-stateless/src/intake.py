@@ -5,13 +5,15 @@ pauses: every route ends the task `completed`. Earlier turns come only from the 
     another agent's envelope                       → humanize its draft fields
     a draft of ≥ 15 words ─┬─ over 20,000 chars    → humanize the first ~3k words, say what was left out
                            └─ otherwise            → humanize
+      (≥ 3 words is enough after an explicit cue, "humanize: <one sentence>"; where the draft is: natural.py)
     a short follow-up, with history ─┬─ an option ("keep my em dashes", "more casual") → re-run on the draft in
                                      │     history (else on my last version), options layered over the last ones;
                                      │     "shorter" works on my last version, capped below its word count
                                      └─ show the changes / patterns / as json → rebuilt in code from the draft
                                            and my last version (no call), else re-run on the draft
     a humanize request with no draft               → the draft in history, else ask to paste it
-    anything else                                  → one scope call (declined, or asked for the draft)
+    anything else                                  → one scope call: declined, asked for the draft, or the draft
+                                                     it copied from the message (checked verbatim in code)
 """
 
 from __future__ import annotations
@@ -26,14 +28,8 @@ import prompts
 import recall
 import render
 import smalltalk
-from inputs import (
-    CUE,
-    MAX_DRAFT_CHARS,
-    MIN_DRAFT_WORDS,
-    Incoming,
-    first_part,
-    word_count,
-)
+from inputs import MAX_DRAFT_CHARS, Incoming, first_part, word_count
+from natural import CUE, has_draft
 
 COMMAND_MAX_WORDS = recall.COMMAND_MAX_WORDS
 CUE_REQUEST_MAX_WORDS = 25
@@ -68,7 +64,7 @@ def plan_turn(incoming: Incoming) -> Plan:
     request, draft = recall.source_of_text(text)
     if incoming.files:
         request, draft = text, prompts.strip_markers("\n\n".join(body.strip() for _, body in incoming.files)).strip()
-    if word_count(draft) >= MIN_DRAFT_WORDS:
+    if has_draft(request, draft):
         draft, cap_notes = within_cap(draft)
         return Plan("humanize", draft=draft, request=request, notes=(*cap_notes, *incoming.notes))
     if word_count(text) <= COMMAND_MAX_WORDS:

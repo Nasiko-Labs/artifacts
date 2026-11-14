@@ -10,6 +10,7 @@ from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from typing import Any
 
+import natural
 from nasiko_trace import bound_traceparent
 
 log = logging.getLogger("translator.llm")
@@ -18,7 +19,7 @@ CALL_TIMEOUT_SECS = 90.0
 TURN_DEADLINE_SECS = 300.0
 MIN_CALL_SECS = 5.0
 MAX_TOKENS = 4_000
-SCOPE_MAX_TOKENS = 20
+SCOPE_MAX_TOKENS = 300
 
 
 class LlmError(RuntimeError):
@@ -69,8 +70,6 @@ def load(raw: str) -> Any:
         return None
 
 
-async def scope(deps: TurnDeps, messages: Sequence[Mapping[str, Any]]) -> str:
-    """"text" or "off_topic"; anything unreadable is treated as off_topic (fail closed)."""
-    parsed = load(await call(deps, messages, SCOPE_MAX_TOKENS))
-    status = parsed.get("status") if isinstance(parsed, dict) else None
-    return "text" if status == "text" else "off_topic"
+async def scope(deps: TurnDeps, messages: Sequence[Mapping[str, Any]]) -> natural.Extraction:
+    """The text (and target) to translate, or off_topic; anything unreadable is off_topic (fail closed)."""
+    return natural.read_extraction(load(await call(deps, messages, SCOPE_MAX_TOKENS)))

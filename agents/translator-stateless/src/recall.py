@@ -17,6 +17,7 @@ from dataclasses import replace
 
 import followup
 import languages
+import natural
 import prompts
 import request
 import smalltalk
@@ -60,6 +61,9 @@ def step(stored: Job | None, raw: str, was_text: bool = True) -> Job | None:
     follow = followup.parse(text, stored)
     if follow is not None:
         return follow.job if follow.job is not None else stored
+    spoken = natural.parse(text)
+    if spoken is not None:
+        return request.apply_instruction(replace(carry(stored), source=spoken[1]), spoken[0])
     if instruction:
         return request.apply_instruction(carry(stored), instruction)
     found = languages.from_answer(body)  # an answer to "which language?"

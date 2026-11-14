@@ -9,6 +9,8 @@ use crate::languages;
 pub const HINT: &str = "Say \"more formal\", \"now in French\", \"show the original\".";
 pub const REVIEW: &str = "A person should review this before it is used.";
 pub const MAX_FOOTER_NOTES: usize = 4;
+/// A phrase: one note at most, so the translation leads and is not drowned.
+pub const SHORT_TRANSLATION_CHARS: usize = 80;
 
 pub fn fenced_json(data: &Map<String, Value>) -> String {
     let body = serde_json::to_string_pretty(data).unwrap_or_else(|_| "{}".into());
@@ -57,10 +59,12 @@ pub fn footer(envelope: &Map<String, Value>) -> String {
         text(envelope, "register"),
         languages::name_for(&text(envelope, "source_language"))
     );
+    let short = crate::util::char_len(&text(envelope, "translation")) <= SHORT_TRANSLATION_CHARS;
+    let cap = if short { 1 } else { MAX_FOOTER_NOTES };
     let notes: Vec<String> = envelope
         .get("notes")
         .and_then(Value::as_array)
-        .map(|n| n.iter().take(MAX_FOOTER_NOTES).map(note).collect())
+        .map(|n| n.iter().take(cap).map(note).collect())
         .unwrap_or_default();
     let mut pieces = vec![head];
     if !notes.is_empty() {

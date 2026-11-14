@@ -9,6 +9,8 @@
 //!                         +- otherwise          -> summarize
 //! re-render command ("only the action items")   -> rebuilt from the last summary reply (no call), else
 //!                                                  summarize the source in history, else ask for a re-paste
+//! an explicit cue ("summarize this: ...", "tl;dr ...", "<text>\n\nsummarize") lowers the bar to 15 words;
+//! a cue with fewer words of text (not a question) -> "short enough to read as is", text quoted back (no call)
 //! "summarize this" with no text                 -> the last summary reply, else the source in history,
 //!                                                  else ask to paste it
 //! a question                                    -> one quote-checked call over the source in history, else
@@ -23,8 +25,8 @@ use regex::Regex;
 use crate::chunking::SINGLE_PASS_MAX_CHARS;
 use crate::followup;
 use crate::inputs::{
-    Incoming, MAX_SOURCE_CHARS, MIN_SOURCE_WORDS, assemble_source, split_request, truncate_source,
-    word_count,
+    Incoming, MAX_SOURCE_CHARS, MIN_SOURCE_WORDS, assemble_source, find_cue, min_source_words,
+    split_request, truncate_source, word_count,
 };
 use crate::prompts;
 use crate::recall;
@@ -94,9 +96,11 @@ pub fn plan_turn(incoming: &Incoming) -> Plan {
     if let Some(canned) = canned {
         return Plan::reply(&canned, &incoming.notes);
     }
-    let (instruction, pasted) = split_request(&incoming.text);
+    let cue = find_cue(&incoming.text);
+    let cued = cue.is_some();
+    let (instruction, pasted) = cue.unwrap_or_else(|| split_request(&incoming.text));
     let source = prompts::strip_markers(&assemble_source(&pasted, &incoming.files));
-    if word_count(&source) >= MIN_SOURCE_WORDS {
+    if word_count(&source) >= min_source_words(cued) {
         return new_source(
             source,
             &prompts::strip_markers(&instruction),
@@ -105,6 +109,10 @@ pub fn plan_turn(incoming: &Incoming) -> Plan {
     }
     if let Some(command) = followup::parse_command(&incoming.text) {
         return view(incoming, command, REPASTE);
+    }
+    if cued && !followup::is_question_like(&instruction) {
+        let text = smalltalk::short_enough(&prompts::strip_markers(&pasted));
+        return Plan::reply(&text, &incoming.notes);
     }
     let short = word_count(&incoming.text) <= SHORT_REQUEST_MAX_WORDS;
     if followup::is_summarize_request(&incoming.text) && short {

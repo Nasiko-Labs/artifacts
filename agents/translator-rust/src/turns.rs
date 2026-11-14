@@ -18,6 +18,7 @@ use crate::inputs::Incoming;
 use crate::intake::{self, Plan};
 use crate::languages;
 use crate::llm::{self, LlmError, TurnDeps};
+use crate::natural::{self, Extraction};
 use crate::prompts;
 use crate::render;
 use crate::request::Job;
@@ -63,26 +64,26 @@ pub async fn turn(incoming: &Incoming, deps: &TurnDeps) -> TurnResult {
     }
 }
 
-/// One intake call decides whether a bare message is text to translate; anything unreadable after one
-/// retry is declined (fail closed).
+/// One intake call extracts the text (and language) to translate from a bare message, or declines it;
+/// anything unreadable after one retry is declined (fail closed).
 async fn scope_check(deps: &TurnDeps, job: Job, incoming: &Incoming) -> Result<Plan, TurnResult> {
     let messages = prompts::scope_messages(&job.source, &incoming.context);
-    let mut status = None;
+    let mut extraction = None;
     for _ in 0..2 {
         let raw = deps
             .call(&messages, llm::SCOPE_MAX_TOKENS)
             .await
             .map_err(|e| failed(&e))?;
-        status = llm::load(&raw)
-            .and_then(|v| v.get("status").and_then(Value::as_str).map(str::to_string))
-            .filter(|s| s == "text" || s == "off_topic");
-        if status.is_some() {
+        extraction = natural::read_extraction(llm::load(&raw).as_ref());
+        if extraction.is_some() {
             break;
         }
     }
-    if status.as_deref() != Some("text") {
+    let Some(Extraction::Translate { text, target }) = extraction else {
         return Err(TurnResult::reply(&smalltalk::OFF_TOPIC_REPLY));
-    }
+    };
+    let message = job.source.clone();
+    let job = intake::from_extraction(job, &message, &text, &target);
     Ok(intake::next_step(job, incoming, false))
 }
 

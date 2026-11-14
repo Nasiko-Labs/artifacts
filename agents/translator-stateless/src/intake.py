@@ -4,13 +4,15 @@ block (`recall.replay`).
 
     greeting / small talk                         -> canned intro (no call)
     instruction + text, or an envelope            -> translate (over the cap: the first part, said so)
+    a natural request ("how do you say X in German") -> translate (`natural.parse`, no call)
     short follow-up on the last job               -> original (no call) or re-translate / json (one run)
       ... whose text was trimmed from the history -> translate the last translation into the new language
                                                      (said so), else ask for a re-paste
     an instruction with no text                   -> reply: paste the text (completed)
     text with no target language                  -> reply: which language? (completed; the answer works
                                                      from the history)
-    anything else                                 -> one scope call: text to translate, or declined
+    anything else                                 -> one scope call: the text (and language) to translate,
+                                                     or declined
 """
 
 from __future__ import annotations
@@ -20,6 +22,7 @@ from dataclasses import dataclass, replace
 
 import followup
 import languages
+import natural
 import prompts
 import recall
 import render
@@ -55,9 +58,23 @@ def plan_turn(incoming: Incoming) -> Plan:
     follow = followup.parse(text, stored)
     if follow is not None:
         return _follow_up(follow, stored, incoming)
+    spoken = natural.parse(text)  # "how do you say thank you in German", "translate I am hungry into spanish"
+    if spoken is not None:
+        return next_step(request.apply_instruction(replace(base, source=spoken[1]), spoken[0]), incoming)
     if instruction:  # a cue with no text
         return next_step(request.apply_instruction(base, instruction), incoming)
     return Plan("scope", job=replace(base, source=body))
+
+
+def from_extraction(job: Job, message: str, extraction: natural.Extraction) -> Job:
+    """The scope call's extraction applied to `job`: the checked text, and the named target (a name that is
+    not a known language clears the target and is reported as unknown)."""
+    source, target, unknown = natural.checked_extraction(extraction, message)
+    if target is not None:
+        return replace(job, source=source, target=target.language.code, target_note=target.note, unknown="")
+    if unknown:
+        return replace(job, source=source, target="", target_note="", unknown=unknown)
+    return replace(job, source=source)
 
 
 def _follow_up(follow: followup.FollowUp, stored: Job | None, incoming: Incoming) -> Plan:

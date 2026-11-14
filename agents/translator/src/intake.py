@@ -2,9 +2,11 @@
 
     greeting / small talk                              → canned intro (no call)
     instruction + text, or an envelope                 → translate (or pause: no language, too big)
+    a natural request ("how do you say X in German")   → translate (`natural.parse`, no call)
     short follow-up on the stored translation          → original / json (no call) or re-translate
     an instruction with no text                        → pause: paste the text
-    anything else                                      → one scope call: text to translate, or declined
+    anything else                                      → one scope call: the text (and language) to translate,
+                                                         or declined
 """
 
 from __future__ import annotations
@@ -14,6 +16,7 @@ from dataclasses import dataclass, replace
 
 import followup
 import hitl
+import natural
 import prompts
 import request
 import smalltalk
@@ -48,9 +51,23 @@ def plan_turn(incoming: Incoming, stored: Job | None) -> Plan:
     if follow is not None:
         job = replace(follow.job, as_json=incoming.as_json) if follow.job else None
         return Plan(follow.action, job=job, as_json=incoming.as_json or follow.action == "json")
+    spoken = natural.parse(text)  # "how do you say thank you in German", "translate I am hungry into spanish"
+    if spoken is not None:
+        return next_step(request.apply_instruction(replace(base, source=spoken[1]), spoken[0]))
     if instruction:  # a cue with no text
         return next_step(request.apply_instruction(base, instruction))
     return Plan("scope", job=replace(base, source=body))
+
+
+def from_extraction(job: Job, message: str, extraction: natural.Extraction) -> Job:
+    """The scope call's extraction applied to `job`: the checked text, and the named target (a name that is
+    not a known language clears the target and is reported as unknown)."""
+    source, target, unknown = natural.checked_extraction(extraction, message)
+    if target is not None:
+        return replace(job, source=source, target=target.language.code, target_note=target.note, unknown="")
+    if unknown:
+        return replace(job, source=source, target="", target_note="", unknown=unknown)
+    return replace(job, source=source)
 
 
 def carry(stored: Job | None, as_json: bool) -> Job:

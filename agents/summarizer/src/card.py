@@ -4,7 +4,7 @@ The description carries the distinction from other agents: workflow generation s
 and description."""
 
 AGENT_NAME = "summarizer"
-AGENT_VERSION = "1.0.0"
+AGENT_VERSION = "1.0.1"
 AGENT_DESCRIPTION = (
     "Summarizes long text you paste into the chat (a meeting transcript, an email thread, a chat "
     "export, a document, another agent's output) into a short TL;DR, the decisions it records and the "
@@ -24,7 +24,8 @@ SKILL_DESCRIPTION = (
 )
 SKILL_TAGS = ["summary", "tl;dr", "meeting notes", "transcript", "decisions", "action items", "owners"]
 SKILL_EXAMPLES = [
-    "Summarize this call: <paste the transcript>",
+    "Can you summarize this for me? <paste the transcript>",
     "TL;DR of this thread, focus on pricing: <paste the thread>",
+    "What are the action items here? <paste the notes>",
     "Only the action items, with sources.",
 ]

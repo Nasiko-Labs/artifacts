@@ -88,8 +88,8 @@ stateless Rust builds (single static binary, image from `scratch`).
 | formatter-rust | 1.0.0 | Formats structured output (a JSON envelope from another agent, or any JSON) as Markdown, Slack Block Kit block |
 | formatter-stateless | 1.0.0 | Formats structured output (a JSON envelope from another agent, or any JSON) as Markdown, Slack Block Kit block |
 | hiring-loop-agent | 1.0.0 | Prepares a hiring debrief for ONE candidate: it gathers the interviewers' written feedback (pasted scorecards, |
-| humanizer | 1.0.1 | Takes a draft you paste (an email, a message, a memo, a post, or another agent's draft) and returns the same d |
-| humanizer-stateless | 1.0.0 | Takes a draft you paste (an email, a message, a memo, a post, or another agent's draft) and returns the same d |
+| humanizer | 1.0.2 | Takes a draft you paste (an email, a message, a memo, a post, or another agent's draft) and returns the same d |
+| humanizer-stateless | 1.0.1 | Takes a draft you paste (an email, a message, a memo, a post, or another agent's draft) and returns the same d |
 | iac-cost-gate | 1.0.0 | Estimates the monthly AWS cost of Terraform HCL, a terraform show -json plan or a CloudFormation template you  |
 | idle-resource-reaper | 1.0.0 | Reviews a cloud resource inventory you paste (CSV, or the JSON of the standard describe commands for volumes,  |
 | inbox-to-linear | 1.0.0 | Scans your recent inbox (last 3 days by default, 1 to 14 if you ask) for emails that are really work requests: |
@@ -167,9 +167,9 @@ stateless Rust builds (single static binary, image from `scratch`).
 | standup-generator | 1.0.0 | Builds a team standup you can copy: for the people you name (or everyone active in the repositories you name,  |
 | status-report-reality-check | 1.0.0 | Checks a status report against a ticket export, both pasted into the chat, and lists where the reported status |
 | story-splitter | 1.0.0 | Splits an epic you paste into the chat into thin vertical user stories (as a / I want / so that), each with 2- |
-| summarizer | 1.0.0 | Summarizes long text you paste into the chat (a meeting transcript, an email thread, a chat export, a document |
-| summarizer-rust | 1.0.0 | Summarizes long text you paste into the chat (a meeting transcript, an email thread, a chat export, a document |
-| summarizer-stateless | 1.0.0 | Summarizes long text you paste into the chat (a meeting transcript, an email thread, a chat export, a document |
+| summarizer | 1.0.1 | Summarizes long text you paste into the chat (a meeting transcript, an email thread, a chat export, a document |
+| summarizer-rust | 1.0.1 | Summarizes long text you paste into the chat (a meeting transcript, an email thread, a chat export, a document |
+| summarizer-stateless | 1.0.1 | Summarizes long text you paste into the chat (a meeting transcript, an email thread, a chat export, a document |
 | support-digest | 1.0.0 | Builds a support digest for a period (default the last 7 days) from your support desk: ticket volume with day- |
 | task-breakdown | 1.0.1 | Turns a goal, spec or messy brief you type or paste into a structured work plan: 3-6 phases named by outcome,  |
 | task-breakdown-rust | 1.0.0 | Turns a goal, spec or messy brief you type or paste into a structured work plan: 3-6 phases named by outcome,  |
@@ -182,9 +182,9 @@ stateless Rust builds (single static binary, image from `scratch`).
 | ticket-triager | 1.0.2 | Triages a batch of support tickets you paste into the chat (a CSV export, a JSON array, or blocks like 'Ticket |
 | ticket-triager-stateless | 1.0.1 | Triages a batch of support tickets you paste into the chat (a CSV export, a JSON array, or blocks like 'Ticket |
 | token-spend-analyzer | 1.0.0 | Analyzes an AI/LLM usage or spend export you paste into the chat: an OpenAI or Anthropic usage CSV, LiteLLM-st |
-| translator | 1.0.0 | Translates text you paste into about 40 target languages (Spanish, French, German, Portuguese, Japanese, Chine |
-| translator-rust | 1.0.0 | Translates text you paste into about 40 target languages (Spanish, French, German, Portuguese, Japanese, Chine |
-| translator-stateless | 1.0.0 | Translates text you paste into about 40 target languages (Spanish, French, German, Portuguese, Japanese, Chine |
+| translator | 1.0.1 | Translates text you paste into about 40 target languages (Spanish, French, German, Portuguese, Japanese, Chine |
+| translator-rust | 1.0.1 | Translates text you paste into about 40 target languages (Spanish, French, German, Portuguese, Japanese, Chine |
+| translator-stateless | 1.0.1 | Translates text you paste into about 40 target languages (Spanish, French, German, Portuguese, Japanese, Chine |
 | variance-narrator | 1.0.0 | Writes the budget-versus-actual variance explanation finance asks for, from a table you paste into the chat (s |
 | waiting-on-chaser | 1.0.0 | Finds what YOU asked other people for in your own sent email and chat over the last 14 days (3 to 30 if you as |
 | weekly-leadership-rollup | 1.0.0 | Builds a cross-team weekly status rollup a leader can read in two minutes: for each tracker team you can see ( |

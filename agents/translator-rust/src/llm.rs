@@ -22,7 +22,7 @@ pub const MIN_CALL_TIME: Duration = Duration::from_secs(5);
 /// Safety cap: the scope check and its retry, then up to 20 chunks each with one repair.
 pub const MAX_CALLS_PER_TURN: usize = 42;
 pub const MAX_TOKENS: u32 = 4_000;
-pub const SCOPE_MAX_TOKENS: u32 = 20;
+pub const SCOPE_MAX_TOKENS: u32 = 300;
 
 /// Why a call did not produce an answer. Only `Transport` means the model could not be reached.
 #[derive(Debug, Clone, PartialEq, Eq)]

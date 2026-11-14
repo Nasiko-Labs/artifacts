@@ -4,7 +4,7 @@ The description carries the distinction from other agents: workflow generation s
 and description."""
 
 AGENT_NAME = "translator-stateless"
-AGENT_VERSION = "1.0.0"
+AGENT_VERSION = "1.0.1"
 AGENT_DESCRIPTION = (
     "Translates text you paste into about 40 target languages (Spanish, French, German, Portuguese, "
     "Japanese, Chinese, Hindi and more) at a formal, neutral or casual register, and returns the "
@@ -29,6 +29,6 @@ SKILL_DESCRIPTION = (
 SKILL_TAGS = ["translation", "translate", "localization", "languages", "formal", "casual", "glossary"]
 SKILL_EXAMPLES = [
     "Translate to Spanish, formal: <paste the text>",
-    "Translate this into Japanese: <paste the text>",
+    "How do you say 'thank you' in Japanese?",
     "Now in French, more casual",
 ]

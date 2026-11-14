@@ -25,6 +25,7 @@ import render
 import rewrite
 import smalltalk
 from inputs import Incoming
+from natural import verbatim_draft
 from outcome import MODEL_FAILED, OFF_TOPIC, Outcome
 
 
@@ -122,7 +123,14 @@ async def _classify(scope: _Scope) -> dict:
         answer = await llm.call_json(scope.deps, scope.budget, prompts.classify_messages(scope.plan.request))
     except llm.LlmError:
         return {"reply": prompts.MODEL_FAILED}
-    status = answer.data.get("status") if isinstance(answer.data, dict) else None
+    data = answer.data if isinstance(answer.data, dict) else {}
+    status = data.get("status")
+    if status == "has_draft":
+        found = verbatim_draft(scope.plan.request, data.get("draft"))
+        if found is not None:   # copied from the message: humanize it, the rest of the message is the request
+            parsed = opts.parse(found[0])
+            return await _free(scope, found[1], parsed.options, parsed.as_json)
+        status = "needs_draft"  # not in the message, or too short: never edit text the user did not send
     if status != "needs_draft":  # fail closed: anything unclear is declined
         return {"reply": _join(smalltalk.OFF_TOPIC_REPLY, scope.plan.notes)}
     if recall.memory(scope.incoming.history).has_any:
