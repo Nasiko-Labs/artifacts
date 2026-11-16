@@ -20,7 +20,7 @@ from langgraph.graph import END, START, StateGraph
 
 import envelope as env
 import inputs as i
-import mcp_tools
+import mcp_loop
 import prompts
 import render
 import smalltalk
@@ -43,6 +43,8 @@ class ReplyState(TypedDict, total=False):
     out: str                   # this turn
     data: dict | None          # this turn's envelope
     pending: dict | None       # this turn: the pause to raise, if any
+    mcp_pause: dict | None      # this turn: an MCP tool pause (auth-required), if any
+    mcp_hitl: dict | None       # this turn: that pause's status-message metadata
     route: str                 # this turn
 
 
@@ -52,6 +54,9 @@ class TurnResult:
     pending: Pending | None = None
     hitl: dict | None = None
     data: dict | None = None
+    # An MCP tool pause: the task goes to A2A auth-required (not input-required)
+    # and `auth_pause` is its task metadata. `hitl` carries the status message.
+    auth_pause: dict | None = None
 
 
 class ReplyDrafterAgent:
@@ -64,8 +69,11 @@ class ReplyDrafterAgent:
             return TurnResult(canned)
         scope = _Scope(deps, request)
         graph = _build_graph(scope).compile(checkpointer=self._checkpointer)
-        fresh = {"out": "", "data": None, "pending": None, "route": ""}
+        fresh = {"out": "", "data": None, "pending": None, "mcp_pause": None, "mcp_hitl": None, "route": ""}
         final = await graph.ainvoke(fresh, {"configurable": {"thread_id": context_id}}, durability="exit")
+        mcp_pause = final.get("mcp_pause")
+        if mcp_pause is not None:  # an attached tool needs approval / sign-in: pause into auth-required
+            return TurnResult(final.get("out") or "", hitl=final.get("mcp_hitl"), auth_pause=mcp_pause)
         pending = Pending.from_metadata(final.get("pending"))
         if pending is None:
             return TurnResult(final.get("out") or prompts.COULD_NOT_DRAFT, data=final.get("data"))
@@ -128,9 +136,13 @@ async def _compose(scope: _Scope) -> dict:
     job = plan.job
     result = await compose(scope.deps, scope.budget, job)
     if result.status == "off_topic":
-        # Not a reply-drafting request: try the operator's attached MCP tools, else a generic reply.
-        out = await mcp_tools.offer_or_decline(scope.deps, request.text, smalltalk.INTRO)
-        return {"out": out}
+        # Not a reply-drafting request: try the operator's attached MCP tools. A tool that fits runs
+        # and answers; one that needs approval / sign-in pauses into auth-required (resumed after the
+        # human acts); nothing fitting -> a generic reply.
+        outcome = await mcp_loop.start(scope.deps, request.text, smalltalk.INTRO)
+        if outcome.kind == "auth_required":
+            return {"out": outcome.text, "mcp_pause": outcome.task_metadata, "mcp_hitl": outcome.hitl}
+        return {"out": outcome.text}
     if result.status == "needs_info":
         if job.incoming is None and job.current is None:
             return _pause(request, "incoming")

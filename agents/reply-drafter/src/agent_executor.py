@@ -25,6 +25,7 @@ from opentelemetry import context as otel_context
 from opentelemetry import trace
 from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
 
+import mcp_loop
 import questions
 from graph import ReplyDrafterAgent, TurnResult
 from inputs import Request, current_message
@@ -111,7 +112,14 @@ class ReplyDrafterExecutor(AgentExecutor):
 
     async def _run(self, stored, context: RequestContext, context_id: str, deps: TurnDeps) -> TurnResult:
         text = current_message(user_text(context))
-        if stored is not None and stored.status.state == TaskState.TASK_STATE_INPUT_REQUIRED:
+        stored_state = stored.status.state if stored is not None else None
+        if stored_state == TaskState.TASK_STATE_AUTH_REQUIRED:
+            # An MCP tool pause: the human approved / signed in (or rejected) at the platform card.
+            # Retry the pending call and continue the tool loop. Metadata round-trips as a Struct.
+            metadata = MessageToDict(stored.metadata) if stored is not None and stored.metadata else {}
+            outcome = await mcp_loop.resume(deps, metadata, text)
+            return _outcome_to_result(outcome)
+        if stored_state == TaskState.TASK_STATE_INPUT_REQUIRED:
             # The paused task's metadata round-trips as a protobuf Struct.
             pending = questions.Pending.from_metadata(MessageToDict(stored.metadata))
             if pending is None:  # fail closed: never guess what was asked
@@ -129,8 +137,22 @@ class ReplyDrafterExecutor(AgentExecutor):
             await TaskUpdater(event_queue, task.id, task.context_id).cancel()
 
 
+def _outcome_to_result(outcome: mcp_loop.Outcome) -> TurnResult:
+    if outcome.kind == "auth_required":
+        return TurnResult(outcome.text, hitl=outcome.hitl, auth_pause=outcome.task_metadata)
+    return TurnResult(outcome.text)
+
+
 async def _apply(updater: TaskUpdater, result: TurnResult) -> None:
     text = [new_text_part(result.reply)]
+    if result.auth_pause is not None:
+        # An attached MCP tool needs approval / sign-in. Pause into auth-required: the platform
+        # shows its card ({auth_kind, hitl_request_id} on the status message) and resumes this task
+        # when the human acts. The loop state is kept on the task metadata.
+        await updater.update_status(TaskState.TASK_STATE_AUTH_REQUIRED,
+                                    message=updater.new_agent_message(text, metadata=result.hitl),
+                                    metadata=result.auth_pause)
+        return
     if result.pending is None:
         parts = [*text, new_data_part(result.data)] if result.data else text
         await updater.add_artifact(parts, name="reply")
