@@ -32,7 +32,7 @@ _TASK_ID = re.compile(r"\bT\d+\b")
 
 @dataclass(frozen=True)
 class Route:
-    kind: str                           # reply | pause | plan | revise | query | loaded
+    kind: str                           # reply | pause | plan | revise | query | loaded | offer_tools
     reply: str = ""
     pending: hitl.Pending | None = None
     brief: Brief | None = None
@@ -59,7 +59,9 @@ def plan_turn(incoming: Incoming, stored: Plan | None) -> Route:
         return Route("revise", plan=plan, instruction=rest) if meaningful else Route("loaded", plan=plan)
     command = queries.parse(text)
     if command and command.kind == "tracker":
-        return Route("reply", prompts.TRACKER)
+        # "file this in Jira/Linear/…": the agent itself drafts only, but if the operator has
+        # attached a tool that can do it, use it; otherwise a generic "connect a tool" reply.
+        return Route("offer_tools")
     if stored is not None and not is_new_goal(text):
         return Route("query", command=command, plan=stored) if command else \
             Route("revise", plan=stored, instruction=text)

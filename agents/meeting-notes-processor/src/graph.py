@@ -21,6 +21,7 @@ import envelope
 import followup
 import hitl
 import intake
+import mcp_tools
 import process
 import prompts
 import render
@@ -138,7 +139,11 @@ async def _process(state: MeetingState, scope: _Scope) -> dict:
     people = attendees(parsed.turns)
     outcome = await process.run(scope.deps, parsed.turns, [a.name for a in people], plan.instruction,
                                 scope.incoming.context)
-    fixed = {"off_topic": smalltalk.OFF_TOPIC_REPLY, "not_meeting": prompts.NOT_MEETING,
+    if outcome.status == "off_topic":
+        # Not a meeting to process: try the operator's attached MCP tools, else a generic reply.
+        reply = await mcp_tools.offer_or_decline(scope.deps, scope.incoming.text, smalltalk.INTRO)
+        return {"reply": _with_notes(reply, plan.notes)}
+    fixed = {"not_meeting": prompts.NOT_MEETING,
              "failed": prompts.MODEL_FAILED}.get(outcome.status)
     if fixed is not None:  # the stored meeting, if any, is kept
         return {"reply": _with_notes(fixed, plan.notes)}

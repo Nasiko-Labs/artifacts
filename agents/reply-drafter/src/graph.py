@@ -20,6 +20,7 @@ from langgraph.graph import END, START, StateGraph
 
 import envelope as env
 import inputs as i
+import mcp_tools
 import prompts
 import render
 import smalltalk
@@ -127,7 +128,9 @@ async def _compose(scope: _Scope) -> dict:
     job = plan.job
     result = await compose(scope.deps, scope.budget, job)
     if result.status == "off_topic":
-        return {"out": smalltalk.OFF_TOPIC_REPLY}
+        # Not a reply-drafting request: try the operator's attached MCP tools, else a generic reply.
+        out = await mcp_tools.offer_or_decline(scope.deps, request.text, smalltalk.INTRO)
+        return {"out": out}
     if result.status == "needs_info":
         if job.incoming is None and job.current is None:
             return _pause(request, "incoming")

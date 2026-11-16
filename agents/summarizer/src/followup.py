@@ -10,6 +10,7 @@ from typing import Any
 import checks
 import grounding as g
 import llm
+import mcp_tools
 import prompts
 import smalltalk
 from items import Item
@@ -76,7 +77,8 @@ async def ask(deps: llm.TurnDeps, question: str, source: str, pool: Sequence[Ite
     except llm.LlmError:
         return prompts.MODEL_FAILED
     if parsed["status"] == "off_topic":
-        return smalltalk.OFF_TOPIC_REPLY
+        # Out of scope: try the operator's attached MCP tools, else a generic reply.
+        return await mcp_tools.offer_or_decline(deps, question, smalltalk.INTRO)
     if not source:
         return smalltalk.NO_TEXT_YET
     return answer_text(parsed, source)

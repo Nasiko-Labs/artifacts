@@ -11,6 +11,7 @@ import checks
 import chunking
 import grounding as g
 import llm
+import mcp_tools
 import prompts
 import smalltalk
 from items import Result, Turn
@@ -81,7 +82,8 @@ async def ask(deps: llm.TurnDeps, question: str, turns: Sequence[Turn], result: 
     except llm.LlmError:
         return prompts.MODEL_FAILED
     if parsed["status"] == "off_topic":
-        return smalltalk.OFF_TOPIC_REPLY
+        # Out of scope: try the operator's attached MCP tools, else a generic reply.
+        return await mcp_tools.offer_or_decline(deps, question, smalltalk.INTRO)
     if not turns:
         return smalltalk.NO_TEXT_YET
     return answer_text(parsed, turns)

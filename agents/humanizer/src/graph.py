@@ -21,6 +21,7 @@ import envelope
 import hitl
 import intake
 import llm
+import mcp_tools
 import options as opts
 import prompts
 import render
@@ -170,8 +171,9 @@ async def _classify(state: HumanizerState, scope: _Scope) -> dict:
             parsed = opts.parse(found[0])
             return await _free(scope, found[1], parsed.options, parsed.as_json)
         status = "needs_draft"  # not in the message, or too short: never edit text the user did not send
-    if status != "needs_draft":  # fail closed: anything unclear is declined
-        return {"reply": _join(smalltalk.OFF_TOPIC_REPLY, scope.plan.notes)}
+    if status != "needs_draft":  # not a humanizing request: try attached MCP tools, else a generic reply
+        reply = await mcp_tools.offer_or_decline(scope.deps, scope.plan.request, smalltalk.INTRO)
+        return {"reply": _join(reply, scope.plan.notes)}
     if state.get("outcome") or state.get("fields"):
         return {"reply": prompts.FOLLOWUP_HELP}
     return {"pause": hitl.need_draft(scope.plan.request).to_metadata()}

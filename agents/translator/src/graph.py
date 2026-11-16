@@ -23,6 +23,7 @@ import hitl
 import intake
 import languages
 import llm
+import mcp_tools
 import prompts
 import render
 import segments as segs
@@ -134,7 +135,9 @@ async def _scope_check(scope: _Scope) -> dict:
     except llm.LlmError:
         return {"route": "", "reply": prompts.MODEL_FAILED}
     if extraction.status != "translate":
-        return {"route": "", "reply": smalltalk.OFF_TOPIC_REPLY}
+        # Not a translation request: try the operator's attached MCP tools, else a generic reply.
+        reply = await mcp_tools.offer_or_decline(scope.deps, scope.incoming.text, smalltalk.INTRO)
+        return {"route": "", "reply": reply}
     plan = intake.next_step(intake.from_extraction(scope.plan.job, message, extraction))
     scope.plan = plan
     if plan.route == "pause":

@@ -63,7 +63,7 @@ class BreakdownAgent:
 
 def _build_graph(scope: turns.Scope) -> StateGraph:
     async def intake_node(state: BreakdownState) -> dict:
-        return turns.intake(state, scope)
+        return await turns.intake(state, scope)
 
     async def plan_node(state: BreakdownState) -> dict:
         return await turns.plan(state, scope)

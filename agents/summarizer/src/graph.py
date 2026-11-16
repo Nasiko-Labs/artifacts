@@ -20,6 +20,7 @@ from langgraph.graph import END, START, StateGraph
 import followup
 import hitl
 import intake
+import mcp_tools
 import prompts
 import render
 import smalltalk
@@ -114,7 +115,11 @@ async def _summarize(state: SummaryState, scope: _Scope) -> dict:
     if not scope.deps.traceparent:
         return {"reply": prompts.NO_TRACE_CONTEXT}
     result = await summarize_step.summarize(scope.deps, plan.source, plan.instruction, scope.incoming.context)
-    fixed = {"off_topic": smalltalk.OFF_TOPIC_REPLY, "not_summarizable": prompts.NOT_SUMMARIZABLE,
+    if result.status == "off_topic":
+        # Not something to summarize: try the operator's attached MCP tools, else a generic reply.
+        reply = await mcp_tools.offer_or_decline(scope.deps, scope.incoming.text, smalltalk.INTRO)
+        return {"reply": _with_notes(reply, plan.notes)}
+    fixed = {"not_summarizable": prompts.NOT_SUMMARIZABLE,
              "failed": prompts.MODEL_FAILED}.get(result.status)
     if fixed is not None:  # the stored summary, if any, is kept
         return {"reply": _with_notes(fixed, plan.notes)}

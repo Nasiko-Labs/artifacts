@@ -5,6 +5,7 @@ from __future__ import annotations
 import answers
 import envelope
 import intake as intake_mod
+import mcp_tools
 import planning
 import prompts
 import queries
@@ -26,11 +27,16 @@ class Scope:
         self.outcome: planning.Outcome | None = None
 
 
-def intake(state: dict, scope: Scope) -> dict:
+async def intake(state: dict, scope: Scope) -> dict:
     route = scope.forced or intake_mod.plan_turn(scope.incoming, Plan.from_state(state.get("plan")))
     scope.route = route
     if route.kind == "pause":
         return {"route": "", "pause": route.pending.to_metadata()}
+    if route.kind == "offer_tools":
+        # A request this agent does not plan (e.g. "file these in the tracker"): try whatever MCP
+        # tools the operator attached, otherwise a generic "connect a tool" reply.
+        reply = await mcp_tools.offer_or_decline(scope.deps, scope.incoming.text, smalltalk.INTRO)
+        return {"route": "", "reply": reply}
     if route.kind == "reply":
         return {"route": "", "reply": route.reply}
     if route.kind == "loaded":
@@ -44,21 +50,23 @@ def intake(state: dict, scope: Scope) -> dict:
 async def plan(state: dict, scope: Scope) -> dict:
     route = scope.route
     scope.outcome = await planning.new_plan(scope.deps, route.brief, scope.incoming.policy, route.vague_used)
-    return _status_reply(scope, may_pause=not route.vague_used)
+    return await _status_reply(scope, may_pause=not route.vague_used)
 
 
 async def revise(state: dict, scope: Scope) -> dict:
     route = scope.route
     scope.outcome = await planning.revise(scope.deps, route.plan, route.instruction, scope.incoming.policy)
-    return _status_reply(scope, may_pause=False)
+    return await _status_reply(scope, may_pause=False)
 
 
-def _status_reply(scope: Scope, may_pause: bool) -> dict:
+async def _status_reply(scope: Scope, may_pause: bool) -> dict:
     status = scope.outcome.status
     if status == "ok":
         return {"route": "render"}
     if status == "off_topic":
-        return {"route": "", "reply": smalltalk.OFF_TOPIC_REPLY}
+        # Out of this agent's scope: try the operator's attached MCP tools, else a generic reply.
+        reply = await mcp_tools.offer_or_decline(scope.deps, scope.incoming.text, smalltalk.INTRO)
+        return {"route": "", "reply": reply}
     if status == "needs_info" and may_pause:
         return {"route": "", "pause": intake_mod.need_goal(scope.incoming).to_metadata()}
     if status == "needs_info":
